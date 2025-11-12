@@ -1,294 +1,207 @@
 === Nivo AJAX Search for WooCommerce ===
 Contributors: nazmunsakib
 Donate link: https://nazmunsakib.com/donate
-Tags: product search, woocommerce search, ajax search, live search, autocomplete
+Tags: ajax search, live search, WooCommerce search, product search, instant search
+Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-⚡ The FASTEST & SMARTEST WooCommerce search! AI-powered autocomplete, typo correction, category search & live preview. Boost sales by 40%!
+AJAX product search for WooCommerce with AI-powered typo correction and category search functionality.
 
 == Description ==
 
-🚀 **The most advanced FREE WooCommerce search plugin with professional performance!**
+**Nivo AJAX Search for WooCommerce** provides real-time product search functionality for WooCommerce stores. The plugin includes AI-powered features, modern admin interface, and comprehensive customization options.
 
-**Nivo AJAX Search** delivers lightning-fast, intelligent product search that converts visitors into customers. With AI-powered features, modern React admin, and performance optimization inspired by premium plugins, it's the smartest choice for serious WooCommerce stores.
+= Key Features =
 
-**🎯 BOOST SALES BY 40%** – Better search = higher conversions!
+**Search Functionality:**
+* Real-time AJAX search as you type
+* Search in product titles, SKUs, descriptions, and categories
+* Typo correction with common spelling fixes
+* Synonym support for related terms
+* Relevance-based result ranking
 
-= 🏆 WHY CHOOSE NIVO SEARCH? =
+**User Interface:**
+* React-based admin settings panel
+* Live preview for styling changes
+* Responsive design for mobile devices
+* Customizable colors, borders, and layout
+* Theme compatibility
 
-**vs. Other FREE Plugins:**
-✅ **10x Faster** – Single optimized query (like premium plugins)
-✅ **AI Features** – Typo correction + synonym support  
-✅ **Modern Admin** – React interface with live preview
-✅ **Category Search** – Separate category results
-✅ **15+ Hooks** – Extensive customization
-✅ **Full Featured** – Complete solution in free version
+**Search Scope Options:**
+* Product titles (enabled by default)
+* Product SKUs (enabled by default)
+* Product descriptions (optional)
+* Short descriptions (optional)
+* Product categories (optional)
+* Out of stock product control (optional)
 
-**vs. Premium Plugins:**
-✅ **Same Performance** – Premium-level optimization
-✅ **Better UI** – Modern React admin panel
-✅ **More Features** – AI + categories + live preview
-✅ **Free Core** – Professional features at no cost
-✅ **Open Source** – Full transparency
+**Display Options:**
+* Product thumbnails in results
+* Price information display
+* SKU codes in results
+* Short descriptions
+* Stock status filtering
 
-= ⚡ LIGHTNING PERFORMANCE =
+**Technical Features:**
+* Single optimized database query
+* Debounced input handling
+* Request cancellation for performance
+* 15+ developer hooks and filters
+* Translation ready with .pot file
 
-* **200ms Response** – Faster than most premium plugins
-* **Single Query** – Premium-level optimization
-* **Smart Caching** – Intelligent request handling  
-* **15KB JavaScript** – Lightweight & fast
-* **Mobile Optimized** – Perfect on all devices
+= Integration Options =
 
-= 🤖 AI-POWERED INTELLIGENCE =
+* Shortcode: `[nivo_search]`
+* Gutenberg block: "Nivo Search"
+* Widget support for sidebars
+* PHP function integration
 
-* **Advanced Typo Correction** – 25+ spelling fixes
-* **Synonym Expansion** – "phone" finds "mobile", "smartphone"
-* **Smart Ranking** – Title > SKU > Description priority
-* **Fuzzy Matching** – Finds products with 2+ character differences
-* **Query Understanding** – Enhanced search algorithms
+= AI Features =
 
-= 📂 CATEGORY SEARCH INNOVATION =
+The plugin includes optional AI-powered enhancements:
 
-* **Separate Results** – Categories shown independently 
-* **Clean Organization** – No mixing with products
-* **Product Count** – Shows items per category
-* **Optional Feature** – Enable/disable as needed
-* **Smart Navigation** – Direct category links
+* **Typo Correction**: Automatically corrects common spelling mistakes
+* **Synonym Support**: Expands search terms with related words
+* **Smart Ranking**: Prioritizes results by relevance
 
-= 🎨 PROFESSIONAL INTERFACE =
+These features can be enabled or disabled in the settings.
 
-* **Modern React Admin** – Professional settings experience
-* **Live Style Preview** – See changes in real-time
-* **One-Click Copy** – Shortcode with single click
-* **Responsive Design** – Perfect on all devices
-* **Theme Compatible** – Works with any theme
+= Developer Friendly =
 
-= 🔍 ADVANCED SEARCH SCOPE =
+* PSR-4 autoloading architecture
+* Extensive hook system with 15+ filters and actions
+* Custom JavaScript events
+* Clean, documented code
+* GitHub repository available
 
-**Search Fields:**
-✅ Product Title (enabled by default)
-✅ Product SKU (enabled by default)  
-✅ Product Description (optional)
-✅ Short Description (optional)
-✅ Product Categories (optional)
-✅ Out of Stock Control (optional)
+= Multilingual Support =
 
-**Smart Features:**
-✅ Relevance scoring algorithm
-✅ Intelligent result ranking
-✅ Debounced input (200ms)
-✅ Request cancellation
-✅ Error handling
-
-= 🛍️ ECOMMERCE FOCUSED =
-
-* **Product Images** – Thumbnails in results
-* **Price Display** – Show pricing information
-* **SKU Search** – Find by product codes
-* **Stock Control** – Hide out-of-stock items
-* **Variable Products** – Full variation support
-* **WooCommerce Native** – Deep integration
-
-= 📱 MOBILE FIRST DESIGN =
-
-* **Touch Optimized** – Perfect mobile experience
-* **Responsive Layout** – Adapts to all screens
-* **Fast Loading** – Optimized for mobile networks
-* **Accessibility** – WCAG 2.1 compliant
-* **Keyboard Navigation** – Full keyboard support
-
-= ⚙️ EASY SETUP & USE =
-
-* **5-Minute Setup** – Install and configure quickly
-* **Shortcode Ready** – `[nivo_search]` anywhere
-* **Gutenberg Block** – Drag & drop integration
-* **Widget Support** – Add to sidebars/footers
-* **No Coding** – User-friendly interface
-
-= 🔧 DEVELOPER FRIENDLY =
-
-* **15+ Hooks** – Extensive customization options
-* **Modern Architecture** – PSR-4 autoloading
-* **JavaScript Events** – Custom event system
-* **Clean Code** – Well documented & organized
-* **GitHub Repository** – Open source development
-
-= 🌍 MULTILINGUAL READY =
-
-* **Translation Ready** – Complete .pot file
-* **WPML Compatible** – Full multilingual support
-* **RTL Support** – Right-to-left languages
-* **Unicode Support** – International characters
-
-= 🚀 UNIQUE FEATURES =
-
-**What makes us different:**
-🎯 **Performance** – Single query optimization like premium plugins
-🧠 **AI Features** – Typo correction & synonyms (rare in free plugins)
-📂 **Category Search** – Separate category results (unique approach)
-🎨 **Live Preview** – Real-time style preview (premium feature)
-⚙️ **React Admin** – Modern interface (most use basic HTML)
-🔧 **15+ Hooks** – Extensive customization (others have 2-3)
-
-= 📊 PERFORMANCE COMPARISON =
-
-| Feature | Nivo Search | Other Free | Premium |
-|---------|-------------|------------|---------|
-| Speed | ~200ms | ~800ms | ~200ms |
-| Queries | 1 optimized | 3-5 separate | 1 optimized |
-| AI Features | ✅ | ❌ | ✅ |
-| Live Preview | ✅ | ❌ | ✅ |
-| Category Search | ✅ | ❌ | ✅ |
-| Cost | FREE | FREE | Premium |
-
-= 🎁 BONUS FEATURES =
-
-* **Keyboard Navigation** – Arrow keys & Enter support
-* **Request Cancellation** – Smart AJAX handling
-* **Error Recovery** – Graceful failure handling
-* **Custom CSS** – Advanced styling options
-* **Debug Mode** – Developer tools
+* Translation ready with a complete .pot file
+* WPML compatibility
+* RTL language support
+* Unicode character support
 
 == Installation ==
 
-= 🚀 AUTOMATIC INSTALLATION =
+= Automatic Installation =
 
-1. Go to **Plugins → Add New**
-2. Search **"Nivo AJAX Search for WooCommerce"**
-3. Click **Install Now** → **Activate**
-4. Configure at **WooCommerce → NivoSearch**
-5. Add `[nivo_search]` anywhere!
+1. Go to **Plugins <span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji">→</span></span></span> Add New** in WordPress admin
+2. Search for **"Nivo AJAX Search for WooCommerce"**
+3. Click **Install Now** then **Activate**
+4. Configure settings at **WooCommerce <span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji">→</span></span></span> NivoSearch**
+5. Add search form using shortcode `[nivo_search]`
 
-= ⚙️ QUICK CONFIGURATION =
+= Manual Installation =
 
-1. **General** – Enable AJAX, set limits & delay
-2. **Search Scope** – Choose what to search
-3. **Search Bar** – Customize appearance (live preview)
-4. **Results** – Style search results (live preview)  
-5. **AI Features** – Enable typo correction & synonyms
+1. Download the plugin ZIP file
+2. Go to **Plugins <span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji">→</span></span></span> Add New <span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji">→</span></span></span> Upload Plugin**
+3. Choose the ZIP file and click **Install Now**
+4. Click **Activate Plugin**
+5. Configure at **WooCommerce <span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji">→</span></span></span> NivoSearch**
 
-= 📝 USAGE OPTIONS =
+= Configuration =
 
-**Shortcode:** `[nivo_search]`
-**Gutenberg:** Search "Nivo Search" block
-**PHP:** `<?php echo do_shortcode('[nivo_search]'); ?>`
-**Widget:** Add to any widget area
+After activation, configure the plugin:
+
+1. **General Settings**: Enable AJAX search, set result limits and search delay
+2. **Search Scope**: Choose which fields to search (title, SKU, description, categories)
+3. **Search Bar Styling**: Customize appearance with live preview
+4. **Search Results**: Configure result display options
+5. **AI Features**: Enable typo correction and synonym support
+
+= Usage =
+
+**Shortcode**: `[nivo_search]`
+**Gutenberg Block**: Search for "Nivo Search" in block editor
+**PHP Code**: `<?php echo do_shortcode('[nivo_search]'); ?>`
+**Widget**: Add to any widget area
 
 == Frequently Asked Questions ==
 
-= ❓ How is this different from other free search plugins? =
+= Does this work with my theme? =
 
-**Performance:** We use single optimized queries like premium plugins, while others use multiple slow queries.
+Yes, the plugin works with any WordPress theme. It inherits your theme's styling and can be customized to match your design.
 
-**AI Features:** We include typo correction and synonym support - rare in free plugins.
+= Will it affect my website's performance? =
 
-**Modern Admin:** React-based interface with live preview vs basic HTML forms.
+The plugin is optimized for performance with lightweight JavaScript (15KB), single database queries, and smart request handling.
 
-**Category Search:** Unique separate category results, not mixed with products.
+= Does it work on mobile devices? =
 
-= ❓ Does it work with my theme? =
+Yes, the plugin includes responsive design and touch-optimized interface for mobile devices.
 
-**Yes!** Works with any WordPress theme. Inherits your theme's styling and can be fully customized to match your brand.
+= Can I search by product SKU? =
 
-= ❓ Will it slow down my website? =
+Yes, enable "Search in SKU" in the Search Scope settings to allow customers to find products by SKU code.
 
-**No!** Actually faster than most alternatives:
-– 15KB lightweight JavaScript
-– Single optimized database query
-– Smart request cancellation
-– No jQuery dependency
+= Does it support WooCommerce variations? =
 
-= ❓ How does the AI typo correction work? =
+Yes, the plugin fully supports variable products and searches through all variations.
 
-Uses **Levenshtein distance algorithm** to find matches with up to 2 character differences. Examples:
-– "shose" → "shoes"
-– "labtop" → "laptop"  
-– "jens" → "jeans"
+= How does typo correction work? =
 
-= ❓ Can I search product categories separately? =
+The plugin uses the Levenshtein distance algorithm to find matches even with spelling mistakes. For example: "shose" matches "shoes", "labtop" matches "laptop".
 
-**Yes!** Enable "Search in Categories" and categories appear in a separate section below products, with product counts.
+= Can I customize the appearance? =
 
-= ❓ Does it support WooCommerce variations? =
+Yes, you can customize colors, borders, spacing, and layout through the settings panel with live preview.
 
-**Absolutely!** Full support for variable products and searches through all variations.
+= Is it translation ready? =
 
-= ❓ Is it mobile-friendly? =
+Yes, the plugin includes a complete .pot file for translations and is compatible with WPML for multilingual sites.
 
-**Yes!** Mobile-first design with:
-– Touch-optimized interface
-– Responsive layout
-– Fast mobile loading
-– Accessibility compliance
+= Does it work with caching plugins? =
 
-= ❓ Can I customize the appearance? =
+Yes, the plugin is compatible with major caching plugins including WP Rocket, W3 Total Cache, and WP Super Cache.
 
-**Completely!** With live preview:
-– Colors, borders, spacing
-– Search bar styling
-– Result layout options
-– Custom CSS support
+= How do I get support? =
 
-= ❓ Does it work with caching plugins? =
-
-**Yes!** Compatible with all major caching plugins including WP Rocket, W3 Total Cache, WP Super Cache.
-
-= ❓ How do I get support? =
-
-Free support via:
+Support is available through:
 – [WordPress Support Forum](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
 – [GitHub Issues](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce/issues)
 
 == Screenshots ==
 
-1. **Live search results** – Instant product search with images, prices, and categories
-2. **Modern React admin** – Professional settings interface with live preview
-3. **Mobile responsive** – Perfect experience on all devices
-4. **Category search** – Separate category results with product counts
-5. **Gutenberg block** – Easy drag & drop integration
-6. **Search scope settings** – Control what fields to search
-7. **AI features panel** – Configure typo correction and synonyms
-8. **Live style preview** – See changes in real-time
+1. Live search results showing products with images and prices
+2. React-based admin settings interface with live preview
+3. Mobile responsive search interface
+4. Category search results displayed separately
+5. Gutenberg block integration
+6. Search scope configuration options
+7. AI features settings panel
+8. Live styling preview in admin
 
 == Changelog ==
 
 = 1.0.0 – January 2025 =
 
-🎉 **INITIAL RELEASE** – The most advanced FREE WooCommerce search!
+Initial release with the following features:
 
-**🚀 Performance Features:**
-* Lightning-fast single query optimization (Fibo Search inspired)
-* 200ms average response time
-* Smart request debouncing and cancellation
-* Lightweight 15KB JavaScript (no jQuery)
-* Mobile-optimized performance
+**Core Functionality:**
+* Real-time AJAX search implementation
+* Multi-field search (title, SKU, description, categories)
+* Single optimized database query
+* Debounced input with configurable delay
+* Request cancellation for performance
 
-**🤖 AI-Powered Intelligence:**
-* Advanced typo correction (25+ common fixes)
+**AI Features:**
+* Typo correction with 25+ common fixes
 * Synonym expansion support
-* Smart relevance ranking algorithm
-* Fuzzy search with Levenshtein distance
-* Query understanding enhancement
+* Relevance-based result ranking
+* Fuzzy search with Levenshtein distance algorithm
 
-**📂 Category Search Innovation:**
-* Separate category results section
-* No mixing with product results
-* Category product count display
-* Optional enable/disable control
-* Clean, organized presentation
+**User Interface:**
+* React-based admin settings panel
+* Live preview for styling options
+* Responsive design for all devices
+* Theme compatibility system
+* Customizable colors and layout
 
-**🎨 Modern Interface:**
-* React-based admin panel
-* Live preview for all styling options
-* One-click shortcode copy
-* Professional settings organization
-* Mobile-responsive admin
-
-**🔍 Advanced Search Scope:**
+**Search Options:**
 * Product title search (default: enabled)
 * Product SKU search (default: enabled)
 * Product description search (optional)
@@ -296,79 +209,51 @@ Free support via:
 * Category search (optional)
 * Out of stock control (optional)
 
-**🛍️ WooCommerce Integration:**
-* Full product variation support
-* Stock status filtering
-* Price display in results
-* Product image thumbnails
-* Native WooCommerce compatibility
+**Integration:**
+* Shortcode support with attributes
+* Gutenberg block integration
+* Widget area compatibility
+* PHP function integration
 
-**🔧 Developer Features:**
-* 15+ hooks and filters
+**Developer Features:**
 * PSR-4 autoloading architecture
+* 15+ hooks and filters
 * Custom JavaScript events
 * Translation ready (.pot file)
-* Security hardened (nonce verification)
+* Security hardened with nonce verification
 
-**📱 Frontend Excellence:**
-* Responsive design for all devices
-* Touch-optimized mobile interface
-* Keyboard navigation support
-* WCAG 2.1 accessibility compliance
-* Theme-agnostic styling
-
-**🌍 Compatibility:**
-* WordPress 5.0+ (tested up to 6.8)
-* WooCommerce 5.0+ (latest compatible)
-* PHP 7.4+ (optimized for PHP 8.0+)
+**Technical:**
+* WordPress 5.0+ compatibility (tested up to 6.8)
+* WooCommerce 5.0+ compatibility
+* PHP 7.4+ requirement
 * WPML multilingual support
-* All major caching plugins
-
-**🎁 Bonus Features:**
-* Gutenberg "Nivo Search" block
-* Widget area support
-* Custom CSS injection
-* Error handling and recovery
-* Debug mode for developers
+* Caching plugin compatibility
 
 == Upgrade Notice ==
 
 = 1.0.0 =
-🎉 Welcome to the most advanced FREE WooCommerce search! Install now to boost sales with AI-powered search, category results, and lightning performance!
+Initial release of Nivo AJAX Search for WooCommerce. Install to add real-time product search functionality to your WooCommerce store.
 
 == Additional Info ==
 
-**🏆 ABOUT THE DEVELOPER**
+**About the Developer**
 
-Created by [Nazmun Sakib](https://nazmunsakib.com), WordPress expert with 8+ years building high-performance eCommerce solutions.
+Created by [Nazmun Sakib](https://nazmunsakib.com), a WordPress developer with experience in eCommerce solutions.
 
-**🔗 USEFUL LINKS**
+**Useful Links**
 
 * [GitHub Repository](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce)
-* [Documentation](https://docs.nazmunsakib.com/nivo-search)
 * [Support Forum](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
 
-**🔒 PRIVACY & SECURITY**
+**Privacy**
 
 * No external API calls or data collection
-* All searches processed locally
+* All searches processed locally on your server
 * GDPR compliant by design
 * Security hardened with nonce verification
-* Regular security updates
 
-**💡 FEATURE REQUESTS**
+**Contributing**
 
-Have ideas? We'd love to hear them!
-* [Submit on GitHub](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce/issues)
-* [Community Discussion](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
-
-**⭐ LOVE THE PLUGIN?**
-
-Help others discover it:
-* [Leave a 5-star review](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/reviews/)
-* [Share on social media](https://twitter.com/intent/tweet?text=Just%20boosted%20my%20WooCommerce%20sales%20with%20Nivo%20AJAX%20Search!)
-* [Follow on GitHub](https://github.com/nazmunsakib)
-
-**🚀 READY TO BOOST SALES?**
-
-Install Nivo AJAX Search today and transform your WooCommerce store!
+Feature requests and bug reports welcome:
+* [GitHub Issues](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce/issues)
+* [WordPress Support Forum](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)

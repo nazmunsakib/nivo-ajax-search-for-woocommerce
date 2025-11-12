@@ -1,4 +1,4 @@
-=== Nivo AJAX Search for WooCommerce ===
+=== Live AJAX Search for WooCommerce - NivoSearch ===
 Contributors: nazmunsakib
 Donate link: https://nazmunsakib.com/donate
 Tags: ajax search, live search, WooCommerce search, product search, instant search
@@ -9,11 +9,11 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AJAX product search for WooCommerce with AI-powered typo correction and category search functionality.
+Live AJAX product search for WooCommerce with typo correction and category search functionality.
 
 == Description ==
 
-**Nivo AJAX Search for WooCommerce** provides real-time product search functionality for WooCommerce stores. The plugin includes AI-powered features, modern admin interface, and comprehensive customization options.
+**Live AJAX Search for WooCommerce** provides real-time product search functionality for WooCommerce stores. The plugin includes AI-powered features, modern admin interface, and comprehensive customization options.
 
 = Key Features =
 
@@ -90,7 +90,7 @@ These features can be enabled or disabled in the settings.
 = Automatic Installation =
 
 1. Go to **Plugins <span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji">→</span></span></span> Add New** in WordPress admin
-2. Search for **"Nivo AJAX Search for WooCommerce"**
+2. Search for **"Live AJAX Search for WooCommerce"**
 3. Click **Install Now** then **Activate**
 4. Configure settings at **WooCommerce <span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji"><span aria-hidden="true" class="wp-exclude-emoji">→</span></span></span> NivoSearch**
 5. Add search form using shortcode `[nivo_search]`
@@ -232,7 +232,7 @@ Initial release with the following features:
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial release of Nivo AJAX Search for WooCommerce. Install to add real-time product search functionality to your WooCommerce store.
+Initial release of Live AJAX Search for WooCommerce. Install to add real-time product search functionality to your WooCommerce store.
 
 == Additional Info ==
 

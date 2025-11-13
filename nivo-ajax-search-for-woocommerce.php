@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Live AJAX Search for WooCommerce - NivoSearch
- * Plugin URI: https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce
- * Description: Professional live product search with AJAX functionality for WooCommerce stores
+ * Plugin Name: Ajax Product Search for WooCommerce - NivoSearch
+ * Plugin URI: https://nivosearch.com
+ * Description: The fast, modern WooCommerce product search. Give your customers a beautiful live AJAX search bar with instant product results.
  * Version: 1.0.0
  * Author: Nazmun Sakib
  * Author URI: https://nazmunsakib.com
@@ -40,14 +40,13 @@ define( 'NIVO_SEARCH_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
  * @since 1.0.0
  * @return void
  */
-add_action(
-	'before_woocommerce_init',
-	function() {
-		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-		}
+function before_woocommerce_init_render(){
+	if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
 	}
-);
+}
+add_filter('before_woocommerce_init', 'before_woocommerce_init_render');
+
 
 /**
  * Initialize the plugin
@@ -75,14 +74,13 @@ add_action( 'plugins_loaded', 'nivo_search_init' );
  * @param array $links Plugin action links
  * @return array Modified plugin action links
  */
-add_filter(
-	'plugin_action_links_' . NIVO_SEARCH_PLUGIN_BASENAME,
-	function( $links ) {
-		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=nivo-search-settings' ) ) . '">' . esc_html__( 'Settings', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
-		array_unshift( $links, $settings_link );
-		return $links;
-	}
-);
+function plugin_action_links_render($links){
+	$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=nivo_search-settings' ) ) . '">' . esc_html__( 'Settings', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
+	array_unshift( $links, $settings_link );
+	return $links;
+}
+add_filter('plugin_action_links_' . NIVO_SEARCH_PLUGIN_BASENAME, 'plugin_action_links_render', 10, 2);
+
 
 /**
  * Plugin activation hook
@@ -122,15 +120,11 @@ register_deactivation_hook(
  * @param string $file Plugin file
  * @return array Modified plugin meta links
  */
-add_filter(
-	'plugin_row_meta',
-	function( $links, $file ) {
-		if ( NIVO_SEARCH_PLUGIN_BASENAME === $file ) {
-			$links[] = '<a href="https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce" target="_blank">' . esc_html__( 'Documentation', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
-			$links[] = '<a href="https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce/issues" target="_blank">' . esc_html__( 'Support', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
-		}
-		return $links;
-	},
-	10,
-	2
-);
+
+function plugin_row_meta_render($links, $file){
+	if ( NIVO_SEARCH_PLUGIN_BASENAME === $file ) {
+		$links[] = '<a href="https://nivosearch.com/docs" target="_blank">' . esc_html__( 'Docs', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
+	}
+	return $links;
+}
+add_filter('plugin_row_meta', 'plugin_row_meta_render', 10, 2);

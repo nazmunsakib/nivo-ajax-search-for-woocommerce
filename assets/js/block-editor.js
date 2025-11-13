@@ -12,7 +12,7 @@
     const { createElement: el } = wp.element;
 
     registerBlockType('nivo-search/ajax-search', {
-        title: 'Nivo Search',
+        title: 'AJAX Search',
         icon: 'search',
         category: 'woocommerce',
         description: 'Add an AJAX-powered product search box',
@@ -47,7 +47,7 @@
                         el('path', { d: 'm21 21-4.35-4.35' })
                     ),
                     el('div', {},
-                        el('strong', { style: { color: '#667eea', fontSize: '16px', display: 'block' } }, 'Nivo AJAX Search'),
+                        el('strong', { style: { color: '#667eea', fontSize: '16px', display: 'block' } }, 'AJAX Search'),
                         el('p', { style: { margin: '4px 0 0 0', fontSize: '13px', color: '#666' } }, 'Styling controlled via global settings page')
                     )
                 )

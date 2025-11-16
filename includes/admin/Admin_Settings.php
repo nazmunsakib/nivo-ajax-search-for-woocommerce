@@ -43,7 +43,7 @@ class Admin_Settings {
     public function add_admin_menu() {
         add_submenu_page(
             'woocommerce',
-            __('AJAX Search Settings', 'nivo-ajax-search-for-woocommerce'),
+            __('Nivo Search Settings', 'nivo-ajax-search-for-woocommerce'),
             __('NivoSearch', 'nivo-ajax-search-for-woocommerce'),
             'manage_woocommerce',
             'nivo_search-settings',

@@ -1,7 +1,7 @@
-=== Ajax Product Search for WooCommerce - NivoSearch ===
+=== NivoSearch – WooCommerce Ajax Product Search ===
 Contributors: nazmunsakib
 Donate link: https://nazmunsakib.com/donate
-Tags: woocommerce search, product search, ajax search, live search, search autocomplete
+Tags: woocommerce search, product search, ajax search, live search, search
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
@@ -9,17 +9,18 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Advanced Ajax Product Search for WooCommerce. Live product search with autocomplete, search suggestions, typo correction and instant results. Improve WooCommerce search experience.
+
+A powerful WooCommerce Ajax product search plugin. Get instant suggestions, find products by title, SKU, category, description, and more.
 
 == Description ==
 
-🚀 **[Live Demo](https://nivosearch.com/demo)** | See AJAX Search in action!
+**NivoSearch – WooCommerce Ajax Product Search** is a powerful live product search plugin that enhances your WooCommerce store's search functionality. Replace the default WooCommerce search with an advanced AJAX search system that provides instant product search results as customers type.
 
-**Ajax Product Search for WooCommerce** is a powerful live product search plugin that enhances your WooCommerce store's search functionality. Replace the default WooCommerce search with an advanced AJAX search system that provides instant product search results as customers type.
-
-= Why Choose Ajax Product Search for WooCommerce (NivoSearch)? =
+= Why Choose NivoSearch – WooCommerce Ajax Product Search? =
 
 Transform your WooCommerce search experience with professional live search functionality. This WooCommerce search plugin provides instant product search results, helping customers find products faster and increasing your store's conversion rates.
+
+**[Live Demo](https://nivosearch.com/demo)** | See AJAX Product Search in action!
 
 = Key WooCommerce Search Features =
 
@@ -152,9 +153,9 @@ Transform your WooCommerce search experience with professional live search funct
 
 1. **Login to WordPress Admin** - Access your WordPress dashboard
 2. **Navigate to Plugins** - Go to Plugins → Add New
-3. **Search for Plugin** - Search "AJAX Search for WooCommerce"
+3. **Search for Plugin** - Search "AJAX Product Search for WooCommerce" or "NivoSearch"
 4. **Install Plugin** - Click "Install Now" then "Activate"
-5. **Configure Search** - Go to WooCommerce → AJAX Search
+5. **Configure Search** - Go to WooCommerce → NivoSearch
 6. **Add Search Form** - Use shortcode `[nivo_search]` or Gutenberg block
 
 = Manual Installation =
@@ -163,12 +164,11 @@ Transform your WooCommerce search experience with professional live search funct
 2. **Upload Plugin** - Go to Plugins → Add New → Upload Plugin
 3. **Install ZIP File** - Choose ZIP file and click "Install Now"
 4. **Activate Plugin** - Click "Activate Plugin"
-5. **Configure Settings** - Navigate to WooCommerce → AJAX Search
+5. **Configure Settings** - Navigate to WooCommerce → NivoSearch
 
 = Quick Setup Guide =
 
 **Step 1: Basic Configuration**
-* Enable AJAX search functionality
 * Set search result limit (recommended: 10-15)
 * Configure minimum characters (recommended: 2-3)
 * Set search delay (recommended: 300ms)
@@ -201,7 +201,7 @@ Transform your WooCommerce search experience with professional live search funct
 
 **Gutenberg Block:**
 1. Add new block in editor
-2. Search for "AJAX Search"
+2. Search for "Nivo Search"
 3. Configure block settings
 4. Customize appearance
 
@@ -210,17 +210,15 @@ Transform your WooCommerce search experience with professional live search funct
 <?php echo do_shortcode('[nivo_search]'); ?>
 ```
 
-
-
 == Frequently Asked Questions ==
 
-= What is AJAX Search for WooCommerce? =
+= What is WooCommerce Ajax Product Search? =
 
-AJAX Search for WooCommerce is a live product search plugin that replaces the default WooCommerce search with an advanced AJAX-powered search system. It provides instant search results as customers type, improving the shopping experience and helping customers find products faster.
+NivoSearch – WooCommerce Ajax Product Search is a live product search plugin that replaces the default WooCommerce search with an advanced AJAX-powered search system. It provides instant search results as customers type, improving the shopping experience and helping customers find products faster.
 
-= How does AJAX search improve WooCommerce? =
+= How does AJAX Product search improve WooCommerce? =
 
-AJAX search enhances WooCommerce by providing:
+AJAX Product search enhances WooCommerce by providing:
 * Instant search results without page reloads
 * Better user experience with live search
 * Faster product discovery
@@ -230,9 +228,9 @@ AJAX search enhances WooCommerce by providing:
 
 = Does this work with my WooCommerce theme? =
 
-Yes, the AJAX search plugin works with any WordPress theme and WooCommerce setup. It inherits your theme's styling and can be fully customized to match your store's design. The plugin has been tested with popular themes like Astra, OceanWP, and Storefront.
+Yes, the AJAX Product search plugin works with any WordPress theme and WooCommerce setup. It inherits your theme's styling and can be fully customized to match your store's design. The plugin has been tested with popular themes like Astra, OceanWP, and Storefront.
 
-= Will AJAX search slow down my website? =
+= Will AJAX Product search slow down my website? =
 
 No, the plugin is optimized for performance with:
 * Lightweight JavaScript (15KB minified)
@@ -278,21 +276,12 @@ Yes, the plugin is fully translation ready with:
 
 = Does it work with caching plugins? =
 
-Yes, the AJAX search plugin is compatible with all major caching plugins including:
+Yes, the AJAX Product search (NivoSearch) plugin is compatible with all major caching plugins including:
 * WP Rocket
 * W3 Total Cache
 * WP Super Cache
 * LiteSpeed Cache
 * Cloudflare
-
-= How do I get support for the plugin? =
-
-Support is available through multiple channels:
-* [WordPress Support Forum](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
-* [GitHub Issues](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce/issues)
-* Plugin documentation and guides
-* Community support and discussions
-
 
 
 = Is it compatible with multilingual stores? =
@@ -319,7 +308,7 @@ Yes, the plugin supports multilingual WooCommerce stores with:
 
 = 1.0.0 – November 2025 =
 
-**Initial Release - Complete AJAX Search Solution**
+**Initial Release - Complete AJAX Product Search Solution**
 
 **Core Search Functionality:**
 * Real-time AJAX search implementation
@@ -375,22 +364,6 @@ Yes, the plugin supports multilingual WooCommerce stores with:
 * Clean, documented codebase
 * GitHub repository with examples
 
-**Performance & Security:**
-* Optimized database queries
-* Smart caching mechanisms
-* Security hardened with nonce verification
-* Input sanitization and validation
-* XSS and CSRF protection
-* Performance monitoring tools
-
-**Multilingual & Accessibility:**
-* Translation ready with complete .pot file
-* WPML compatibility for multilingual stores
-* RTL language support
-* Unicode character support
-* Accessibility features (WCAG 2.1)
-* Screen reader compatibility
-
 **Technical Compatibility:**
 * WordPress 5.0+ (tested up to 6.8)
 * WooCommerce 5.0+ (latest version compatible)
@@ -402,78 +375,27 @@ Yes, the plugin supports multilingual WooCommerce stores with:
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial release of AJAX Search for WooCommerce. Install now to enhance your WooCommerce store with professional live product search functionality, improving customer experience and increasing sales conversions.
+Initial release of AJAX Product Search for WooCommerce. Install now to enhance your WooCommerce store with professional live product search functionality, improving customer experience and increasing sales conversions.
 
 == Additional Information ==
 
-= About AJAX Search for WooCommerce =
+= About AJAX Product Search for WooCommerce (NivoSearch) =
 
-AJAX Search for WooCommerce is developed to provide WooCommerce store owners with a professional-grade search solution that enhances the customer shopping experience. The plugin focuses on performance, usability, and conversion optimization.
+AJAX Product Search for WooCommerce is developed to provide WooCommerce store owners with a professional-grade search solution that enhances the customer shopping experience. The plugin focuses on performance, usability, and conversion optimization.
 
 = Developer Information =
 
-**Plugin Developer:** [Nazmun Sakib](https://nazmunsakib.com)
+**Developer:** [Nazmun Sakib](https://nazmunsakib.com)  
+**GitHub:** [nazmunsakib](https://github.com/nazmunsakib/)  
 **Experience:** WordPress and WooCommerce development specialist
 **Focus:** eCommerce solutions and performance optimization
-**Support:** Active development and community support
 
 = Useful Resources =
 
 **Documentation & Support:**
+* [Docs](https://nivosearch.com/docs)
 * [GitHub Repository](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce)
 * [WordPress Support Forum](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
 * [Feature Requests](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce/issues)
 
-**Community & Updates:**
-* [Docs](https://nivosearch.com/docs)
-* [Plugin Updates](https://wordpress.org/plugins/nivo-ajax-search-for-woocommerce/)
-* [Developer Blog](https://sakibaura.com/)
-* [WooCommerce Resources](https://addonskit.com/woocommerce)
-
-= Privacy & Security =
-
-**Privacy Compliance:**
-* No external API calls or data collection
-* All search processing done locally on your server
-* GDPR compliant by design
-* No user data stored or transmitted
-* Privacy-focused architecture
-
-**Security Features:**
-* Nonce verification for all AJAX requests
-* Input sanitization and validation
-* XSS and CSRF protection
-* Secure coding practices
-* Regular security audits and updates
-
-= Performance Optimization =
-
-**Speed Optimization:**
-* Lightweight JavaScript (15KB minified)
-* Efficient database queries
-* Smart caching mechanisms
-* CDN compatibility
-* Mobile performance optimization
-
-**Scalability:**
-* Optimized for large product catalogs
-* Efficient memory usage
-* Database query optimization
-* Caching plugin compatibility
-* High-traffic store support
-
-= Contributing & Development =
-
-**Open Source Development:**
-* GitHub repository available
-* Community contributions welcome
-* Feature requests and bug reports
-* Code reviews and improvements
-* Documentation contributions
-
-**Development Standards:**
-* WordPress coding standards
-* WooCommerce development guidelines
-* PSR-4 autoloading
-* Modern PHP practices
-* Comprehensive testing
+**Privacy:** zero tracking, zero external calls, 100 % GPL.

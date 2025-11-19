@@ -1,22 +1,22 @@
-=== NivoSearch – WooCommerce Ajax Product Search ===
+=== NivoSearch – AJAX Product Search for WooCommerce ===
 Contributors: nazmunsakib
 Donate link: https://nazmunsakib.com/donate
 Tags: woocommerce search, product search, ajax search, live search, search
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 
-A powerful WooCommerce Ajax product search plugin. Get instant suggestions, find products by title, SKU, category, description, and more.
+A powerful AJAX Product Search WooCommerce plugin. Get instant suggestions, find products by title, SKU, category, description, and more.
 
 == Description ==
 
-**NivoSearch – WooCommerce Ajax Product Search** is a powerful live product search plugin that enhances your WooCommerce store's search functionality. Replace the default WooCommerce search with an advanced AJAX search system that provides instant product search results as customers type.
+**NivoSearch – AJAX Product Search for WooCommerce** is a powerful live product search plugin that enhances your WooCommerce store's search functionality. Replace the default WooCommerce search with an advanced AJAX search system that provides instant product search results as customers type.
 
-= Why Choose NivoSearch – WooCommerce Ajax Product Search? =
+= Why Choose NivoSearch – AJAX Product Search for WooCommerce? =
 
 Transform your WooCommerce search experience with professional live search functionality. This WooCommerce search plugin provides instant product search results, helping customers find products faster and increasing your store's conversion rates.
 
@@ -212,9 +212,9 @@ Transform your WooCommerce search experience with professional live search funct
 
 == Frequently Asked Questions ==
 
-= What is WooCommerce Ajax Product Search? =
+= What is AJAX Product Search for WooCommerce? =
 
-NivoSearch – WooCommerce Ajax Product Search is a live product search plugin that replaces the default WooCommerce search with an advanced AJAX-powered search system. It provides instant search results as customers type, improving the shopping experience and helping customers find products faster.
+NivoSearch – AJAX Product Search for WooCommerce is a live product search plugin that replaces the default WooCommerce search with an advanced AJAX-powered search system. It provides instant search results as customers type, improving the shopping experience and helping customers find products faster.
 
 = How does AJAX Product search improve WooCommerce? =
 
@@ -305,6 +305,10 @@ Yes, the plugin supports multilingual WooCommerce stores with:
 
 
 == Changelog ==
+
+= 1.0.1, November 17, 2025 =
+UPDATED: Update The Plugin name
+UPDATED: Change the Block Name
 
 = 1.0.0 – November 2025 =
 

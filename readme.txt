@@ -39,18 +39,14 @@ Transform your WooCommerce search experience with professional live search funct
 * ✅ **Search Filter Options** - Filter by stock status and product visibility
 
 **Smart Search Features:**
-* ✅ **Search Typo Correction** - Automatically fix common spelling mistakes
 * ✅ **Search Suggestions** - Intelligent product suggestions
-* ✅ **Search Synonyms** - Expand search with related terms
 * ✅ **Relevance Ranking** - Smart product result ordering
-* ✅ **Fuzzy Search** - Find products even with partial matches
 
 **WooCommerce Integration:**
 * **Native WooCommerce Search** - Deep integration with WooCommerce
 * **Product Image Search** - Display product thumbnails in search results
 * **Price Display** - Show product prices in search results
 * **Stock Status** - Display product availability
-* **Add to Cart** - Quick add to cart from search results
 
 = Live Search Customization =
 
@@ -73,7 +69,6 @@ Transform your WooCommerce search experience with professional live search funct
 **Optimized Search Performance:**
 * **Single Query Search** - Efficient database queries
 * **Fast Search Response** - Optimized for speed
-* **Search Caching** - Smart caching for better performance
 * **Lightweight Code** - Minimal impact on site speed
 * **Mobile Optimized** - Fast search on mobile devices
 
@@ -185,10 +180,10 @@ Transform your WooCommerce search experience with professional live search funct
 * Configure search result layout
 * Enable live preview for real-time changes
 
-**Step 4: Advanced Features**
-* Enable typo correction for better user experience
-* Enable synonym support for expanded search
-* Test mobile responsiveness
+**Step 4: Testing**
+* Test search functionality with various queries
+* Verify mobile responsiveness
+* Check performance on your site
 
 = Implementation Methods =
 
@@ -247,13 +242,7 @@ Yes, enable "SKU Search" in the plugin settings to allow customers to find produ
 
 Yes, the plugin fully supports WooCommerce variable products and searches through all product variations. Customers can find products by searching for variation-specific attributes and details.
 
-= How does the typo correction feature work? =
 
-The typo correction uses advanced algorithms to automatically fix common spelling mistakes. For example:
-* "shose" → "shoes"
-* "labtop" → "laptop"
-* "accesories" → "accessories"
-* "jewelery" → "jewelry"
 
 = Can I customize the search results appearance? =
 
@@ -323,10 +312,7 @@ UPDATED: Change the Block Name
 * Smart request cancellation for better performance
 
 **Advanced Search Features:**
-* Typo correction with 25+ common spelling fixes
-* Search synonym expansion support
 * Intelligent relevance-based result ranking
-* Fuzzy search with Levenshtein distance algorithm
 * Search suggestions and autocomplete
 
 **WooCommerce Integration:**

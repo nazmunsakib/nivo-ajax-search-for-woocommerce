@@ -38,11 +38,11 @@ class Shortcode {
     public function render_search_form($atts = []) {
         // Parse shortcode attributes
         $atts = shortcode_atts([
-            'placeholder' => __('Search products...', 'nivo-ajax-search-for-woocommerce'),
+            'placeholder' => get_option('nivo_search_placeholder_text', __('Search products...', 'nivo-ajax-search-for-woocommerce')),
             'container_class' => 'nivo-ajax-search-container',
             'input_class' => 'nivo-search-product-search',
             'results_class' => 'nivo-search-results',
-            'show_icon' => 'true',
+            'show_icon' => get_option('nivo_search_show_search_icon', 1) ? 'true' : 'false',
             'style' => ''
         ], $atts, 'nivo_search');
         

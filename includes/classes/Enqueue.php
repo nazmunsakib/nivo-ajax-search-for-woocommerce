@@ -252,6 +252,13 @@ class Enqueue {
 			get_option( 'nivo_search_padding_vertical', 15 )
 		);
 		
+		// Search bar width
+		$width = get_option( 'nivo_search_bar_width', 600 );
+		$css .= sprintf(
+			'.nivo-ajax-search-container { max-width: %dpx !important; }',
+			$width
+		);
+		
 		$css .= '.nivo-search-product-search:focus { background-color: #ffffff !important; border-color: #666666 !important; }';
 		
 		if ( $center_align ) {

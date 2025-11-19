@@ -171,9 +171,10 @@ final class Nivo_Ajax_Search {
 		$search_args = apply_filters(
 			'nivo_search_args',
 			array(
-				'limit'   => get_option( 'nivo_search_limit', 10 ),
+				'limit'         => get_option( 'nivo_search_limit', 10 ),
 				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
-				'exclude' => $this->get_excluded_products(),
+				'exclude'       => $this->get_excluded_products(),
+				'search_fields' => $this->get_search_fields(),
 			),
 			$query
 		);
@@ -191,11 +192,23 @@ final class Nivo_Ajax_Search {
 				$results['categories'][] = $this->format_category_result( $category, $query );
 			}
 		}
+
+		// Add tags if present
+		if ( isset( $search_results['tags'] ) && ! empty( $search_results['tags'] ) ) {
+			$results['tags'] = array();
+			foreach ( $search_results['tags'] as $tag ) {
+				$results['tags'][] = $this->format_tag_result( $tag, $query );
+			}
+		}
 		
 		// Add products
 		$products = isset( $search_results['products'] ) ? $search_results['products'] : $search_results;
 		$results['products'] = array();
-		foreach ( $products as $product ) {
+		foreach ( $products as $post ) {
+			$product = wc_get_product( $post );
+			if ( ! $product ) {
+				continue;
+			}
 			$result = $this->format_search_result( $product, $query );
 			$results['products'][] = apply_filters( 'nivo_search_result_item', $result, $product, $query );
 		}
@@ -225,6 +238,39 @@ final class Nivo_Ajax_Search {
 		);
 
 		return $result;
+	}
+
+	/**
+	 * Get search fields from settings
+	 *
+	 * @since 1.0.0
+	 * @return array Search fields
+	 */
+	private function get_search_fields() {
+		$fields = array();
+
+		if ( get_option( 'nivo_search_in_title', 1 ) ) {
+			$fields[] = 'title';
+		}
+
+		if ( get_option( 'nivo_search_in_content', 0 ) ) {
+			$fields[] = 'content';
+		}
+
+		if ( get_option( 'nivo_search_in_excerpt', 0 ) ) {
+			$fields[] = 'excerpt';
+		}
+
+		if ( get_option( 'nivo_search_in_sku', 0 ) ) {
+			$fields[] = 'sku';
+		}
+
+		// Fallback to title if no fields selected
+		if ( empty( $fields ) ) {
+			$fields[] = 'title';
+		}
+
+		return $fields;
 	}
 
 	/**
@@ -258,6 +304,24 @@ final class Nivo_Ajax_Search {
 			'count' => $category->count,
 		);
 	}
+
+    /**
+     * Format tag result
+     *
+     * @since 1.0.0
+     * @param WP_Term $tag Tag object
+     * @param string $query Search query
+     * @return array Formatted result
+     */
+    private function format_tag_result( $tag, $query ) {
+        return array(
+            'id'    => $tag->term_id,
+            'title' => $tag->name,
+            'url'   => get_term_link( $tag ),
+            'type'  => 'tag',
+            'count' => $tag->count,
+        );
+    }
 
 	/**
 	 * Get "View All Results" URL

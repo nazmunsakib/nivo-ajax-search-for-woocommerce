@@ -239,33 +239,33 @@ const SettingsApp = () => {
             }
 
             const itemChildren = [];
-            
+
             if (settings.show_images) {
                 itemChildren.push(wp.element.createElement('div', { key: 'img', style: { width: '50px', height: '50px', background: '#ddd', borderRadius: '4px', flexShrink: 0 } }));
             }
-            
+
             const infoChildren = [];
             const titleRowChildren = [];
             const titleContent = [wp.element.createElement('span', { key: 'title', style: { fontWeight: 'bold' } }, title)];
-            
+
             if (settings.show_sku) {
                 titleContent.push(wp.element.createElement('strong', { key: 'sku', style: { marginLeft: '8px', color: '#999', fontSize: '13px' } }, `(SKU: ${sku})`));
             }
-            
+
             titleRowChildren.push(wp.element.createElement('div', { key: 'title-wrap' }, titleContent));
-            
+
             if (settings.show_price) {
                 titleRowChildren.push(wp.element.createElement('div', { key: 'price', style: { color: '#666', fontSize: '14px', fontWeight: '600' } }, price));
             }
-            
+
             infoChildren.push(wp.element.createElement('div', { key: 'title-row', style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } }, titleRowChildren));
-            
+
             if (settings.show_description) {
                 infoChildren.push(wp.element.createElement('div', { key: 'desc', style: { color: '#666', fontSize: '13px', marginTop: '4px' } }, 'Sample product description...'));
             }
-            
+
             itemChildren.push(wp.element.createElement('div', { key: 'info', style: { flex: 1 } }, infoChildren));
-            
+
             return wp.element.createElement('div', { className: 'nivo-search-preview-result-item', style: { display: 'flex', gap: '10px', padding: '10px', borderBottom: '1px solid #eee' } }, itemChildren);
         };
 
@@ -332,59 +332,13 @@ const SettingsApp = () => {
             'div',
             { className: 'nivo-search-tab-nav' },
             wp.element.createElement('button', { className: activeTab === 'general' ? 'active' : '', onClick: () => setActiveTab('general') }, __('General', 'nivo-ajax-search-for-woocommerce')),
-            wp.element.createElement('button', { className: activeTab === 'search' ? 'active' : '', onClick: () => setActiveTab('search') }, __('Search Scope', 'nivo-ajax-search-for-woocommerce')),
-            wp.element.createElement('button', { className: activeTab === 'searchbar' ? 'active' : '', onClick: () => setActiveTab('searchbar') }, __('Search Bar', 'nivo-ajax-search-for-woocommerce')),
-            wp.element.createElement('button', { className: activeTab === 'results' ? 'active' : '', onClick: () => setActiveTab('results') }, __('Search Results', 'nivo-ajax-search-for-woocommerce')),
-            wp.element.createElement('button', { className: activeTab === 'ai' ? 'active' : '', onClick: () => setActiveTab('ai') }, __('AI Features', 'nivo-ajax-search-for-woocommerce'))
+            wp.element.createElement('button', { className: activeTab === 'configuration' ? 'active' : '', onClick: () => setActiveTab('configuration') }, __('Search Configuration', 'nivo-ajax-search-for-woocommerce')),
+            wp.element.createElement('button', { className: activeTab === 'results' ? 'active' : '', onClick: () => setActiveTab('results') }, __('Search Results', 'nivo-ajax-search-for-woocommerce'))
         ),
 
         wp.element.createElement(
             'div',
-            { className: 'nivo-search-tab-content' + ((activeTab === 'searchbar' || activeTab === 'results') ? ' nivo-search-with-preview' : '') },
-            
-            activeTab === 'searchbar' && wp.element.createElement(
-                'div',
-                { className: 'nivo-search-preview-layout' },
-                wp.element.createElement(
-                    'div',
-                    { className: 'nivo-search-controls-panel' },
-                    wp.element.createElement('div', { className: 'nivo-search-setting-group' },
-                        renderSettingRow(__('Placeholder Text', 'nivo-ajax-search-for-woocommerce'), __('Text shown in empty search field', 'nivo-ajax-search-for-woocommerce'), renderTextInput('placeholder_text', settings.placeholder_text, 'Search products...')),
-                        renderSettingRow(__('Width', 'nivo-ajax-search-for-woocommerce'), __('Maximum width in pixels', 'nivo-ajax-search-for-woocommerce'), renderRange('search_bar_width', settings.search_bar_width, 200, 1200, 50)),
-                        renderSettingRow(__('Border Width', 'nivo-ajax-search-for-woocommerce'), __('Border thickness', 'nivo-ajax-search-for-woocommerce'), renderRange('border_width', settings.border_width, 0, 10, 1)),
-                        renderSettingRow(__('Border Color', 'nivo-ajax-search-for-woocommerce'), __('Border color', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('border_color', settings.border_color)),
-                        renderSettingRow(__('Border Radius', 'nivo-ajax-search-for-woocommerce'), __('Rounded corners', 'nivo-ajax-search-for-woocommerce'), renderRange('border_radius', settings.border_radius, 0, 50, 1)),
-                        renderSettingRow(__('Background Color', 'nivo-ajax-search-for-woocommerce'), __('Background', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('bg_color', settings.bg_color)),
-                        renderSettingRow(__('Padding Vertical', 'nivo-ajax-search-for-woocommerce'), __('Top/bottom padding', 'nivo-ajax-search-for-woocommerce'), renderRange('padding_vertical', settings.padding_vertical, 0, 50, 1)),
-                        renderSettingRow(__('Center Align', 'nivo-ajax-search-for-woocommerce'), __('Center the search bar', 'nivo-ajax-search-for-woocommerce'), renderToggle('center_align', settings.center_align)),
-                        renderSettingRow(__('Show Search Icon', 'nivo-ajax-search-for-woocommerce'), __('Display search icon', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_search_icon', settings.show_search_icon))
-                    )
-                ),
-                renderSearchBarPreview()
-            ),
-
-            activeTab === 'results' && wp.element.createElement(
-                'div',
-                { className: 'nivo-search-preview-layout' },
-                wp.element.createElement(
-                    'div',
-                    { className: 'nivo-search-controls-panel' },
-                    wp.element.createElement('div', { className: 'nivo-search-setting-group' },
-                        wp.element.createElement('h3', { style: { marginTop: 0 } }, __('Display Options', 'nivo-ajax-search-for-woocommerce')),
-                        renderSettingRow(__('Show Thumbnail', 'nivo-ajax-search-for-woocommerce'), __('Display product images', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_images', settings.show_images)),
-                        renderSettingRow(__('Show Price', 'nivo-ajax-search-for-woocommerce'), __('Display product price', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_price', settings.show_price)),
-                        renderSettingRow(__('Show Short Description', 'nivo-ajax-search-for-woocommerce'), __('Display product excerpt', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_description', settings.show_description)),
-                        renderSettingRow(__('Show SKU', 'nivo-ajax-search-for-woocommerce'), __('Display product SKU', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_sku', settings.show_sku)),
-                        wp.element.createElement('h3', {}, __('Styling', 'nivo-ajax-search-for-woocommerce')),
-                        renderSettingRow(__('Border Width', 'nivo-ajax-search-for-woocommerce'), __('Border thickness', 'nivo-ajax-search-for-woocommerce'), renderRange('results_border_width', settings.results_border_width, 0, 10, 1)),
-                        renderSettingRow(__('Border Color', 'nivo-ajax-search-for-woocommerce'), __('Border color', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('results_border_color', settings.results_border_color)),
-                        renderSettingRow(__('Border Radius', 'nivo-ajax-search-for-woocommerce'), __('Rounded corners', 'nivo-ajax-search-for-woocommerce'), renderRange('results_border_radius', settings.results_border_radius, 0, 50, 1)),
-                        renderSettingRow(__('Background Color', 'nivo-ajax-search-for-woocommerce'), __('Background', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('results_bg_color', settings.results_bg_color)),
-                        renderSettingRow(__('Padding', 'nivo-ajax-search-for-woocommerce'), __('Inner padding', 'nivo-ajax-search-for-woocommerce'), renderRange('results_padding', settings.results_padding, 0, 50, 1))
-                    )
-                ),
-                renderSearchResultsPreview()
-            ),
+            { className: 'nivo-search-tab-content' + ((activeTab === 'configuration' || activeTab === 'results') ? ' nivo-search-with-preview' : '') },
 
             activeTab === 'general' && wp.element.createElement('div', { className: 'nivo-search-setting-group' },
                 renderSettingRow(__('Enable AJAX Search', 'nivo-ajax-search-for-woocommerce'), __('Enable real-time search', 'nivo-ajax-search-for-woocommerce'), renderToggle('enable_ajax', settings.enable_ajax)),
@@ -398,7 +352,7 @@ const SettingsApp = () => {
                         wp.element.createElement('strong', { style: { display: 'block', marginBottom: '8px', color: '#1d2327' } }, __('Shortcode:', 'nivo-ajax-search-for-woocommerce')),
                         wp.element.createElement('div', { style: { display: 'flex', gap: '10px', alignItems: 'center' } },
                             wp.element.createElement('code', { style: { flex: 1, background: '#fff', padding: '12px 15px', borderRadius: '4px', fontSize: '14px', fontFamily: 'monospace', border: '1px solid #ddd' } }, '[nivo_search]'),
-                            wp.element.createElement('button', { 
+                            wp.element.createElement('button', {
                                 type: 'button',
                                 className: 'button button-primary',
                                 style: { padding: '10px 20px' },
@@ -430,18 +384,61 @@ const SettingsApp = () => {
                 )
             ),
 
-            activeTab === 'search' && wp.element.createElement('div', { className: 'nivo-search-setting-group' },
-                renderSettingRow(__('Search in Title', 'nivo-ajax-search-for-woocommerce'), __('Search product titles', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_title', settings.search_in_title)),
-                renderSettingRow(__('Search in SKU', 'nivo-ajax-search-for-woocommerce'), __('Search product SKUs', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_sku', settings.search_in_sku)),
-                renderSettingRow(__('Search in Description', 'nivo-ajax-search-for-woocommerce'), __('Search full product descriptions', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_content', settings.search_in_content)),
-                renderSettingRow(__('Search in Short Description', 'nivo-ajax-search-for-woocommerce'), __('Search product excerpts', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_excerpt', settings.search_in_excerpt)),
-                renderSettingRow(__('Search in Categories', 'nivo-ajax-search-for-woocommerce'), __('Search categories', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_categories', settings.search_in_categories)),
-                renderSettingRow(__('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'), __('Hide out of stock products from search results', 'nivo-ajax-search-for-woocommerce'), renderToggle('exclude_out_of_stock', settings.exclude_out_of_stock))
+            activeTab === 'configuration' && wp.element.createElement(
+                'div',
+                { className: 'nivo-search-preview-layout' },
+                wp.element.createElement(
+                    'div',
+                    { className: 'nivo-search-controls-panel' },
+                    wp.element.createElement('div', { className: 'nivo-search-setting-group' },
+                        wp.element.createElement('h3', { style: { marginTop: 0 } }, __('Search Logic', 'nivo-ajax-search-for-woocommerce')),
+                        renderSettingRow(__('Search in Title', 'nivo-ajax-search-for-woocommerce'), __('Search product titles', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_title', settings.search_in_title)),
+                        renderSettingRow(__('Search in SKU', 'nivo-ajax-search-for-woocommerce'), __('Search product SKUs', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_sku', settings.search_in_sku)),
+                        renderSettingRow(__('Search in Description', 'nivo-ajax-search-for-woocommerce'), __('Search full product descriptions', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_content', settings.search_in_content)),
+                        renderSettingRow(__('Search in Short Description', 'nivo-ajax-search-for-woocommerce'), __('Search product excerpts', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_excerpt', settings.search_in_excerpt)),
+                        renderSettingRow(__('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'), __('Hide out of stock products', 'nivo-ajax-search-for-woocommerce'), renderToggle('exclude_out_of_stock', settings.exclude_out_of_stock)),
+
+                        wp.element.createElement('h3', {}, __('Search Bar Design', 'nivo-ajax-search-for-woocommerce')),
+                        renderSettingRow(__('Placeholder Text', 'nivo-ajax-search-for-woocommerce'), __('Text shown in empty search field', 'nivo-ajax-search-for-woocommerce'), renderTextInput('placeholder_text', settings.placeholder_text, 'Search products...')),
+                        renderSettingRow(__('Width', 'nivo-ajax-search-for-woocommerce'), __('Maximum width in pixels', 'nivo-ajax-search-for-woocommerce'), renderRange('search_bar_width', settings.search_bar_width, 200, 1200, 50)),
+                        renderSettingRow(__('Border Width', 'nivo-ajax-search-for-woocommerce'), __('Border thickness', 'nivo-ajax-search-for-woocommerce'), renderRange('border_width', settings.border_width, 0, 10, 1)),
+                        renderSettingRow(__('Border Color', 'nivo-ajax-search-for-woocommerce'), __('Border color', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('border_color', settings.border_color)),
+                        renderSettingRow(__('Border Radius', 'nivo-ajax-search-for-woocommerce'), __('Rounded corners', 'nivo-ajax-search-for-woocommerce'), renderRange('border_radius', settings.border_radius, 0, 50, 1)),
+                        renderSettingRow(__('Background Color', 'nivo-ajax-search-for-woocommerce'), __('Background', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('bg_color', settings.bg_color)),
+                        renderSettingRow(__('Padding Vertical', 'nivo-ajax-search-for-woocommerce'), __('Top/bottom padding', 'nivo-ajax-search-for-woocommerce'), renderRange('padding_vertical', settings.padding_vertical, 0, 50, 1)),
+                        renderSettingRow(__('Center Align', 'nivo-ajax-search-for-woocommerce'), __('Center the search bar', 'nivo-ajax-search-for-woocommerce'), renderToggle('center_align', settings.center_align)),
+                        renderSettingRow(__('Show Search Icon', 'nivo-ajax-search-for-woocommerce'), __('Display search icon', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_search_icon', settings.show_search_icon))
+                    )
+                ),
+                renderSearchBarPreview()
             ),
 
-            activeTab === 'ai' && wp.element.createElement('div', { className: 'nivo-search-setting-group' },
-                renderSettingRow(__('Typo Correction', 'nivo-ajax-search-for-woocommerce'), __('Auto-fix spelling mistakes', 'nivo-ajax-search-for-woocommerce'), renderToggle('enable_typo_correction', settings.enable_typo_correction)),
-                renderSettingRow(__('Synonym Support', 'nivo-ajax-search-for-woocommerce'), __('Expand with related terms', 'nivo-ajax-search-for-woocommerce'), renderToggle('enable_synonyms', settings.enable_synonyms))
+            activeTab === 'results' && wp.element.createElement(
+                'div',
+                { className: 'nivo-search-preview-layout' },
+                wp.element.createElement(
+                    'div',
+                    { className: 'nivo-search-controls-panel' },
+                    wp.element.createElement('div', { className: 'nivo-search-setting-group' },
+                        wp.element.createElement('h3', { style: { marginTop: 0 } }, __('Display Options', 'nivo-ajax-search-for-woocommerce')),
+                        renderSettingRow(__('Show Thumbnail', 'nivo-ajax-search-for-woocommerce'), __('Display product images', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_images', settings.show_images)),
+                        renderSettingRow(__('Show Price', 'nivo-ajax-search-for-woocommerce'), __('Display product price', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_price', settings.show_price)),
+                        renderSettingRow(__('Show Short Description', 'nivo-ajax-search-for-woocommerce'), __('Display product excerpt', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_description', settings.show_description)),
+                        renderSettingRow(__('Show SKU', 'nivo-ajax-search-for-woocommerce'), __('Display product SKU', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_sku', settings.show_sku)),
+
+                        wp.element.createElement('h3', {}, __('Others Content', 'nivo-ajax-search-for-woocommerce')),
+                        renderSettingRow(__('Show Categories', 'nivo-ajax-search-for-woocommerce'), __('Include matching categories in results', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_categories', settings.search_in_categories)),
+                        renderSettingRow(__('Show Tags', 'nivo-ajax-search-for-woocommerce'), __('Include matching tags in results', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_tags', settings.search_in_tags)),
+
+                        wp.element.createElement('h3', {}, __('Styling', 'nivo-ajax-search-for-woocommerce')),
+                        renderSettingRow(__('Border Width', 'nivo-ajax-search-for-woocommerce'), __('Border thickness', 'nivo-ajax-search-for-woocommerce'), renderRange('results_border_width', settings.results_border_width, 0, 10, 1)),
+                        renderSettingRow(__('Border Color', 'nivo-ajax-search-for-woocommerce'), __('Border color', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('results_border_color', settings.results_border_color)),
+                        renderSettingRow(__('Border Radius', 'nivo-ajax-search-for-woocommerce'), __('Rounded corners', 'nivo-ajax-search-for-woocommerce'), renderRange('results_border_radius', settings.results_border_radius, 0, 50, 1)),
+                        renderSettingRow(__('Background Color', 'nivo-ajax-search-for-woocommerce'), __('Background', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('results_bg_color', settings.results_bg_color)),
+                        renderSettingRow(__('Padding', 'nivo-ajax-search-for-woocommerce'), __('Inner padding', 'nivo-ajax-search-for-woocommerce'), renderRange('results_padding', settings.results_padding, 0, 50, 1))
+                    )
+                ),
+                renderSearchResultsPreview()
             )
         )
     );

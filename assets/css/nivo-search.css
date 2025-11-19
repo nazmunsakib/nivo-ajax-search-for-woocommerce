@@ -262,11 +262,13 @@ ul.nivo-search-results-list {
 
 /* Category Results */
 .nivo-search-categories-section,
+.nivo-search-tags-section,
 .nivo-search-products-section {
     margin-bottom: 10px;
 }
 
 .nivo-search-categories-section:last-child,
+.nivo-search-tags-section:last-child,
 .nivo-search-products-section:last-child {
     margin-bottom: 0;
 }
@@ -283,26 +285,31 @@ ul.nivo-search-results-list {
     letter-spacing: 0.5px;
 }
 
-ul.nivo-search-categories-list {
+ul.nivo-search-categories-list,
+ul.nivo-search-tags-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.nivo-search-category-item {
+.nivo-search-category-item,
+.nivo-search-tag-item {
     border-bottom: 1px solid #eee;
     transition: background-color 0.2s ease;
 }
 
-.nivo-search-category-item:last-child {
+.nivo-search-category-item:last-child,
+.nivo-search-tag-item:last-child {
     border-bottom: none;
 }
 
-.nivo-search-category-item:hover {
+.nivo-search-category-item:hover,
+.nivo-search-tag-item:hover {
     background-color: var(--nivo-search-hover-bg);
 }
 
-.nivo-search-category-link {
+.nivo-search-category-link,
+.nivo-search-tag-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -313,14 +320,16 @@ ul.nivo-search-categories-list {
     border-radius: 4px;
 }
 
-.nivo-search-category-title {
+.nivo-search-category-title,
+.nivo-search-tag-title {
     font-size: 14px;
     line-height: 1.4;
     color: inherit;
     flex: 1;
 }
 
-.nivo-search-category-count {
+.nivo-search-category-count,
+.nivo-search-tag-count {
     color: #999;
     font-size: 12px;
     font-weight: 500;

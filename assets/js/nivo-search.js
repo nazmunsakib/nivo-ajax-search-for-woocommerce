@@ -143,11 +143,11 @@
 
         const formData = new FormData();
         formData.append('s', query);
-        
+
         // Use WooCommerce AJAX if available
         const useWcAjax = window.nivo_search.wc_ajax_url;
         const ajaxUrl = useWcAjax ? window.nivo_search.wc_ajax_url : window.nivo_search.ajax_url;
-        
+
         if (!useWcAjax) {
             formData.append('action', 'nivo_search');
             formData.append('nonce', window.nivo_search.nonce);
@@ -220,9 +220,34 @@
 
         let html = '';
 
-        // Add products section first
+        // Add categories section first
+        if (categories.length > 0) {
+            html += '<div class="nivo-search-categories-section">';
+            html += '<h4 class="nivo-search-section-title">Categories</h4>';
+            html += '<ul class="nivo-search-categories-list">';
+            categories.forEach(function (category) {
+                html += renderCategoryItem(category, query, settings);
+            });
+            html += '</ul>';
+            html += '</div>';
+        }
+
+        // Add tags section second
+        const tags = data.tags || [];
+        if (tags.length > 0) {
+            html += '<div class="nivo-search-tags-section">';
+            html += '<h4 class="nivo-search-section-title">Tags</h4>';
+            html += '<ul class="nivo-search-tags-list">';
+            tags.forEach(function (tag) {
+                html += renderTagItem(tag, query, settings);
+            });
+            html += '</ul>';
+            html += '</div>';
+        }
+
+        // Add products section third
         if (products.length > 0) {
-            if (categories.length > 0) {
+            if (categories.length > 0 || tags.length > 0) {
                 html += '<div class="nivo-search-products-section">';
                 html += '<h4 class="nivo-search-section-title">Products</h4>';
             } else {
@@ -236,18 +261,6 @@
             html += '</div>';
         }
 
-        // Add categories section second
-        if (categories.length > 0) {
-            html += '<div class="nivo-search-categories-section">';
-            html += '<h4 class="nivo-search-section-title">Categories</h4>';
-            html += '<ul class="nivo-search-categories-list">';
-            categories.forEach(function (category) {
-                html += renderCategoryItem(category, query, settings);
-            });
-            html += '</ul>';
-            html += '</div>';
-        }
-
         results.innerHTML = html;
         addClass(container, config.classes.hasResults);
 
@@ -255,12 +268,45 @@
     }
 
     /**
+     * Escape HTML special characters
+     */
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    /**
      * Highlight matching keywords
      */
     function highlightKeywords(text, query) {
-        if (!text || !query) return text;
-        const regex = new RegExp(`(${query})`, 'gi');
-        return text.replace(regex, '<span class="nivo-search-highlight">$1</span>');
+        if (!text) return '';
+        const escapedText = escapeHtml(text);
+        if (!query) return escapedText;
+
+        // Escape query to match against escaped text and avoid regex injection
+        const escapedQuery = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        return escapedText.replace(regex, '<span class="nivo-search-highlight">$1</span>');
+    }
+
+    /**
+     * Render individual tag item
+     */
+    function renderTagItem(tag, query, settings) {
+        const padding = settings.results_padding || 10;
+        const highlightedTitle = highlightKeywords(tag.title, query);
+
+        return `<li class="nivo-search-tag-item" style="padding: ${padding}px;">
+                <a href="${escapeHtml(tag.url)}" class="nivo-search-tag-link">
+                    <span class="nivo-search-tag-title">${highlightedTitle}</span>
+                    <span class="nivo-search-tag-count">(${escapeHtml(tag.count)})</span>
+                </a>
+            </li>`;
     }
 
     /**
@@ -269,11 +315,11 @@
     function renderCategoryItem(category, query, settings) {
         const padding = settings.results_padding || 10;
         const highlightedTitle = highlightKeywords(category.title, query);
-        
+
         return `<li class="nivo-search-category-item" style="padding: ${padding}px;">
-                <a href="${category.url}" class="nivo-search-category-link">
+                <a href="${escapeHtml(category.url)}" class="nivo-search-category-link">
                     <span class="nivo-search-category-title">${highlightedTitle}</span>
-                    <span class="nivo-search-category-count">(${category.count})</span>
+                    <span class="nivo-search-category-count">(${escapeHtml(category.count)})</span>
                 </a>
             </li>`;
     }
@@ -287,26 +333,27 @@
         const showSku = settings.show_sku === 1;
         const showDescription = settings.show_description === 1;
         const padding = settings.results_padding || 10;
-        
+
         const imageHtml = (showImages && product.image)
-            ? `<img src="${product.image}" alt="${product.title}" class="nivo-search-product-image">`
+            ? `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" class="nivo-search-product-image">`
             : '';
 
         const highlightedTitle = highlightKeywords(product.title, query);
-        const skuHtml = (showSku && product.sku) ? ` <strong>(SKU: ${product.sku})</strong>` : '';
+        const skuHtml = (showSku && product.sku) ? ` <strong>(SKU: ${highlightKeywords(product.sku, query)})</strong>` : '';
+        // Price is trusted HTML from WooCommerce
         const priceHtml = (showPrice && product.price) ? `<span class="nivo-search-product-price">${product.price}</span>` : '';
-        
+
         const titleSkuHtml = `<div class="nivo-search-product-title-row">
             <span class="nivo-search-product-title">${highlightedTitle}${skuHtml}</span>
             ${priceHtml}
         </div>`;
 
-        const descHtml = (showDescription && product.short_description) 
-            ? `<span class="nivo-search-product-description">${highlightKeywords(product.short_description, query)}</span>` 
+        const descHtml = (showDescription && product.short_description)
+            ? `<span class="nivo-search-product-description">${highlightKeywords(product.short_description, query)}</span>`
             : '';
 
         return `<li class="nivo-search-result-item" style="padding: ${padding}px;">
-                <a href="${product.url}" class="nivo-search-product-link">
+                <a href="${escapeHtml(product.url)}" class="nivo-search-product-link">
                     ${imageHtml}
                     <div class="nivo-search-product-info">
                         ${titleSkuHtml}

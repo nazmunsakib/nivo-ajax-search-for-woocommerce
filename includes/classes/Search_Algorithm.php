@@ -1,6 +1,6 @@
 <?php
 /**
- * Search Algorithm with AI Layer
+ * Search Algorithm
  *
  * @package NivoSearch
  * @since 1.0.0
@@ -13,14 +13,14 @@ defined('ABSPATH') || exit;
 /**
  * Search Algorithm Class
  *
- * Handles nivo search with AI-powered query understanding
+ * Handles nivo search
  *
  * @since 1.0.0
  */
 class Search_Algorithm {
     
     /**
-     * Search products with AI enhancement
+     * Search products
      *
      * @since 1.0.0
      * @param string $query Search query
@@ -28,334 +28,226 @@ class Search_Algorithm {
      * @return array Search results
      */
     public function search($query, $args = []) {
-        $query = $this->process_query($query);
+        $start_time = microtime(true);
         
-        $results = [];
-        
-        // Get categories if enabled
-        if (get_option('nivo_search_in_categories', 0)) {
-            $categories = $this->get_categories($query, $args);
-            if (!empty($categories)) {
-                $results['categories'] = $categories;
-            }
-        }
-        
-        // Get WooCommerce products using optimized search
-        $products = $this->get_products($query, $args);
-        
-        // Apply AI scoring and ranking
-        $results['products'] = $this->rank_results($products, $query);
-        
-        return $results;
-    }
-    
-    /**
-     * Process and enhance search query
-     *
-     * @since 1.0.0
-     * @param string $query Original query
-     * @return string Enhanced query
-     */
-    private function process_query($query) {
-        // Basic typo correction and synonym handling
-        $query = $this->correct_typos($query);
-        $query = $this->expand_synonyms($query);
-        
-        return apply_filters('nivo_search_processed_query', $query);
-    }
-    
-    /**
-     * Get products using Search approach
-     *
-     * @since 1.0.0
-     * @param string $query Search query
-     * @param array $args Search arguments
-     * @return array Products
-     */
-    private function get_products($query, $args) {
-        add_filter('posts_search', array($this, 'search_filters'), 501, 2);
-        add_filter('posts_join', array($this, 'search_filters_join'), 501, 2);
-        add_filter('posts_distinct', array($this, 'search_distinct'), 501, 2);
-        
-        $search_args = array(
-            's' => $query,
-            'posts_per_page' => get_option('nivo_search_limit', 10),
-            'post_type' => 'product',
+        // Default arguments
+        $defaults = [
+            'limit' => 10,
+            'post_types' => ['product'],
             'post_status' => 'publish',
-            'ignore_sticky_posts' => 1,
-            'suppress_filters' => false,
-        );
+            'search_fields' => ['title', 'content', 'sku'],
+            'exclude_out_of_stock' => false,
+            'excluded_products' => [],
+            'tax_query' => [],
+            'meta_query' => []
+        ];
         
-        // Add tax query for WC 3.0+
-        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-        $search_args['tax_query'] = $this->get_tax_query();
-        
-        $posts = get_posts($search_args);
-        
-        remove_filter('posts_search', array($this, 'search_filters'), 501);
-        remove_filter('posts_join', array($this, 'search_filters_join'), 501);
-        remove_filter('posts_distinct', array($this, 'search_distinct'), 501);
-        
-        $products = [];
-        foreach ($posts as $post) {
-            $product = wc_get_product($post->ID);
-            if ($product && $product->is_visible()) {
-                $products[] = $product;
-            }
+        $args = wp_parse_args($args, $defaults);
+
+        // Map 'exclude' to 'excluded_products' if present (compatibility)
+        if (!empty($args['exclude']) && empty($args['excluded_products'])) {
+            $args['excluded_products'] = $args['exclude'];
         }
         
-        return $products;
+        // Sanitize query
+        $query = sanitize_text_field($query);
+        
+        // Get matching tags if enabled
+        $tags = [];
+        if (get_option('nivo_search_in_tags', 1)) {
+            $tags = $this->get_tags($query, $args);
+        }
+
+        // Get matching categories if enabled
+        $categories = [];
+        if (get_option('nivo_search_in_categories', 1)) {
+            $categories = $this->get_categories($query, $args);
+        }
+        
+        // Search products
+        add_filter('posts_search', [$this, 'search_where'], 10, 2);
+        add_filter('posts_join', [$this, 'search_join'], 10, 2);
+        add_filter('posts_distinct', [$this, 'search_distinct'], 10, 2);
+        
+        $query_args = [
+            'post_type' => $args['post_types'],
+            'post_status' => $args['post_status'],
+            'posts_per_page' => $args['limit'],
+            's' => $query,
+            'nivo_search_args' => $args, // Pass args to filters
+            'tax_query' => $args['tax_query'],
+            'meta_query' => $args['meta_query'],
+            'post__not_in' => $args['excluded_products']
+        ];
+        
+        // Handle out of stock
+        if ($args['exclude_out_of_stock'] === 'yes' || $args['exclude_out_of_stock'] === 1 || $args['exclude_out_of_stock'] === true) {
+            $query_args['meta_query'][] = [
+                'key' => '_stock_status',
+                'value' => 'outofstock',
+                'compare' => '!='
+            ];
+        }
+        
+        $search_query = new \WP_Query($query_args);
+        
+        remove_filter('posts_search', [$this, 'search_where'], 10);
+        remove_filter('posts_join', [$this, 'search_join'], 10);
+        remove_filter('posts_distinct', [$this, 'search_distinct'], 10);
+        
+        $products = $search_query->posts;
+        
+        // Calculate relevance and sort
+        $ranked_products = $this->rank_results($products, $query, $args);
+        
+        $execution_time = microtime(true) - $start_time;
+        
+        return [
+            'products' => $ranked_products,
+            'categories' => $categories,
+            'tags' => $tags,
+            'total' => $search_query->found_posts,
+            'execution_time' => $execution_time
+        ];
+    }
+
+    /**
+     * Modify search WHERE clause
+     *
+     * @since 1.0.0
+     */
+    public function search_where($where, $wp_query) {
+        global $wpdb;
+        
+        if (empty($where)) {
+            return $where;
+        }
+        
+        $args = $wp_query->get('nivo_search_args');
+        $search_term = $wp_query->get('s');
+        
+        if (empty($args) || empty($search_term)) {
+            return $where;
+        }
+        
+        $search_fields = $args['search_fields'];
+        $n = '%';
+        $term = $wpdb->esc_like($search_term);
+        
+        $search_conditions = [];
+        
+        // Title search
+        if (in_array('title', $search_fields)) {
+            $search_conditions[] = $wpdb->prepare("{$wpdb->posts}.post_title LIKE %s", $n . $term . $n);
+        }
+        
+        // Content search
+        if (in_array('content', $search_fields)) {
+            $search_conditions[] = $wpdb->prepare("{$wpdb->posts}.post_content LIKE %s", $n . $term . $n);
+        }
+        
+        // Excerpt search
+        if (in_array('excerpt', $search_fields)) {
+            $search_conditions[] = $wpdb->prepare("{$wpdb->posts}.post_excerpt LIKE %s", $n . $term . $n);
+        }
+        
+        // SKU search
+        if (in_array('sku', $search_fields)) {
+            $search_conditions[] = $wpdb->prepare("sku_meta.meta_value LIKE %s", $n . $term . $n);
+        }
+        
+        if (!empty($search_conditions)) {
+            $where = " AND (" . implode(' OR ', $search_conditions) . ") ";
+            
+            // Add post type and status checks
+            $where .= " AND {$wpdb->posts}.post_type IN ('product') ";
+            $where .= " AND {$wpdb->posts}.post_status = 'publish' ";
+        }
+        
+        return $where;
     }
     
     /**
-     * Search filters
+     * Modify search JOIN clause
+     *
+     * @since 1.0.0
      */
-    public function search_filters($search, $wp_query) {
+    public function search_join($join, $wp_query) {
         global $wpdb;
         
-        if (empty($search)) {
-            return $search;
-        }
+        $args = $wp_query->get('nivo_search_args');
         
-        $q = $wp_query->query_vars;
-        if ($q['post_type'] !== 'product') {
-            return $search;
-        }
-        
-        $n = (!empty($q['exact']) ? '' : '%');
-        $search = $searchand = '';
-        
-        if (!empty($q['search_terms'])) {
-            foreach ((array) $q['search_terms'] as $term) {
-                $like = $n . $wpdb->esc_like($term) . $n;
-                $search .= "{$searchand} (";
-                
-                // Search in title
-                if (get_option('nivo_search_in_title', 1)) {
-                    $search .= $wpdb->prepare("({$wpdb->posts}.post_title LIKE %s)", $like);
-                } else {
-                    $search .= "(0 = 1)";
-                }
-                
-                // Search in content
-                if (get_option('nivo_search_in_content', 0)) {
-                    $search .= $wpdb->prepare(" OR ({$wpdb->posts}.post_content LIKE %s)", $like);
-                }
-                
-                // Search in excerpt
-                if (get_option('nivo_search_in_excerpt', 0)) {
-                    $search .= $wpdb->prepare(" OR ({$wpdb->posts}.post_excerpt LIKE %s)", $like);
-                }
-                
-                // Search in SKU
-                if (get_option('nivo_search_in_sku', 1)) {
-                    $search .= $wpdb->prepare(" OR (nivo_sku.meta_key='_sku' AND nivo_sku.meta_value LIKE %s)", $like);
-                }
-                
-                // Note: Category search removed from product filters to avoid showing category products
-                
-                $search .= ")";
-                $searchand = ' AND ';
-            }
-        }
-        
-        if (!empty($search)) {
-            $search = " AND ({$search}) ";
-            if (!is_user_logged_in()) {
-                $search .= " AND ({$wpdb->posts}.post_password = '') ";
-            }
-        }
-        
-        return $search;
-    }
-    
-    /**
-     * Join for SKU and category search
-     */
-    public function search_filters_join($join, $query) {
-        global $wpdb;
-        
-        if (empty($query->query_vars['post_type']) || $query->query_vars['post_type'] !== 'product') {
+        if (empty($args)) {
             return $join;
         }
         
-        if (get_option('nivo_search_in_sku', 1)) {
-            $join .= " LEFT JOIN {$wpdb->postmeta} AS nivo_sku ON ({$wpdb->posts}.ID = nivo_sku.post_id)";
-        }
+        $search_fields = $args['search_fields'];
         
-        // Category JOIN removed - categories searched separately
+        // Join postmeta for SKU search
+        if (in_array('sku', $search_fields)) {
+            $join .= " LEFT JOIN {$wpdb->postmeta} AS sku_meta ON ({$wpdb->posts}.ID = sku_meta.post_id AND sku_meta.meta_key = '_sku') ";
+        }
         
         return $join;
     }
     
     /**
-     * Make search distinct
-     */
-    public function search_distinct($where) {
-        return 'DISTINCT';
-    }
-    
-    /**
-     * Get tax query for WooCommerce
-     */
-    private function get_tax_query() {
-        $product_visibility_term_ids = wc_get_product_visibility_term_ids();
-        $tax_query = array('relation' => 'AND');
-        
-        $tax_query[] = array(
-            'taxonomy' => 'product_visibility',
-            'field' => 'term_taxonomy_id',
-            'terms' => $product_visibility_term_ids['exclude-from-search'],
-            'operator' => 'NOT IN',
-        );
-        
-        // Exclude out of stock if enabled
-        if (get_option('nivo_search_exclude_out_of_stock', 0)) {
-            $tax_query[] = array(
-                'taxonomy' => 'product_visibility',
-                'field' => 'term_taxonomy_id',
-                'terms' => $product_visibility_term_ids['outofstock'],
-                'operator' => 'NOT IN',
-            );
-        }
-        
-        return $tax_query;
-    }
-    
-    /**
-     * Rank search results by relevance
+     * Modify search DISTINCT clause
      *
      * @since 1.0.0
-     * @param array $products Products to rank
-     * @param string $query Search query
-     * @return array Ranked products
      */
-    private function rank_results($products, $query) {
-        $scored_products = [];
+    public function search_distinct($distinct, $wp_query) {
+        return "DISTINCT";
+    }
+    
+    /**
+     * Rank results based on relevance
+     *
+     * @since 1.0.0
+     */
+    private function rank_results($products, $query, $args) {
+        $ranked = [];
+        $query = strtolower($query);
         
         foreach ($products as $product) {
-            $score = $this->calculate_score($query, $product->get_name());
-            $scored_products[] = [
-                'product' => $product,
-                'score' => $score
-            ];
+            $score = 0;
+            $title = strtolower($product->post_title);
+            
+            // Exact match in title
+            if ($title === $query) {
+                $score += 100;
+            }
+            // Starts with query
+            elseif (strpos($title, $query) === 0) {
+                $score += 50;
+            }
+            // Contains query
+            elseif (strpos($title, $query) !== false) {
+                $score += 20;
+            }
+            
+            // SKU match
+            if (in_array('sku', $args['search_fields'])) {
+                $sku = get_post_meta($product->ID, '_sku', true);
+                if ($sku && strtolower($sku) === $query) {
+                    $score += 80;
+                } elseif ($sku && strpos(strtolower($sku), $query) !== false) {
+                    $score += 30;
+                }
+            }
+            
+            $product->relevance_score = $score;
+            $ranked[] = $product;
         }
         
-        // Sort by score (highest first)
-        usort($scored_products, function($a, $b) {
-            return $b['score'] <=> $a['score'];
+        // Sort by score
+        usort($ranked, function($a, $b) {
+            return $b->relevance_score - $a->relevance_score;
         });
         
-        return array_column($scored_products, 'product');
+        return $ranked;
     }
-    
-    /**
-     * Calculate similarity score like Search
-     */
-    private function calculate_score($keyword, $title) {
-        $keyword = strtolower($keyword);
-        $title = strtolower($title);
-        
-        // Exact match
-        if ($title === $keyword) {
-            return 100;
-        }
-        
-        // Title starts with keyword
-        if (strpos($title, $keyword) === 0) {
-            return 90;
-        }
-        
-        // Title contains keyword
-        if (strpos($title, $keyword) !== false) {
-            return 80;
-        }
-        
-        // Levenshtein distance for fuzzy matching
-        $distance = levenshtein($keyword, $title);
-        $maxLen = max(strlen($keyword), strlen($title));
-        
-        if ($maxLen === 0) {
-            return 0;
-        }
-        
-        return max(0, (1 - $distance / $maxLen) * 70);
-    }
-    
-    /**
-     * Enhanced typo correction
-     */
-    private function correct_typos($query) {
-        if (!get_option('nivo_search_enable_typo_correction', 0)) {
-            return $query;
-        }
-        
-        $corrections = apply_filters('nivo_search_typo_corrections', [
-            // Common typos
-            'tshirt' => 't-shirt',
-            'jens' => 'jeans',
-            'shose' => 'shoes',
-            'accesories' => 'accessories',
-            'jewelery' => 'jewelry',
-            'cloths' => 'clothes',
-            'womens' => 'women',
-            'mens' => 'men',
-            // Technology
-            'iphone' => 'iPhone',
-            'ipad' => 'iPad',
-            'macbook' => 'MacBook',
-            'samsung' => 'Samsung',
-            'labtop' => 'laptop',
-            'compter' => 'computer',
-            // Fashion
-            'sneeker' => 'sneaker',
-            'sneekers' => 'sneakers',
-            'trouser' => 'trousers',
-            'jeens' => 'jeans',
-            'shitr' => 'shirt',
-            'dres' => 'dress',
-            // General
-            'wach' => 'watch',
-            'watche' => 'watch',
-            'beutiful' => 'beautiful',
-            'beatiful' => 'beautiful'
-        ]);
-        
-        return str_ireplace(array_keys($corrections), array_values($corrections), $query);
-    }
-    
-    /**
-     * Enhanced synonym expansion
-     */
-    private function expand_synonyms($query) {
-        if (!get_option('nivo_search_enable_synonyms', 0)) {
-            return $query;
-        }
-        
-        $synonyms = apply_filters('nivo_search_synonyms', [
-            'phone' => ['mobile', 'smartphone', 'cell phone'],
-            'laptop' => ['notebook', 'computer'],
-            'shirt' => ['tee', 't-shirt', 'top'],
-            'pants' => ['trousers', 'jeans'],
-            'shoes' => ['footwear', 'sneakers', 'boots'],
-            'bag' => ['purse', 'handbag', 'backpack'],
-            'watch' => ['timepiece', 'clock'],
-            'jewelry' => ['jewellery', 'accessories']
-        ]);
-        
-        $words = explode(' ', strtolower($query));
-        $expanded = [];
-        
-        foreach ($words as $word) {
-            $expanded[] = $word;
-            if (isset($synonyms[$word])) {
-                $expanded = array_merge($expanded, $synonyms[$word]);
-            }
-        }
-        
-        return implode(' ', array_unique($expanded));
-    }
-    
+
     /**
      * Get matching categories
      *
@@ -377,5 +269,28 @@ class Search_Algorithm {
         }
         
         return $categories;
+    }
+
+    /**
+     * Get matching tags
+     *
+     * @since 1.0.0
+     * @param string $query Search query
+     * @param array $args Search arguments
+     * @return array Tags
+     */
+    private function get_tags($query, $args) {
+        $tags = get_terms([
+            'taxonomy' => 'product_tag',
+            'name__like' => $query,
+            'hide_empty' => true,
+            'number' => 5
+        ]);
+        
+        if (is_wp_error($tags)) {
+            return [];
+        }
+        
+        return $tags;
     }
 }

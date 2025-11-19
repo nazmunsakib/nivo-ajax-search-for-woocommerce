@@ -33,8 +33,29 @@ class Admin_Settings {
         add_action( 'wp_ajax_nivo_search_save_settings', array( $this, 'save_settings_ajax' ) );
         add_action( 'wp_ajax_nivo_search_get_settings', array( $this, 'get_settings_ajax' ) );
         add_action( 'wp_ajax_nivo_search_reset_settings', array( $this, 'reset_settings_ajax' ) );
+        add_action( 'admin_notices', array( $this, 'remove_other_plugin_notices' ), 0 );
     }
-    
+
+    /**
+     * Remove other plugin notices from our settings page
+     *
+     * @since 1.0.3
+     */
+    public function remove_other_plugin_notices() {
+        $screen = get_current_screen();
+        
+        if ( ! $screen || $screen->id !== 'woocommerce_page_nivo_search-settings' ) {
+            return;
+        }
+        
+        // Remove all admin notices except our own
+        remove_all_actions( 'admin_notices' );
+        remove_all_actions( 'all_admin_notices' );
+        
+        // Re-add our own notices if needed
+        add_action( 'admin_notices', array( $this, 'remove_other_plugin_notices' ), 0 );
+    }
+        
     /**
      * Add admin menu
      *

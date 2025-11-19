@@ -391,7 +391,7 @@ const SettingsApp = () => {
                     'div',
                     { className: 'nivo-search-controls-panel' },
                     wp.element.createElement('div', { className: 'nivo-search-setting-group' },
-                        wp.element.createElement('h3', { style: { marginTop: 0 } }, __('Search Logic', 'nivo-ajax-search-for-woocommerce')),
+                        wp.element.createElement('h3', { style: { marginTop: 0 } }, __('Search Scope', 'nivo-ajax-search-for-woocommerce')),
                         renderSettingRow(__('Search in Title', 'nivo-ajax-search-for-woocommerce'), __('Search product titles', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_title', settings.search_in_title)),
                         renderSettingRow(__('Search in SKU', 'nivo-ajax-search-for-woocommerce'), __('Search product SKUs', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_sku', settings.search_in_sku)),
                         renderSettingRow(__('Search in Description', 'nivo-ajax-search-for-woocommerce'), __('Search full product descriptions', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_content', settings.search_in_content)),

@@ -79,10 +79,8 @@ class Admin_Settings {
      */
     public function register_settings() {
         // General Settings
-        register_setting('nivo_search_settings', 'nivo_search_enable_ajax', array('sanitize_callback' => 'absint'));
         register_setting('nivo_search_settings', 'nivo_search_limit', array('sanitize_callback' => 'absint'));
         register_setting('nivo_search_settings', 'nivo_search_min_chars', array('sanitize_callback' => 'absint'));
-        register_setting('nivo_search_settings', 'nivo_search_delay', array('sanitize_callback' => 'absint'));
         register_setting('nivo_search_settings', 'nivo_search_excluded_products', array('sanitize_callback' => 'sanitize_text_field'));
         
         // Search Scope Settings
@@ -148,10 +146,8 @@ class Admin_Settings {
         check_ajax_referer('nivo_search_admin_nonce', 'nonce');
         
         $settings = [
-            'enable_ajax' => (int)get_option('nivo_search_enable_ajax', 1),
             'search_limit' => (int)get_option('nivo_search_limit', 10),
             'min_chars' => (int)get_option('nivo_search_min_chars', 3),
-            'search_delay' => (int)get_option('nivo_search_delay', 300),
             'excluded_products' => get_option('nivo_search_excluded_products', ''),
             // Search scope
             'search_in_title' => (int)get_option('nivo_search_in_title', 1),
@@ -220,10 +216,8 @@ class Admin_Settings {
         $to_int = function( $val ) { return isset( $val ) && $val ? 1 : 0; };
         
         // Save each setting
-        update_option('nivo_search_enable_ajax', $to_int($settings['enable_ajax']));
         update_option('nivo_search_limit', intval($settings['search_limit']));
         update_option('nivo_search_min_chars', intval($settings['min_chars']));
-        update_option('nivo_search_delay', intval($settings['search_delay']));
         update_option('nivo_search_excluded_products', sanitize_text_field($settings['excluded_products']));
         // Search scope
         update_option('nivo_search_in_title', $to_int($settings['search_in_title']));
@@ -279,7 +273,7 @@ class Admin_Settings {
         
         // Delete all settings
         $options = [
-            'nivo_search_enable_ajax', 'nivo_search_limit', 'nivo_search_min_chars', 'nivo_search_delay',
+            'nivo_search_limit', 'nivo_search_min_chars',
             'nivo_search_excluded_products', 'nivo_search_in_title', 'nivo_search_in_sku', 'nivo_search_in_content',
             'nivo_search_in_excerpt', 'nivo_search_in_categories', 'nivo_search_in_tags',
             'nivo_search_exclude_out_of_stock', 'nivo_search_placeholder_text',
@@ -296,10 +290,8 @@ class Admin_Settings {
         
         // Return default settings
         $settings = [
-            'enable_ajax' => 1,
             'search_limit' => 10,
             'min_chars' => 3,
-            'search_delay' => 300,
             'excluded_products' => '',
             'search_in_title' => 1,
             'search_in_sku' => 0,

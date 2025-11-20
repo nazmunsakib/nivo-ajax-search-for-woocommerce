@@ -209,7 +209,7 @@ class Enqueue {
 				),
 				'settings' => array(
 					'min_length'       => (int) get_option( 'nivo_search_min_chars', 3 ),
-					'delay'            => (int) get_option( 'nivo_search_delay', 300 ),
+					'delay'            => 300,
 					'max_results'      => (int) get_option( 'nivo_search_limit', 10 ),
 					'show_images'      => (int) get_option( 'nivo_search_show_images', 1 ),
 					'show_price'       => (int) get_option( 'nivo_search_show_price', 1 ),

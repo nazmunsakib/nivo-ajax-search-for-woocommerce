@@ -342,7 +342,6 @@ const SettingsApp = () => {
             { className: 'nivo-search-tab-content' + ((activeTab === 'configuration' || activeTab === 'search_bar' || activeTab === 'results') ? ' nivo-search-with-preview' : '') },
 
             activeTab === 'general' && wp.element.createElement('div', { className: 'nivo-search-setting-group' },
-                renderSettingRow(__('Enable AJAX Search', 'nivo-ajax-search-for-woocommerce'), __('Enable real-time search', 'nivo-ajax-search-for-woocommerce'), renderToggle('enable_ajax', settings.enable_ajax)),
                 wp.element.createElement('div', { className: 'nivo-search-shortcode-box', style: { background: '#f0f6fc', border: '1px solid #0073aa', borderRadius: '8px', padding: '20px', marginTop: '20px', gridColumn: '1 / -1' } },
                     wp.element.createElement('h3', { style: { margin: '0 0 10px 0', color: '#0073aa' } }, __('How to Use', 'nivo-ajax-search-for-woocommerce')),
                     wp.element.createElement('p', { style: { margin: '0 0 15px 0', color: '#646970' } }, __('Use shortcode or Gutenberg block to display the search form:', 'nivo-ajax-search-for-woocommerce')),
@@ -394,12 +393,9 @@ const SettingsApp = () => {
                         renderSettingRow(__('Search in SKU', 'nivo-ajax-search-for-woocommerce'), __('Search product SKUs', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_sku', settings.search_in_sku)),
                         renderSettingRow(__('Search in Description', 'nivo-ajax-search-for-woocommerce'), __('Search full product descriptions', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_content', settings.search_in_content)),
                         renderSettingRow(__('Search in Short Description', 'nivo-ajax-search-for-woocommerce'), __('Search product excerpts', 'nivo-ajax-search-for-woocommerce'), renderToggle('search_in_excerpt', settings.search_in_excerpt)),
-                        renderSettingRow(__('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'), __('Hide out of stock products', 'nivo-ajax-search-for-woocommerce'), renderToggle('exclude_out_of_stock', settings.exclude_out_of_stock)),
-
-                        wp.element.createElement('h3', {}, __('Search Behavior', 'nivo-ajax-search-for-woocommerce')),
-                        renderSettingRow(__('Search Delay (ms)', 'nivo-ajax-search-for-woocommerce'), __('Debounce delay', 'nivo-ajax-search-for-woocommerce'), renderRange('search_delay', settings.search_delay, 100, 1000, 100)),
+                        renderSettingRow(__('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'), __('Hide out of stock products', 'nivo-ajax-search-for-woocommerce'), renderToggle('exclude_out_of_stock', settings.exclude_out_of_stock))
                     )
-                ),
+                )
             ),
 
             activeTab === 'search_bar' && wp.element.createElement(

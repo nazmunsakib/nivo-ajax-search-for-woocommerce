@@ -257,11 +257,11 @@ final class Nivo_Ajax_Search {
 			$fields[] = 'content';
 		}
 
-		if ( get_option( 'nivo_search_in_excerpt', 0 ) ) {
+		if ( get_option( 'nivo_search_in_excerpt', 1 ) ) {
 			$fields[] = 'excerpt';
 		}
 
-		if ( get_option( 'nivo_search_in_sku', 0 ) ) {
+		if ( get_option( 'nivo_search_in_sku', 1 ) ) {
 			$fields[] = 'sku';
 		}
 

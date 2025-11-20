@@ -513,3 +513,13 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+/* Admin settings group heading style */
+.nivo-search-group-header {
+	margin-top: 10px;
+}
+
+.nivo-search-group-header h3,
+.nivo-search-group-header p {
+	margin-bottom: 5px !important;
+}

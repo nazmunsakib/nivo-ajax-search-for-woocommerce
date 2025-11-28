@@ -73,6 +73,9 @@ class Gutenberg_Block {
         
         $icon_html = $show_icon ? '<svg class="nivo-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' : '';
         
+        // Get action URL with WooCommerce fallback
+        $action_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/');
+        
         return sprintf(
             '<div class="nivo-ajax-search-container nivo-search-block">
                 <form class="nivo-search-form" role="search" method="get" action="%s">
@@ -84,7 +87,7 @@ class Gutenberg_Block {
                 </form>
                 <div class="nivo-search-results"></div>
             </div>',
-            esc_url(wc_get_page_permalink('shop')),
+            esc_url($action_url),
             $icon_html,
             esc_attr($placeholder)
         );

@@ -50,6 +50,9 @@ class Shortcode {
         $icon_html = $show_icon ? '<svg class="nivo-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' : '';
         $style_attr = !empty($atts['style']) ? ' style="' . esc_attr($atts['style']) . '"' : '';
         
+        // Get action URL with WooCommerce fallback
+        $action_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/');
+        
         // Build HTML
         $html = sprintf(
             '<div class="%s"%s>
@@ -64,7 +67,7 @@ class Shortcode {
             </div>',
             esc_attr($atts['container_class']),
             $style_attr,
-            esc_url(wc_get_page_permalink('shop')),
+            esc_url($action_url),
             $icon_html,
             esc_attr($atts['input_class']),
             esc_attr($atts['placeholder']),

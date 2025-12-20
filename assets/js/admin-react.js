@@ -172,33 +172,13 @@ const SettingsApp = () => {
             borderRadius: (settings.border_radius || 4) + 'px',
             border: `${settings.border_width || 1}px solid ${settings.border_color || '#ddd'}`,
             backgroundColor: settings.bg_color || '#fff',
-            padding: `${settings.padding_vertical || 10}px 45px`,
-            margin: settings.center_align ? '0 auto' : '0',
             display: 'flex',
             alignItems: 'center',
             pointerEvents: 'none'
         };
 
-        const searchIcon = wp.element.createElement('svg', {
-            key: 'icon',
-            width: '18',
-            height: '18',
-            viewBox: '0 0 24 24',
-            fill: 'none',
-            stroke: 'currentColor',
-            strokeWidth: '2',
-            strokeLinecap: 'round',
-            strokeLinejoin: 'round',
-            style: { marginRight: '8px', color: '#666' }
-        }, [
-            wp.element.createElement('circle', { key: 'c', cx: '11', cy: '11', r: '8' }),
-            wp.element.createElement('path', { key: 'p', d: 'm21 21-4.35-4.35' })
-        ]);
-
         const barChildren = [];
-        if (settings.show_search_icon) {
-            barChildren.push(searchIcon);
-        }
+
         barChildren.push(wp.element.createElement('input', {
             key: 'input',
             type: 'text',
@@ -413,14 +393,12 @@ const SettingsApp = () => {
                             wp.element.createElement('p', { style: { margin: '0 0 15px 0', color: '#646970' } }, __('Customize the appearance and layout of the search bar to match your theme.', 'nivo-ajax-search-for-woocommerce'))
                         ),
                         renderSettingRow(__('Placeholder Text', 'nivo-ajax-search-for-woocommerce'), __('Text shown in empty search field', 'nivo-ajax-search-for-woocommerce'), renderTextInput('placeholder_text', settings.placeholder_text, 'Search products...')),
-                        renderSettingRow(__('Show Search Icon', 'nivo-ajax-search-for-woocommerce'), __('Display search icon', 'nivo-ajax-search-for-woocommerce'), renderToggle('show_search_icon', settings.show_search_icon)),
+                        renderSettingRow(__('Height', 'nivo-ajax-search-for-woocommerce'), __('Maximum Height in pixels', 'nivo-ajax-search-for-woocommerce'), renderRange('search_bar_height', settings.search_bar_height, 30, 100, 1)),
                         renderSettingRow(__('Width', 'nivo-ajax-search-for-woocommerce'), __('Maximum width in pixels', 'nivo-ajax-search-for-woocommerce'), renderRange('search_bar_width', settings.search_bar_width, 200, 1200, 50)),
                         renderSettingRow(__('Border Width', 'nivo-ajax-search-for-woocommerce'), __('Border thickness', 'nivo-ajax-search-for-woocommerce'), renderRange('border_width', settings.border_width, 0, 10, 1)),
                         renderSettingRow(__('Border Color', 'nivo-ajax-search-for-woocommerce'), __('Border color', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('border_color', settings.border_color)),
                         renderSettingRow(__('Border Radius', 'nivo-ajax-search-for-woocommerce'), __('Rounded corners', 'nivo-ajax-search-for-woocommerce'), renderRange('border_radius', settings.border_radius, 0, 50, 1)),
                         renderSettingRow(__('Background Color', 'nivo-ajax-search-for-woocommerce'), __('Background', 'nivo-ajax-search-for-woocommerce'), renderColorPicker('bg_color', settings.bg_color)),
-                        renderSettingRow(__('Padding Vertical', 'nivo-ajax-search-for-woocommerce'), __('Top/bottom padding', 'nivo-ajax-search-for-woocommerce'), renderRange('padding_vertical', settings.padding_vertical, 0, 50, 1)),
-                        renderSettingRow(__('Center Align', 'nivo-ajax-search-for-woocommerce'), __('Center the search bar', 'nivo-ajax-search-for-woocommerce'), renderToggle('center_align', settings.center_align)),
                     )
                 ),
                 renderSearchBarPreview()

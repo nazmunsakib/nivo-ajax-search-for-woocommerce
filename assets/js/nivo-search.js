@@ -204,6 +204,11 @@
         const categories = data.categories || [];
         const products = data.products || (Array.isArray(data) ? data : []);
 
+        const clearBtn = container.querySelector('.nivo-search-loader-icons');
+        if (clearBtn) {
+            addClass(clearBtn, 'nivo-search-close')
+        }
+
         if (categories.length === 0 && products.length === 0) {
             displayNoResults(results, container);
             return;
@@ -427,10 +432,10 @@
         const container = closest(input, config.selectors.container);
         if (!container) return;
 
-        const clearBtn = container.querySelector('.nivo-search-clear-search');
-        if (clearBtn) {
-            clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
-        }
+        // const clearBtn = container.querySelector('.nivo-search-loader-icons');
+        // if (clearBtn) {
+        //     addClass(clearBtn, 'nivo-search-close')
+        // }
     }
 
     /**
@@ -461,7 +466,7 @@
 
         // Event delegation for clear button
         document.addEventListener('click', function (event) {
-            if (event.target.matches && event.target.matches('.nivo-search-clear-search')) {
+            if (event.target.matches && event.target.matches('.nivo-search-close-icon')) {
                 handleClear(event);
             }
         });

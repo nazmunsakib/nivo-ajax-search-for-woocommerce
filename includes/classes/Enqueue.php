@@ -217,8 +217,8 @@ class Enqueue {
 					'show_description' => (int) get_option( 'nivo_search_show_description', 0 ),
 					'show_add_to_cart' => (int) get_option( 'nivo_search_show_add_to_cart', 0 ),
 					'border_width' => get_option( 'nivo_search_border_width', 1 ),
-					'border_color' => get_option( 'nivo_search_border_color', '#dfdfdf' ),
-					'border_radius' => get_option( 'nivo_search_border_radius', 30 ),
+					'border_color' => get_option( 'nivo_search_border_color', '' ),
+					'border_radius' => get_option( 'nivo_search_border_radius', 5 ),
 					'bg_color' => get_option( 'nivo_search_bg_color', '#dfdfdf' ),
 					'results_border_width' => get_option( 'nivo_search_results_border_width', 1 ),
 					'results_border_color' => get_option( 'nivo_search_results_border_color', '#ddd' ),
@@ -242,41 +242,48 @@ class Enqueue {
 		$css = '';
 		
 		// Search bar styles.
-		$center_align = get_option( 'nivo_search_center_align', 0 );
-		$css .= sprintf(
-			'.nivo-search-product-search { border: %dpx solid %s !important; border-radius: %dpx !important; background-color: %s !important; padding: %dpx 45px !important; }',
-			get_option( 'nivo_search_border_width', 1 ),
-			get_option( 'nivo_search_border_color', '#dfdfdf' ),
-			get_option( 'nivo_search_border_radius', 30 ),
-			get_option( 'nivo_search_bg_color', '#dfdfdf' ),
-			get_option( 'nivo_search_padding_vertical', 15 )
-		);
+		$nivo_search_border_width	= get_option( 'nivo_search_border_width', 1 );
+		$search_bar_border_color	= get_option( 'nivo_search_border_color', '' );
+		$nivo_search_border_radius	= get_option( 'nivo_search_border_radius', 5 );
+		$nivo_search_bg_color		= get_option( 'nivo_search_bg_color', '' );
+		$nivo_search_bar_height		= get_option( 'nivo_search_bar_height', 50 );
+
+		if (  ! empty( $nivo_search_border_width ) || ! empty( $nivo_search_border_radius ) || ! empty( $nivo_search_bg_color ) || ! empty( $nivo_search_bar_height ) ) {
+			$css .= '.nivo-search-wrapper input[type=search].nivo-search-product-search {';
+
+			if ( ! empty( $nivo_search_bar_height ) ) {
+				$css .= 'height: ' . esc_attr( $nivo_search_bar_height ) . 'px' . ';';
+			}
+			
+			if ( ! empty( $nivo_search_border_width ) && ! empty( $search_bar_border_color ) ) {
+				$css .= 'border: ' . esc_attr( $nivo_search_border_width ) . 'px solid' . $search_bar_border_color . ';';
+			}
+			
+			if ( ! empty( $nivo_search_border_radius ) ) {
+				$css .= 'border-radius: ' . esc_attr( $nivo_search_border_radius ) . 'px ;';
+			}
+			
+			if ( ! empty( $nivo_search_bg_color ) ) {
+				$css .= 'background-color: ' . esc_attr( $nivo_search_bg_color ) . ';';
+			}
+			
+			$css .= '}';
+		}
 		
 		// Search bar width
 		$width = get_option( 'nivo_search_bar_width', 600 );
 		$css .= sprintf(
-			'.nivo-ajax-search-container { max-width: %dpx !important; }',
+			'.nivo-search-form-wrapper { max-width: %dpx !important; }',
 			$width
 		);
-		
-		$css .= '.nivo-search-product-search:focus { background-color: #ffffff !important; border-color: #666666 !important; }';
-		
-		if ( $center_align ) {
-			$css .= '.nivo-ajax-search-container { margin-left: auto !important; margin-right: auto !important; }';
-		}
-		
-		// Theme inheritance overrides.
-		$custom_font_family = get_option( 'nivo_search_font_family', '' );
+
+		//Theme inheritance overrides.
 		$custom_text_color  = get_option( 'nivo_search_text_color', '' );
 		$custom_hover_color = get_option( 'nivo_search_hover_color', '' );
 		$custom_hover_bg    = get_option( 'nivo_search_hover_bg', '' );
 		
-		if ( ! empty( $custom_font_family ) || ! empty( $custom_text_color ) || ! empty( $custom_hover_color ) || ! empty( $custom_hover_bg ) ) {
+		if (  ! empty( $custom_text_color ) || ! empty( $custom_hover_color ) || ! empty( $custom_hover_bg ) ) {
 			$css .= ':root {';
-			
-			if ( ! empty( $custom_font_family ) ) {
-				$css .= '--nivo-search-font-family: ' . esc_attr( $custom_font_family ) . ';';
-			}
 			
 			if ( ! empty( $custom_text_color ) ) {
 				$css .= '--nivo-search-text-color: ' . esc_attr( $custom_text_color ) . ';';

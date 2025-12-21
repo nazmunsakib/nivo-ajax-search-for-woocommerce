@@ -156,12 +156,35 @@ class Enqueue {
 				'nonce'       => wp_create_nonce( 'nivo_search_nonce' ),
 				'strings'     => array(
 					'no_results' => esc_html__( 'No products found', 'nivo-ajax-search-for-woocommerce' ),
-					'loading'    => esc_html__( 'Loading...', 'nivo-ajax-search-for-woocommerce' ),
 					'error'      => esc_html__( 'Search error occurred', 'nivo-ajax-search-for-woocommerce' ),
 					'view_all'   => esc_html__( 'View All Results', 'nivo-ajax-search-for-woocommerce' ),
-				)
+				),
+				'settings'    => array( // Default settings
+					'min_chars' => 2,
+					'limit'     => 10,
+					'delay'     => 300,
+				),
 			)
 		);
+
+		// Use default preset settings if available
+		$default_preset = get_option( 'nivo_search_default_preset_created' );
+		if ( $default_preset ) {
+			// Fetch split meta
+			$generale_settings = get_post_meta( $default_preset, '_nivo_search_generale', true ) ?: [];
+			$query_settings    = get_post_meta( $default_preset, '_nivo_search_query', true ) ?: [];
+			$display_settings  = get_post_meta( $default_preset, '_nivo_search_display', true ) ?: [];
+			
+			$preset_settings = array_merge( $generale_settings, $query_settings, $display_settings );
+
+			if ( is_array( $preset_settings ) ) {
+				$localize_data['settings']['min_chars'] = isset( $preset_settings['min_chars'] ) ? absint( $preset_settings['min_chars'] ) : 2;
+				$localize_data['settings']['limit']     = isset( $preset_settings['limit'] ) ? absint( $preset_settings['limit'] ) : 10;
+				if ( isset( $preset_settings['delay'] ) ) {
+					$localize_data['settings']['delay'] = absint( $preset_settings['delay'] );
+				}
+			}
+		}
 
 		wp_localize_script( 'nivo-search', 'nivo_search', $localize_data );
 	}

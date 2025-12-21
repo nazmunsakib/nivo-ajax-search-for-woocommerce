@@ -101,10 +101,19 @@ class Search_Preset_CPT {
     /**
      * Render settings meta box
      */
+
     public function render_settings_box($post) {
         wp_nonce_field('nivo_preset_meta', 'nivo_preset_nonce');
         
-        $settings = get_post_meta($post->ID, '_nivo_search_settings', true);
+        // Fetch new split meta
+        $generale_settings = get_post_meta($post->ID, '_nivo_search_generale', true) ?: [];
+        $query_settings    = get_post_meta($post->ID, '_nivo_search_query', true) ?: [];
+        $display_settings  = get_post_meta($post->ID, '_nivo_search_display', true) ?: [];
+        $style_settings    = get_post_meta($post->ID, '_nivo_search_style', true) ?: [];
+
+        // Merge all for display logic
+        $settings = array_merge($generale_settings, $query_settings, $display_settings, $style_settings);
+
         $defaults = [
             'limit' => 10,
             'min_chars' => 2,
@@ -113,8 +122,8 @@ class Search_Preset_CPT {
             'search_in_sku' => 1,
             'search_in_content' => 0,
             'search_in_excerpt' => 0,
-            'search_in_categories' => 0,
-            'search_in_tags' => 0,
+            'search_product_categories' => 0,
+            'search_product_tags' => 0,
             'exclude_out_of_stock' => 0,
             'show_images' => 1,
             'show_price' => 1,
@@ -211,14 +220,14 @@ class Search_Preset_CPT {
             
             <div class="nivo-setting-row">
                 <label>
-                    <input type="checkbox" name="nivo_settings[search_in_categories]" value="1" <?php checked($settings['search_in_categories'], 1); ?>>
+                    <input type="checkbox" name="nivo_settings[search_in_categories]" value="1" <?php checked($settings['search_product_categories'], 1); ?>>
                     <?php _e('Show Categories', 'nivo-ajax-search-for-woocommerce'); ?>
                 </label>
             </div>
 
             <div class="nivo-setting-row">
                 <label>
-                    <input type="checkbox" name="nivo_settings[search_in_tags]" value="1" <?php checked($settings['search_in_tags'], 1); ?>>
+                    <input type="checkbox" name="nivo_settings[search_in_tags]" value="1" <?php checked($settings['search_product_tags'], 1); ?>>
                     <?php _e('Show Tags', 'nivo-ajax-search-for-woocommerce'); ?>
                 </label>
             </div>
@@ -347,23 +356,35 @@ class Search_Preset_CPT {
 
         if (isset($_POST['nivo_settings'])) {
             $settings = $_POST['nivo_settings'];
-            
-            // Sanitize settings
-            $sanitized = [
+
+            // 1. Process Query Settings
+            $genarale_settings = [
                 'limit' => absint($settings['limit'] ?? 10),
                 'min_chars' => absint($settings['min_chars'] ?? 2),
                 'placeholder' => sanitize_text_field($settings['placeholder'] ?? ''),
+            ];
+            
+            // 1. Process Query Settings
+            $query_settings = [
                 'search_in_title' => isset($settings['search_in_title']) ? 1 : 0,
                 'search_in_sku' => isset($settings['search_in_sku']) ? 1 : 0,
                 'search_in_content' => isset($settings['search_in_content']) ? 1 : 0,
                 'search_in_excerpt' => isset($settings['search_in_excerpt']) ? 1 : 0,
-                'search_in_categories' => isset($settings['search_in_categories']) ? 1 : 0,
-                'search_in_tags' => isset($settings['search_in_tags']) ? 1 : 0,
+                'search_product_categories' => isset($settings['search_product_categories']) ? 1 : 0,
+                'search_product_tags' => isset($settings['search_product_tags']) ? 1 : 0,
                 'exclude_out_of_stock' => isset($settings['exclude_out_of_stock']) ? 1 : 0,
+            ];
+
+            // 2. Process Display Settings
+            $display_settings = [
                 'show_images' => isset($settings['show_images']) ? 1 : 0,
                 'show_price' => isset($settings['show_price']) ? 1 : 0,
                 'show_sku' => isset($settings['show_sku']) ? 1 : 0,
                 'show_description' => isset($settings['show_description']) ? 1 : 0,
+            ];
+
+            // 3. Process Style Settings
+            $style_settings = [
                 'bar_width' => absint($settings['bar_width'] ?? 600),
                 'bar_height' => absint($settings['bar_height'] ?? 50),
                 'border_width' => absint($settings['border_width'] ?? 1),
@@ -378,7 +399,14 @@ class Search_Preset_CPT {
                 'results_padding' => absint($settings['results_padding'] ?? 10),
             ];
 
-            update_post_meta($post_id, '_nivo_search_settings', $sanitized);
+            // Save split keys
+            update_post_meta($post_id, '_nivo_search_generale', $genarale_settings);
+            update_post_meta($post_id, '_nivo_search_query', $query_settings);
+            update_post_meta($post_id, '_nivo_search_display', $display_settings);
+            update_post_meta($post_id, '_nivo_search_style', $style_settings);
+            
+            // Delete old key to declutter
+            delete_post_meta($post_id, '_nivo_search_settings');
         }
     }
 

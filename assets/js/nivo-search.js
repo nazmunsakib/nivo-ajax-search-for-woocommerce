@@ -31,9 +31,10 @@
         strings: (window.nivo_search && window.nivo_search.strings) || {}
     };
 
-   
+    const DEFAULT_MIN_LENGTH = 2;
+    const DEFAULT_DELAY = 200;
 
-    if(config.selectors.container){
+    if (config.selectors.container) {
         const mainContainer = document.querySelectorAll(config.selectors.container);
         console.log(mainContainer);
     }
@@ -85,6 +86,32 @@
     }
 
     /**
+     * Get settings for a specific container
+     */
+    function getContainerSettings(container) {
+        let minLength = DEFAULT_MIN_LENGTH;
+        let delay = DEFAULT_DELAY;
+
+        // Check for preset settings
+        const presetData = container.getAttribute('data-preset-settings');
+        if (presetData) {
+            try {
+                const presetSettings = JSON.parse(presetData);
+                if (presetSettings.min_chars !== undefined && presetSettings.min_chars !== '') {
+                    minLength = parseInt(presetSettings.min_chars, 10);
+                }
+                // Delay might not be in preset settings usually, but if added later:
+                if (presetSettings.delay !== undefined && presetSettings.delay !== '') {
+                    delay = parseInt(presetSettings.delay, 10);
+                }
+            } catch (e) {
+                // Silently fail and use defaults
+            }
+        }
+        return { minLength, delay };
+    }
+
+    /**
      * Handle input events
      */
     function handleInput(event) {
@@ -95,9 +122,11 @@
 
         if (!container || !results) return;
 
+        const containerSettings = getContainerSettings(container);
+
         clearTimeout(searchTimeout);
 
-        if (query.length < config.settings.minLength) {
+        if (query.length < containerSettings.minLength) {
             if (currentRequest) {
                 currentRequest.abort();
                 currentRequest = null;
@@ -111,7 +140,7 @@
                 currentRequest.abort();
             }
             performSearch(query, results, container);
-        }, config.settings.delay);
+        }, containerSettings.delay);
     }
 
     /**
@@ -150,7 +179,7 @@
 
         const formData = new FormData();
         formData.append('s', query);
-        
+
         // Get preset ID from container
         const presetId = container.getAttribute('data-preset-id');
         if (presetId) {
@@ -227,7 +256,18 @@
             return;
         }
 
-        const settings = window.nivo_search && window.nivo_search.settings ? window.nivo_search.settings : {};
+        const globalSettings = window.nivo_search && window.nivo_search.settings ? window.nivo_search.settings : {};
+        // Prioritize settings from response (preset), fallback to global
+        const settings = data.settings ? Object.assign({}, globalSettings, data.settings) : globalSettings;
+
+        // Ensure proper type casting for boolean flags if they come as strings
+        if (data.settings) {
+            ['show_images', 'show_price', 'show_sku', 'show_description'].forEach(key => {
+                if (settings[key] !== undefined) {
+                    settings[key] = parseInt(settings[key], 10);
+                }
+            });
+        }
         const resultsStyle = `
             border: ${settings.results_border_width || 1}px solid ${settings.results_border_color || '#ddd'};
             border-radius: ${settings.results_border_radius || 4}px;

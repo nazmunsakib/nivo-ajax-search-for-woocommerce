@@ -67,16 +67,14 @@ class Shortcode {
         $preset_settings = [];
         
         if ($preset_id && get_post_type($preset_id) === 'nivo_search_preset') {
-            $preset_settings = get_post_meta($preset_id, '_nivo_search_settings', true);
-            if (!is_array($preset_settings)) {
-                $preset_settings = [];
-            }
+			// Fetch new split meta
+			$generale_settings = get_post_meta($preset_id, '_nivo_search_generale', true) ?: [];
+			$display_settings  = get_post_meta($preset_id, '_nivo_search_display', true) ?: [];
+
+			// Merge all settings for frontend
+			$preset_settings = array_merge($generale_settings, $display_settings);
         }
 
-        
-
-        var_dump($preset_settings);
-        
         // Parse shortcode attributes with preset fallback
         $atts = shortcode_atts([
             'id' => 0,

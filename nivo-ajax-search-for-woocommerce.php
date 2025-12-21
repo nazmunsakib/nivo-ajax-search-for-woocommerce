@@ -105,38 +105,55 @@ function nivo_search_activate() {
 	if ( ! $preset_id || is_wp_error( $preset_id ) ) {
 		return;
 	}
+
+	// 1. Process Query Settings
+	$genarale_settings = [
+		'limit' 		=> 10,
+		'min_chars' 	=> 2,
+		'placeholder' 	=> __( 'Search products...', 'nivo-ajax-search-for-woocommerce' ),
+	];
 	
-	$default_settings = array(
-		'limit'                    => 10,
-		'min_chars'                => 2,
-		'placeholder'              => __( 'Search products...', 'nivo-ajax-search-for-woocommerce' ),
-		'search_in_title'          => 1,
-		'search_in_sku'            => 1,
-		'search_in_content'        => 0,
-		'search_in_excerpt'        => 0,
-		'search_in_categories'     => 0,
-		'search_in_tags'           => 0,
-		'exclude_out_of_stock'     => 0,
-		'show_images'              => 1,
-		'show_price'               => 1,
-		'show_sku'                 => 0,
-		'show_description'         => 0,
-		'bar_width'                => 600,
-		'bar_height'               => 50,
-		'border_width'             => 1,
-		'border_color'             => '#dfdfdf',
-		'border_radius'            => 30,
-		'bg_color'                 => '#ffffff',
-		'text_color'               => '#333333',
-		'results_border_width'     => 1,
-		'results_border_color'     => '#ddd',
-		'results_border_radius'    => 4,
-		'results_bg_color'         => '#ffffff',
-		'results_padding'          => 10,
-		'search_bar_layout'        => 1,
-	);
+	// 2. Process Query Settings
+	$query_settings = [
+		'search_in_title' 			=> 1,
+		'search_in_sku' 			=> 1,
+		'search_in_content' 		=> 0,
+		'search_in_excerpt' 		=> 0,
+		'search_product_categories' => 0,
+		'search_product_tags' 		=> 0,
+		'exclude_out_of_stock' 		=> 0,
+	];
+
+	// 3. Process Display Settings
+	$display_settings = [
+		'show_images' 		=> 1,
+		'show_price' 		=> 1,
+		'show_sku' 			=> 0,
+		'show_description' 	=> 0,
+	];
+
+	// 4. Process Style Settings
+	$style_settings = [
+		'bar_width' 		=> 600,
+		'bar_height' 		=> 50,
+		'border_width' 		=> 1,
+		'border_color' 		=> '#ddd',
+		'border_radius' 	=> 5,
+		'bg_color' 			=> '#dfdfdf',
+		'text_color' 		=> '#333333',
+		'results_border_width' => 1,
+		'results_border_color' => '#ddd',
+		'results_border_radius' => 4,
+		'results_bg_color' 	=> '#ffffff',
+		'results_padding' 	=> 10,
+	];
+
+	// Save split keys
+	update_post_meta($preset_id, '_nivo_search_generale', $genarale_settings);
+	update_post_meta($preset_id, '_nivo_search_query', $query_settings);
+	update_post_meta($preset_id, '_nivo_search_display', $display_settings);
+	update_post_meta($preset_id, '_nivo_search_style', $style_settings);
 	
-	update_post_meta( $preset_id, '_nivo_search_settings', $default_settings );
 	update_option( 'nivo_search_default_preset_created', $preset_id );
 }
 register_activation_hook( __FILE__, 'nivo_search_activate' );

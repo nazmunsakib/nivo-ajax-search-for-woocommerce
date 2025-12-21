@@ -89,50 +89,8 @@ class Enqueue {
 	 * @return void
 	 */
 	public function enqueue_admin_assets( $hook ) {
-		// Enqueue on settings page
-		if ( 'woocommerce_page_nivo_search-settings' === $hook ) {
-			// Admin CSS
-			wp_enqueue_style( 'nivo-search-admin', $this->plugin_url . 'assets/css/admin.css', array(), $this->version );
-
-			// WordPress React
-			wp_enqueue_script( 'wp-element' );
-			wp_enqueue_script( 'wp-components' );
-			wp_enqueue_script( 'wp-api-fetch' );
-
-			// Admin React app
-			wp_enqueue_script(
-				'nivo-search-admin-react',
-				$this->plugin_url . 'assets/js/admin-react.js',
-				array( 'wp-element', 'wp-components', 'wp-api-fetch' ),
-				$this->version,
-				true
-			);
-
-			// Localize script data
-			wp_localize_script(
-				'nivo-search-admin-react',
-				'nivoSearchAdmin',
-				array(
-					'ajax_url'   => admin_url( 'admin-ajax.php' ),
-					'nonce'      => wp_create_nonce( 'nivo_search_admin_nonce' ),
-					'rest_url'   => rest_url( 'wp/v2/' ),
-					'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-					'strings'    => array(
-						'title'  => __( 'Nivo AJAX Search Settings', 'nivo-ajax-search-for-woocommerce' ),
-						'save'   => __( 'Save Settings', 'nivo-ajax-search-for-woocommerce' ),
-						'saving' => __( 'Saving...', 'nivo-ajax-search-for-woocommerce' ),
-						'saved'  => __( 'Settings saved successfully!', 'nivo-ajax-search-for-woocommerce' ),
-					),
-				)
-			);
-		}
-
-		// Allow filtering of admin pages where assets should load
-		$allowed_pages = apply_filters( 'nivo_search_admin_asset_pages', array( 'woocommerce_page_nivo_search-settings' ) );
-
-		if ( ! empty( $allowed_pages ) && in_array( $hook, $allowed_pages, true ) ) {
-			do_action( 'nivo_search_enqueue_admin_assets', $hook );
-		}
+		// No admin assets needed for simple settings page
+		return;
 	}
 
 	/**
@@ -195,6 +153,9 @@ class Enqueue {
 			$wc_ajax_url = \WC_AJAX::get_endpoint( 'nivo_search' );
 		}
 
+		// Get preset settings if on page with preset
+		$preset_settings = $this->get_page_preset_settings();
+
 		$localize_data = apply_filters(
 			'nivo_search_localize_data',
 			array(
@@ -207,7 +168,7 @@ class Enqueue {
 					'error'      => esc_html__( 'Search error occurred', 'nivo-ajax-search-for-woocommerce' ),
 					'view_all'   => esc_html__( 'View All Results', 'nivo-ajax-search-for-woocommerce' ),
 				),
-				'settings' => array(
+				'settings' => ! empty( $preset_settings ) ? $preset_settings : array(
 					'min_length'       => (int) get_option( 'nivo_search_min_chars', 3 ),
 					'delay'            => 300,
 					'max_results'      => (int) get_option( 'nivo_search_limit', 10 ),
@@ -328,5 +289,17 @@ class Enqueue {
 
 		// Allow filtering.
 		return apply_filters( 'nivo_search_should_enqueue_assets', $should_enqueue );
+	}
+
+	/**
+	 * Get preset settings from page content
+	 *
+	 * @since 1.1.0
+	 * @return array
+	 */
+	private function get_page_preset_settings() {
+		// This is a simplified version - in production you might want to parse the content
+		// or use a more sophisticated method to detect presets
+		return array();
 	}
 }

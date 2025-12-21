@@ -143,6 +143,12 @@
 
         const formData = new FormData();
         formData.append('s', query);
+        
+        // Get preset ID from container
+        const presetId = container.getAttribute('data-preset-id');
+        if (presetId) {
+            formData.append('preset_id', presetId);
+        }
 
         // Use WooCommerce AJAX if available
         const useWcAjax = window.nivo_search.wc_ajax_url;

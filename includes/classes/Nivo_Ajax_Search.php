@@ -77,6 +77,14 @@ final class Nivo_Ajax_Search {
 	public $shortcode;
 
 	/**
+	 * Search Preset CPT handler
+	 *
+	 * @since 1.1.0
+	 * @var Search_Preset_CPT
+	 */
+	public $preset_cpt;
+
+	/**
 	 * Get plugin instance (Singleton)
 	 *
 	 * @since 1.0.0
@@ -135,6 +143,9 @@ final class Nivo_Ajax_Search {
 		// Initialize shortcode
 		$this->shortcode = new Shortcode();
 
+		// Initialize preset CPT
+		$this->preset_cpt = new Search_Preset_CPT();
+
 		// Allow other plugins to add components
 		do_action( 'nivo_search_components_loaded', $this );
 	}
@@ -155,6 +166,16 @@ final class Nivo_Ajax_Search {
 		}
 
 		$query = isset( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : ( isset( $_POST['query'] ) ? sanitize_text_field( wp_unslash( $_POST['query'] ) ) : '' );
+		$preset_id = isset( $_POST['preset_id'] ) ? absint( $_POST['preset_id'] ) : 0;
+
+		// Get preset settings if available
+		$preset_settings = [];
+		if ( $preset_id && get_post_type( $preset_id ) === 'nivo_search_preset' ) {
+			$preset_settings = get_post_meta( $preset_id, '_nivo_search_settings', true );
+			if ( ! is_array( $preset_settings ) ) {
+				$preset_settings = [];
+			}
+		}
 
 		// Check if AJAX search is enabled
 		if ( ! get_option( 'nivo_search_enable_ajax', 1 ) ) {
@@ -162,7 +183,7 @@ final class Nivo_Ajax_Search {
 		}
 
 		// Validate minimum query length
-		$min_length = get_option( 'nivo_search_min_chars', 2 );
+		$min_length = ! empty( $preset_settings['min_chars'] ) ? $preset_settings['min_chars'] : get_option( 'nivo_search_min_chars', 2 );
 		if ( strlen( $query ) < $min_length ) {
 			wp_send_json_error( array( 'message' => __( 'Query too short', 'nivo-ajax-search-for-woocommerce' ) ) );
 		}
@@ -171,10 +192,11 @@ final class Nivo_Ajax_Search {
 		$search_args = apply_filters(
 			'nivo_search_args',
 			array(
-				'limit'         => get_option( 'nivo_search_limit', 10 ),
+				'limit'         => ! empty( $preset_settings['limit'] ) ? $preset_settings['limit'] : get_option( 'nivo_search_limit', 10 ),
 				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 				'exclude'       => $this->get_excluded_products(),
-				'search_fields' => $this->get_search_fields(),
+				'search_fields' => $this->get_search_fields( $preset_settings ),
+				'exclude_out_of_stock' => ! empty( $preset_settings['exclude_out_of_stock'] ) ? $preset_settings['exclude_out_of_stock'] : get_option( 'nivo_search_exclude_out_of_stock', 0 ),
 			),
 			$query
 		);
@@ -244,25 +266,40 @@ final class Nivo_Ajax_Search {
 	 * Get search fields from settings
 	 *
 	 * @since 1.0.0
+	 * @param array $preset_settings Preset settings
 	 * @return array Search fields
 	 */
-	private function get_search_fields() {
+	private function get_search_fields( $preset_settings = [] ) {
 		$fields = array();
 
-		if ( get_option( 'nivo_search_in_title', 1 ) ) {
-			$fields[] = 'title';
-		}
-
-		if ( get_option( 'nivo_search_in_content', 0 ) ) {
-			$fields[] = 'content';
-		}
-
-		if ( get_option( 'nivo_search_in_excerpt', 1 ) ) {
-			$fields[] = 'excerpt';
-		}
-
-		if ( get_option( 'nivo_search_in_sku', 1 ) ) {
-			$fields[] = 'sku';
+		if ( ! empty( $preset_settings ) ) {
+			// Use preset settings
+			if ( ! empty( $preset_settings['search_in_title'] ) ) {
+				$fields[] = 'title';
+			}
+			if ( ! empty( $preset_settings['search_in_content'] ) ) {
+				$fields[] = 'content';
+			}
+			if ( ! empty( $preset_settings['search_in_excerpt'] ) ) {
+				$fields[] = 'excerpt';
+			}
+			if ( ! empty( $preset_settings['search_in_sku'] ) ) {
+				$fields[] = 'sku';
+			}
+		} else {
+			// Use global settings
+			if ( get_option( 'nivo_search_in_title', 1 ) ) {
+				$fields[] = 'title';
+			}
+			if ( get_option( 'nivo_search_in_content', 0 ) ) {
+				$fields[] = 'content';
+			}
+			if ( get_option( 'nivo_search_in_excerpt', 1 ) ) {
+				$fields[] = 'excerpt';
+			}
+			if ( get_option( 'nivo_search_in_sku', 1 ) ) {
+				$fields[] = 'sku';
+			}
 		}
 
 		// Fallback to title if no fields selected

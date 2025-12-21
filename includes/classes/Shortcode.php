@@ -50,9 +50,22 @@ class Shortcode {
      */
     public function render_search_form($atts = []) {
         ob_start();
-        // Parse shortcode attributes
+        
+        // Check for preset ID
+        $preset_id = isset($atts['id']) ? absint($atts['id']) : 0;
+        $preset_settings = [];
+        
+        if ($preset_id && get_post_type($preset_id) === 'nivo_search_preset') {
+            $preset_settings = get_post_meta($preset_id, '_nivo_search_settings', true);
+            if (!is_array($preset_settings)) {
+                $preset_settings = [];
+            }
+        }
+        
+        // Parse shortcode attributes with preset fallback
         $atts = shortcode_atts([
-            'placeholder' => get_option('nivo_search_placeholder_text', __('Search products...', 'nivo-ajax-search-for-woocommerce')),
+            'id' => 0,
+            'placeholder' => $preset_settings['placeholder'] ?? get_option('nivo_search_placeholder_text', __('Search products...', 'nivo-ajax-search-for-woocommerce')),
             'container_class' => 'nivo-ajax-search-container',
             'input_class' => 'nivo-search-product-search',
             'results_class' => 'nivo-search-results',
@@ -66,8 +79,20 @@ class Shortcode {
         // Get action URL with WooCommerce fallback
         $action_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/');
 
+        // Generate unique class for preset
+        $preset_class = $preset_id ? ' nivo-preset-' . $preset_id : '';
+        
+        // Generate inline styles for preset
+        $inline_styles = '';
+        if (!empty($preset_settings)) {
+            $inline_styles = $this->generate_preset_styles($preset_id, $preset_settings);
+        }
+        
         ?>
-        <div class="nivo-ajax-search-container">
+        <?php if ($inline_styles): ?>
+        <style><?php echo $inline_styles; ?></style>
+        <?php endif; ?>
+        <div class="nivo-ajax-search-container<?php echo esc_attr($preset_class); ?>" data-preset-id="<?php echo esc_attr($preset_id); ?>">
             <div class="nivo-search-form-wrapper">
                 <form class="nivo-search-form" role="search" method="get" action="<?php echo esc_url($action_url) ?>">
                     <div class="nivo-search-wrapper nivo-search-box-style-<?php echo esc_attr($atts['search_bar_layout']); ?>" >
@@ -88,5 +113,36 @@ class Shortcode {
         <?php
         $markup = ob_get_clean();
         return apply_filters('nivo_search_shortcode_html', $markup, $atts);
+    }
+    
+    /**
+     * Generate preset-specific styles
+     *
+     * @param int $preset_id Preset ID
+     * @param array $settings Preset settings
+     * @return string CSS styles
+     */
+    private function generate_preset_styles($preset_id, $settings) {
+        $css = '';
+        $selector = '.nivo-preset-' . $preset_id;
+        
+        // Search bar styles
+        $css .= $selector . ' .nivo-search-form-wrapper { max-width: ' . $settings['bar_width'] . 'px; }';
+        $css .= $selector . ' input.nivo-search-product-search {';
+        $css .= 'height: ' . $settings['bar_height'] . 'px;';
+        $css .= 'border: ' . $settings['border_width'] . 'px solid ' . $settings['border_color'] . ';';
+        $css .= 'border-radius: ' . $settings['border_radius'] . 'px;';
+        $css .= 'background-color: ' . $settings['bg_color'] . ';';
+        $css .= 'color: ' . $settings['text_color'] . ';';
+        $css .= '}';
+        
+        // Results styles
+        $css .= $selector . ' .nivo-search-results {';
+        $css .= 'border: ' . $settings['results_border_width'] . 'px solid ' . $settings['results_border_color'] . ';';
+        $css .= 'border-radius: ' . $settings['results_border_radius'] . 'px;';
+        $css .= 'background-color: ' . $settings['results_bg_color'] . ';';
+        $css .= '}';
+        
+        return $css;
     }
 }

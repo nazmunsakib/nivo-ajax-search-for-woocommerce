@@ -74,7 +74,7 @@ add_action( 'plugins_loaded', 'nivo_search_init' );
  * @return array Modified plugin action links
  */
 function plugin_action_links_render($links){
-	$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=nivo_search-settings' ) ) . '">' . esc_html__( 'Settings', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
+	$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=nivo-search' ) ) . '">' . esc_html__( 'Settings', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
 }

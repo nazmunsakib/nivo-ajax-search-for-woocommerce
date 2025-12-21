@@ -188,6 +188,7 @@ class Admin_Settings {
      * @since 1.0.0
      */
     public function settings_page() {
+        $default_preset = get_option( 'nivo_search_default_preset_created') ?? '123';
         ?>
         <div class="nivo-settings-page">
             <h1><?php _e('NivoSearch', 'nivo-ajax-search-for-woocommerce'); ?></h1>
@@ -204,7 +205,7 @@ class Admin_Settings {
                     <li><?php _e('Click <strong>"Add New Preset"</strong>', 'nivo-ajax-search-for-woocommerce'); ?></li>
                     <li><?php _e('Configure all settings (search scope, styling, display options)', 'nivo-ajax-search-for-woocommerce'); ?></li>
                     <li><?php _e('Click <strong>Publish</strong> to generate your shortcode', 'nivo-ajax-search-for-woocommerce'); ?></li>
-                    <li><?php _e('Copy and use the shortcode anywhere: ', 'nivo-ajax-search-for-woocommerce'); ?><code>[nivo_search id="123"]</code></li>
+                    <li><?php _e('Copy and use the shortcode anywhere: ', 'nivo-ajax-search-for-woocommerce'); ?><code>[nivo_search id="<?php echo esc_attr(  $default_preset ); ?>"]</code></li>
                 </ol>
             </div>
             

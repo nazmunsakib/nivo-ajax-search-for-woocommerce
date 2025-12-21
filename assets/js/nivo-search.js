@@ -24,12 +24,19 @@
             focused: 'nivo-search-focused'
         },
         settings: {
-            minLength: (window.nivo_search && window.nivo_search.settings.min_length) || 2,
-            delay: (window.nivo_search && window.nivo_search.settings.delay) || 200,
-            maxResults: (window.nivo_search && window.nivo_search.settings.max_results) || 10
+            minLength: 2,
+            delay: 200,
+            maxResults: 10
         },
         strings: (window.nivo_search && window.nivo_search.strings) || {}
     };
+
+   
+
+    if(config.selectors.container){
+        const mainContainer = document.querySelectorAll(config.selectors.container);
+        console.log(mainContainer);
+    }
 
     // State
     let searchTimeout = null;

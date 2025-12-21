@@ -87,16 +87,59 @@ add_filter('plugin_action_links_' . NIVO_SEARCH_PLUGIN_BASENAME, 'plugin_action_
  * @since 1.0.0
  * @return void
  */
-register_activation_hook(
-	__FILE__,
-	function() {
-		// Check WooCommerce dependency.
-		if ( ! class_exists( 'WooCommerce' ) ) {
-			// deactivate_plugins( plugin_basename( __FILE__ ) );
-			// wp_die( esc_html__( 'This plugin requires WooCommerce to be installed and active.', 'nivo-ajax-search-for-woocommerce' ) );
-		}
+function nivo_search_activate() {
+	$default_preset = get_option( 'nivo_search_default_preset_created' );
+	
+	if ( $default_preset ) {
+		return;
 	}
-);
+	
+	$preset_id = wp_insert_post(
+		array(
+			'post_title'  => __( 'Default AJAX Search', 'nivo-ajax-search-for-woocommerce' ),
+			'post_type'   => 'nivo_search_preset',
+			'post_status' => 'publish',
+		)
+	);
+	
+	if ( ! $preset_id || is_wp_error( $preset_id ) ) {
+		return;
+	}
+	
+	$default_settings = array(
+		'limit'                    => 10,
+		'min_chars'                => 2,
+		'placeholder'              => __( 'Search products...', 'nivo-ajax-search-for-woocommerce' ),
+		'search_in_title'          => 1,
+		'search_in_sku'            => 1,
+		'search_in_content'        => 0,
+		'search_in_excerpt'        => 0,
+		'search_in_categories'     => 0,
+		'search_in_tags'           => 0,
+		'exclude_out_of_stock'     => 0,
+		'show_images'              => 1,
+		'show_price'               => 1,
+		'show_sku'                 => 0,
+		'show_description'         => 0,
+		'bar_width'                => 600,
+		'bar_height'               => 50,
+		'border_width'             => 1,
+		'border_color'             => '#dfdfdf',
+		'border_radius'            => 30,
+		'bg_color'                 => '#ffffff',
+		'text_color'               => '#333333',
+		'results_border_width'     => 1,
+		'results_border_color'     => '#ddd',
+		'results_border_radius'    => 4,
+		'results_bg_color'         => '#ffffff',
+		'results_padding'          => 10,
+		'search_bar_layout'        => 1,
+	);
+	
+	update_post_meta( $preset_id, '_nivo_search_settings', $default_settings );
+	update_option( 'nivo_search_default_preset_created', $preset_id );
+}
+register_activation_hook( __FILE__, 'nivo_search_activate' );
 
 /**
  * Plugin deactivation hook
@@ -104,12 +147,10 @@ register_activation_hook(
  * @since 1.0.0
  * @return void
  */
-register_deactivation_hook(
-	__FILE__,
-	function() {
-		// Cleanup if needed.
-	}
-);
+function nivo_search_deactivate() {
+	// Cleanup if needed
+}
+register_deactivation_hook( __FILE__, 'nivo_search_deactivate' );
 
 /**
  * Add plugin meta links

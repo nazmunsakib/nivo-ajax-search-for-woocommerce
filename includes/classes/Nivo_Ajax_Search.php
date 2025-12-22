@@ -174,8 +174,9 @@ final class Nivo_Ajax_Search {
 			$generale_settings = get_post_meta( $preset_id, '_nivo_search_generale', true ) ?: [];
 			$query_settings    = get_post_meta( $preset_id, '_nivo_search_query', true ) ?: [];
 			$display_settings  = get_post_meta( $preset_id, '_nivo_search_display', true ) ?: [];
+			$style_settings    = get_post_meta( $preset_id, '_nivo_search_style', true ) ?: [];
 			
-			$preset_settings = array_merge( $generale_settings, $query_settings, $display_settings );
+			$preset_settings = array_merge( $generale_settings, $query_settings, $display_settings, $style_settings );
 		}
 
 		// Check if AJAX search is enabled

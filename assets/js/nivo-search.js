@@ -34,11 +34,6 @@
     const DEFAULT_MIN_LENGTH = 2;
     const DEFAULT_DELAY = 200;
 
-    if (config.selectors.container) {
-        const mainContainer = document.querySelectorAll(config.selectors.container);
-        console.log(mainContainer);
-    }
-
     // State
     let searchTimeout = null;
     let currentRequest = null;
@@ -153,6 +148,27 @@
         if (container) {
             addClass(container, config.classes.focused);
             triggerEvent('focus', { input, container });
+
+            const query = input.value.trim();
+            const results = container.querySelector(config.selectors.results);
+            const containerSettings = getContainerSettings(container);
+
+            if (query.length >= containerSettings.minLength && results) {
+                if (results.innerHTML.trim() !== '') {
+                    // Soft open: Restore view if we have cached results
+                    if (results.querySelector('.nivo-search-no-results-message')) {
+                        addClass(container, config.classes.noResults);
+                    } else {
+                        addClass(container, config.classes.hasResults);
+                    }
+                    // Restore close icon
+                    const loaderIcons = container.querySelector('.nivo-search-loader-icons');
+                    if (loaderIcons) addClass(loaderIcons, 'nivo-search-close');
+                } else {
+                    // No cached results, perform new search
+                    performSearch(query, results, container);
+                }
+            }
         }
     }
 
@@ -165,6 +181,8 @@
 
         setTimeout(() => {
             if (container) {
+                // removeClass(container, config.classes.focused); // Keep focus class if we want, or remove. 
+                // Usually blur removes focus style, but let's keep specific logic simple.
                 removeClass(container, config.classes.focused);
                 triggerEvent('blur', { input, container });
             }
@@ -248,7 +266,7 @@
 
         const clearBtn = container.querySelector('.nivo-search-loader-icons');
         if (clearBtn) {
-            addClass(clearBtn, 'nivo-search-close')
+            addClass(clearBtn, 'nivo-search-close'); // Show close icon when results display
         }
 
         if (categories.length === 0 && products.length === 0) {
@@ -447,12 +465,18 @@
     }
 
     /**
-     * Clear results
+     * Clear results (Hard Clear)
      */
     function clearResults(results, container) {
         results.innerHTML = '';
         removeClass(container, config.classes.hasResults);
         removeClass(container, config.classes.noResults);
+
+        // Hide close button when clearing results
+        const loaderIcons = container.querySelector('.nivo-search-loader-icons');
+        if (loaderIcons) {
+            removeClass(loaderIcons, 'nivo-search-close');
+        }
 
         triggerEvent('resultsCleared', { results, container });
     }
@@ -461,6 +485,7 @@
      * Handle clear button click
      */
     function handleClear(event) {
+        // The event target might be the icon itself or the container, normalize to the button wrapper if needed
         const clearBtn = event.target;
         const container = closest(clearBtn, config.selectors.container);
         if (!container) return;
@@ -471,7 +496,6 @@
         if (input) {
             input.value = '';
             input.focus();
-            clearBtn.style.display = 'none';
         }
         if (results) {
             clearResults(results, container);
@@ -480,15 +504,39 @@
 
     /**
      * Toggle clear button visibility
+     * @deprecated Icon visibility is now handled by results display state
      */
     function toggleClearButton(input) {
-        const container = closest(input, config.selectors.container);
-        if (!container) return;
+        // Logic moved to displayResults and clearResults
+    }
 
-        // const clearBtn = container.querySelector('.nivo-search-loader-icons');
-        // if (clearBtn) {
-        //     addClass(clearBtn, 'nivo-search-close')
-        // }
+    /**
+     * Handle click outside to close results (Soft Close)
+     */
+    function handleClickOutside(event) {
+        // If click is inside any search container, ignore
+        if (closest(event.target, config.selectors.container)) {
+            return;
+        }
+
+        // Close all open search results (Soft Close - maintain HTML)
+        const containers = document.querySelectorAll(config.selectors.container);
+        containers.forEach(container => {
+            const results = container.querySelector(config.selectors.results);
+            if (results && (container.classList.contains(config.classes.hasResults) || container.classList.contains(config.classes.noResults))) {
+
+                // Just remove visibility classes, DO NOT clear innerHTML
+                removeClass(container, config.classes.hasResults);
+                removeClass(container, config.classes.noResults);
+                removeClass(container, config.classes.focused);
+
+                // Hide close icon
+                const loaderIcons = container.querySelector('.nivo-search-loader-icons');
+                if (loaderIcons) {
+                    removeClass(loaderIcons, 'nivo-search-close');
+                }
+            }
+        });
     }
 
     /**
@@ -499,7 +547,7 @@
         document.addEventListener('input', function (event) {
             if (event.target.matches && event.target.matches(config.selectors.input)) {
                 handleInput(event);
-                toggleClearButton(event.target);
+                // toggleClearButton removed from here
             }
         });
 
@@ -517,12 +565,16 @@
             }
         }, true);
 
-        // Event delegation for clear button
+        // Event delegation for clear button - target the specific class
         document.addEventListener('click', function (event) {
-            if (event.target.matches && event.target.matches('.nivo-search-close-icon')) {
+            // Check if clicked element or its parent is the close icon
+            if (event.target.matches('.nivo-search-close-icon') || event.target.closest('.nivo-search-close-icon')) {
                 handleClear(event);
             }
         });
+
+        // Click outside handler
+        document.addEventListener('click', handleClickOutside);
 
         triggerEvent('init');
     }

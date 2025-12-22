@@ -62,7 +62,7 @@ class Admin_Settings {
             'manage_options',
             'nivo-search',
             array( $this, 'settings_page' ),
-            NIVO_SEARCH_PLUGIN_URL . 'assets/imgs/nivo-search-icon.png',
+            NIVO_SEARCH_PLUGIN_URL . 'assets/imgs/dashboard-icon.png',
             56
         );
         

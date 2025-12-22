@@ -178,6 +178,9 @@ class Shortcode {
         }
         
         $results_styles = [];
+        if (isset($settings['results_width'])) {
+            $results_styles[] = 'max-width:' . absint($settings['results_width']) . 'px';
+        }
         if (isset($settings['results_border_width'], $settings['results_border_color'])) {
             $results_styles[] = 'border:' . absint($settings['results_border_width']) . 'px solid ' . esc_attr($settings['results_border_color']);
         }

@@ -112,7 +112,7 @@ class Search_Preset_CPT {
         $style_settings    = get_post_meta($post->ID, '_nivo_search_style', true) ?: [];
 
         // Merge all for display logic
-        $settings = array_merge($generale_settings, $query_settings, $display_settings);
+        $settings = array_merge($generale_settings, $query_settings, $display_settings, $style_settings);
 
         $defaults = [
             'limit' => 10,
@@ -136,6 +136,7 @@ class Search_Preset_CPT {
             'border_radius' => 5,
             'bg_color' => '#ffffff',
             'text_color' => '#333333',
+            'results_width' => 600,
             'results_border_width' => 1,
             'results_border_color' => '#ddd',
             'results_border_radius' => 4,
@@ -149,7 +150,7 @@ class Search_Preset_CPT {
             .nivo-settings-section h3 { margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
             .nivo-setting-row { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
             .nivo-setting-row label { min-width: 180px; font-weight: 600; }
-            .nivo-setting-row input[type="number"],
+            .nivo-setting-row input[type="number"]{ width: 100px; }
             .nivo-setting-row input[type="text"] { width: 200px; }
             .nivo-setting-row input[type="color"] { width: 80px; height: 35px; }
         </style>
@@ -309,6 +310,11 @@ class Search_Preset_CPT {
         <!-- Results Styling -->
         <div class="nivo-settings-section">
             <h3><?php _e('Results Styling', 'nivo-ajax-search-for-woocommerce'); ?></h3>
+
+            <div class="nivo-setting-row">
+                <label><?php _e('Width (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="number" name="nivo_settings[results_width]" value="<?php echo esc_attr($settings['results_width']); ?>" min="200" max="1200">
+            </div>
             
             <div class="nivo-setting-row">
                 <label><?php _e('Border Width (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
@@ -392,6 +398,7 @@ class Search_Preset_CPT {
                 'border_radius' => absint($settings['border_radius'] ?? 5),
                 'bg_color' => sanitize_hex_color($settings['bg_color'] ?? '#ffffff'),
                 'text_color' => sanitize_hex_color($settings['text_color'] ?? '#333333'),
+                'results_width' => absint($settings['results_width'] ?? 600),
                 'results_border_width' => absint($settings['results_border_width'] ?? 1),
                 'results_border_color' => sanitize_hex_color($settings['results_border_color'] ?? '#ddd'),
                 'results_border_radius' => absint($settings['results_border_radius'] ?? 4),
@@ -404,9 +411,6 @@ class Search_Preset_CPT {
             update_post_meta($post_id, '_nivo_search_query', $query_settings);
             update_post_meta($post_id, '_nivo_search_display', $display_settings);
             update_post_meta($post_id, '_nivo_search_style', $style_settings);
-            
-            // Delete old key to declutter
-            delete_post_meta($post_id, '_nivo_search_settings');
         }
     }
 

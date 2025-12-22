@@ -141,6 +141,7 @@ function nivo_search_activate() {
 		'border_radius' 	=> 5,
 		'bg_color' 			=> '#dfdfdf',
 		'text_color' 		=> '#333333',
+		'results_width'		=> 600,
 		'results_border_width' => 1,
 		'results_border_color' => '#ddd',
 		'results_border_radius' => 4,

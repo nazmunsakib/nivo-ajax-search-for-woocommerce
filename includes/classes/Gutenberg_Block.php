@@ -40,6 +40,12 @@ class Gutenberg_Block {
         }
         
         register_block_type('nivo-search/ajax-search', [
+            'attributes' => [
+                'presetId' => [
+                    'type' => 'number',
+                    'default' => 0
+                ]
+            ],
             'render_callback' => [$this, 'render_block']
         ]);
     }
@@ -67,32 +73,45 @@ class Gutenberg_Block {
      * @return string Block HTML
      */
     public function render_block($attributes = []) {
-        // Get preset ID from block attributes
-        $preset_id = isset($attributes['presetId']) ? absint($attributes['presetId']) : 0;
+        // Get default preset if no preset specified
+        $default_preset = get_option( 'nivo_search_default_preset_created' ) ?? 0;
+        $preset_id = ( isset($attributes['presetId']) && $attributes['presetId'] !== 0 ) ? absint($attributes['presetId']) : $default_preset;
+
         $preset_settings = [];
+        $preset_style_settings = [];
         
         if ($preset_id && get_post_type($preset_id) === 'nivo_search_preset') {
-            $preset_settings = get_post_meta($preset_id, '_nivo_search_settings', true);
-            if (!is_array($preset_settings)) {
-                $preset_settings = [];
-            }
+            // Fetch new split meta
+            $generale_settings = get_post_meta($preset_id, '_nivo_search_generale', true) ?: [];
+            $display_settings  = get_post_meta($preset_id, '_nivo_search_display', true) ?: [];
+            $style_settings    = get_post_meta($preset_id, '_nivo_search_style', true) ?: [];
+
+            // Merge all settings for frontend
+            $preset_settings = array_merge($generale_settings, $display_settings);
+            $preset_style_settings = $style_settings;
         }
         
         // Use preset settings with defaults
         $placeholder = $preset_settings['placeholder'] ?? __('Search products...', 'nivo-ajax-search-for-woocommerce');
-        $show_icon = $preset_settings['show_search_icon'] ?? 1;
+        $search_bar_layout = $preset_settings['search_bar_layout'] ?? 1;
         
-        $icon_html = $show_icon ? '<svg class="nivo-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>' : '';
+        $search_icon_html = '<svg class="nivosearch-ico-magnifier" xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 51.539 51.361" width="18">
+                                <path d="M51.539,49.356L37.247,35.065c3.273-3.74,5.272-8.623,5.272-13.983c0-11.742-9.518-21.26-21.26-21.26 S0,9.339,0,21.082s9.518,21.26,21.26,21.26c5.361,0,10.244-1.999,13.983-5.272l14.292,14.292L51.539,49.356z M2.835,21.082 c0-10.176,8.249-18.425,18.425-18.425s18.425,8.249,18.425,18.425S31.436,39.507,21.26,39.507S2.835,31.258,2.835,21.082z"></path>
+                            </svg>';
         
         // Get action URL with WooCommerce fallback
         $action_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/');
         
-        // Generate preset class and styles
+        // Generate preset class
         $preset_class = $preset_id ? ' nivo-preset-' . $preset_id : '';
+        
+        // Generate inline styles if needed
         $inline_styles = '';
-        if (!empty($preset_settings)) {
-            $inline_styles = $this->generate_preset_styles($preset_id, $preset_settings);
+        if (!empty($preset_style_settings)) {
+            $inline_styles = $this->generate_preset_styles($preset_id, $preset_style_settings);
         }
+        
+        $settings_compress = !empty($preset_settings) ? json_encode($preset_settings) : '{}';
         
         $output = '';
         if ($inline_styles) {
@@ -100,21 +119,31 @@ class Gutenberg_Block {
         }
         
         $output .= sprintf(
-            '<div class="nivo-ajax-search-container nivo-search-block%s" data-preset-id="%d">
-                <form class="nivo-search-form" role="search" method="get" action="%s">
-                    <div class="nivo-search-wrapper">
-                        %s
-                        <input type="text" class="nivo-search-product-search" name="s" placeholder="%s" autocomplete="off">
-                        <span class="nivo-search-clear-search" style="display:none;">&times;</span>
-                    </div>
-                </form>
+            '<div class="nivo-ajax-search-container%s" data-preset-id="%d" data-preset-settings="%s">
+                <div class="nivo-search-form-wrapper">
+                    <form class="nivo-search-form" role="search" method="get" action="%s">
+                        <div class="nivo-search-wrapper nivo-search-box-style-%d">
+                            <input type="search" class="nivo-search-product-search" name="s" placeholder="%s" autocomplete="off">
+                            <div class="nivo-search-loader-icons">
+                                <svg class="nivo-search-close-icon" xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18">
+                                    <path d="M18.3 5.71c-.39-.39-1.02-.39-1.41 0L12 10.59 7.11 5.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
+                                </svg>
+                            </div>
+                            <div class="nivo-search-search-icon-wrap">
+                                %s
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <div class="nivo-search-results"></div>
             </div>',
             esc_attr($preset_class),
             esc_attr($preset_id),
+            esc_attr($settings_compress),
             esc_url($action_url),
-            $icon_html,
-            esc_attr($placeholder)
+            esc_attr($search_bar_layout),
+            esc_attr($placeholder),
+            $search_icon_html
         );
         
         return $output;
@@ -132,7 +161,7 @@ class Gutenberg_Block {
         $selector = '.nivo-preset-' . $preset_id;
         
         if (isset($settings['bar_width'])) {
-            $css .= $selector . ' { max-width: ' . $settings['bar_width'] . 'px; }';
+            $css .= $selector . ' .nivo-search-form-wrapper { max-width: ' . $settings['bar_width'] . 'px; }';
         }
         
         if (isset($settings['border_width'], $settings['border_color'], $settings['border_radius'], $settings['bg_color'])) {

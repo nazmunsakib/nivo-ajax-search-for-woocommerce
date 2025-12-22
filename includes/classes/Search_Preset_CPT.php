@@ -43,6 +43,7 @@ class Search_Preset_CPT {
             'public' => false,
             'show_ui' => true,
             'show_in_menu' => 'nivo-search',
+            'show_in_rest' => true, // Enable REST API for Gutenberg
             'menu_icon' => 'dashicons-search',
             'supports' => ['title'],
             'capability_type' => 'post',

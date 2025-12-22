@@ -72,6 +72,7 @@ class Shortcode {
         // Check for preset ID
         $default_preset = get_option( 'nivo_search_default_preset_created' ) ?? 0;
         $preset_id = isset($atts['id']) ? absint($atts['id']) : $default_preset;
+
         $preset_settings = [];
         $preset_style_settings = [];
         

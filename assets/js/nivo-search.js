@@ -286,13 +286,6 @@
                 }
             });
         }
-        const resultsStyle = `
-            border: ${settings.results_border_width || 1}px solid ${settings.results_border_color || '#ddd'};
-            border-radius: ${settings.results_border_radius || 4}px;
-            background-color: ${settings.results_bg_color || '#ffffff'};
-        `;
-
-        results.style.cssText = resultsStyle;
 
         let html = '';
 
@@ -443,13 +436,6 @@
      * Display no results message
      */
     function displayNoResults(results, container) {
-        const settings = window.nivo_search && window.nivo_search.settings ? window.nivo_search.settings : {};
-        const resultsStyle = `
-            border: ${settings.results_border_width || 1}px solid ${settings.results_border_color || '#ddd'};
-            border-radius: ${settings.results_border_radius || 4}px;
-            background-color: ${settings.results_bg_color || '#ffffff'};
-        `;
-        results.style.cssText = resultsStyle;
         results.innerHTML = `<p class="nivo-search-no-results-message">${config.strings.no_results}</p>`;
         addClass(container, config.classes.noResults);
         triggerEvent('noResults', { results, container });

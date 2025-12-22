@@ -112,7 +112,7 @@ class Search_Preset_CPT {
         $style_settings    = get_post_meta($post->ID, '_nivo_search_style', true) ?: [];
 
         // Merge all for display logic
-        $settings = array_merge($generale_settings, $query_settings, $display_settings, $style_settings);
+        $settings = array_merge($generale_settings, $query_settings, $display_settings);
 
         $defaults = [
             'limit' => 10,

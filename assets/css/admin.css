@@ -128,3 +128,9 @@
 	font-size: 14px;
 	color: #646970;
 }
+
+#toplevel_page_nivo-search .wp-menu-image img {
+	max-width: 20px;
+	max-height: 20px;
+	padding-top: 7px;
+}

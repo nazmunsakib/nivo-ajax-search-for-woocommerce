@@ -174,8 +174,9 @@ class Enqueue {
 			$generale_settings = get_post_meta( $default_preset, '_nivo_search_generale', true ) ?: [];
 			$query_settings    = get_post_meta( $default_preset, '_nivo_search_query', true ) ?: [];
 			$display_settings  = get_post_meta( $default_preset, '_nivo_search_display', true ) ?: [];
+			$style_settings    = get_post_meta( $default_preset, '_nivo_search_style', true ) ?: [];
 			
-			$preset_settings = array_merge( $generale_settings, $query_settings, $display_settings );
+			$preset_settings = array_merge( $generale_settings, $query_settings, $display_settings, $style_settings );
 
 			if ( is_array( $preset_settings ) ) {
 				$localize_data['settings']['min_chars'] = isset( $preset_settings['min_chars'] ) ? absint( $preset_settings['min_chars'] ) : 2;

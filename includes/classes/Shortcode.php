@@ -26,6 +26,14 @@ class Shortcode {
      * @var array
      */
     private static $used_presets = [];
+
+    /**
+     * Store used presets style
+     *
+     * @since 1.0.0
+     * @var array
+     */
+    private static $used_presets_style = [];
     
     /**
      * Constructor
@@ -65,14 +73,17 @@ class Shortcode {
         $default_preset = get_option( 'nivo_search_default_preset_created' ) ?? 0;
         $preset_id = isset($atts['id']) ? absint($atts['id']) : $default_preset;
         $preset_settings = [];
+        $preset_style_settings = [];
         
         if ($preset_id && get_post_type($preset_id) === 'nivo_search_preset') {
 			// Fetch new split meta
 			$generale_settings = get_post_meta($preset_id, '_nivo_search_generale', true) ?: [];
 			$display_settings  = get_post_meta($preset_id, '_nivo_search_display', true) ?: [];
+			$style_settings    = get_post_meta($preset_id, '_nivo_search_style', true) ?: [];
 
 			// Merge all settings for frontend
 			$preset_settings = array_merge($generale_settings, $display_settings);
+			$preset_style_settings = $style_settings;
         }
 
         // Parse shortcode attributes with preset fallback
@@ -98,6 +109,10 @@ class Shortcode {
         // Store preset for CSS generation
         if ($preset_id && !empty($preset_settings) && !isset(self::$used_presets[$preset_id])) {
             self::$used_presets[$preset_id] = $preset_settings;
+        }
+
+        if ($preset_id && !empty($preset_style_settings) && !isset(self::$used_presets_style[$preset_id])) {
+            self::$used_presets_style[$preset_id] = $preset_style_settings;
         }
 
         $settings_compress = !empty($preset_settings) ? json_encode($preset_settings) : '{}';
@@ -189,12 +204,12 @@ class Shortcode {
      * @since 1.0.0
      */
     public function output_preset_styles() {
-        if (empty(self::$used_presets)) {
+        if (empty(self::$used_presets_style)) {
             return;
         }
         
         $css = '';
-        foreach (self::$used_presets as $preset_id => $settings) {
+        foreach (self::$used_presets_style as $preset_id => $settings) {
             $css .= $this->generate_preset_css($preset_id, $settings);
         }
         

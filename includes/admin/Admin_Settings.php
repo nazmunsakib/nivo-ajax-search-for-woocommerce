@@ -31,6 +31,22 @@ class Admin_Settings {
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_head', array( $this, 'remove_notices' ) );
+        add_action( 'admin_head', array( $this, 'fix_menu_icon_style' ) );
+    }
+
+    /**
+     * Fix menu icon style
+     * 
+     * @since 1.1.0
+     */
+    public function fix_menu_icon_style() {
+        echo '<style>
+            #toplevel_page_nivo-search .wp-menu-image img {
+                max-width: 20px;
+                max-height: 20px;
+                padding-top: 7px;
+            }
+        </style>';
     }
         
     /**
@@ -46,7 +62,7 @@ class Admin_Settings {
             'manage_options',
             'nivo-search',
             array( $this, 'settings_page' ),
-            'dashicons-search',
+            NIVO_SEARCH_PLUGIN_URL . 'assets/imgs/nivo-search-icon.png',
             56
         );
         
@@ -90,96 +106,13 @@ class Admin_Settings {
         if ( 'toplevel_page_nivo-search' !== $hook ) {
             return;
         }
-        // Add inline styles
-        wp_add_inline_style( 'wp-admin', '
-            .nivo-settings-page {
-                max-width: 1200px;
-                margin: 40px auto;
-                background: #fff;
-                padding: 40px;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
-            .nivo-settings-page h1 {
-                font-size: 32px;
-                margin-bottom: 10px;
-                color: #1d2327;
-            }
-            .nivo-settings-page .subtitle {
-                font-size: 16px;
-                color: #646970;
-                margin-bottom: 40px;
-            }
-            .nivo-card {
-                background: #f9f9f9;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 30px;
-                margin-bottom: 30px;
-            }
-            .nivo-card h2 {
-                margin-top: 0;
-                font-size: 20px;
-                color: #1d2327;
-                border-bottom: 2px solid #2271b1;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            .nivo-card h2 svg {
-                width: 24px;
-                height: 24px;
-                fill: #2271b1;
-            }
-            .nivo-card ol {
-                font-size: 15px;
-                line-height: 1.8;
-                color: #50575e;
-            }
-            .nivo-card ol li {
-                margin-bottom: 12px;
-            }
-            .nivo-card code {
-                background: #fff;
-                padding: 2px 8px;
-                border-radius: 4px;
-                border: 1px solid #ddd;
-                font-family: monospace;
-                color: #d63638;
-            }
-            .nivo-feature-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                margin-top: 20px;
-            }
-            .nivo-feature-item {
-                background: #fff;
-                padding: 20px;
-                border-radius: 6px;
-                border: 1px solid #e0e0e0;
-            }
-            .nivo-feature-item h3 {
-                margin-top: 0;
-                font-size: 16px;
-                color: #2271b1;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .nivo-feature-item h3 svg {
-                width: 20px;
-                height: 20px;
-                fill: #2271b1;
-            }
-            .nivo-feature-item p {
-                margin: 0;
-                font-size: 14px;
-                color: #646970;
-            }
-        ');
+        // Enqueue admin styles
+        wp_enqueue_style(
+            'nivo-search-admin',
+            NIVO_SEARCH_PLUGIN_URL . 'assets/css/admin.css',
+            array(),
+            NIVO_SEARCH_VERSION
+        );
     }
     
     /**
@@ -191,8 +124,13 @@ class Admin_Settings {
         $default_preset = get_option( 'nivo_search_default_preset_created') ?? '123';
         ?>
         <div class="nivo-settings-page">
-            <h1><?php _e('NivoSearch', 'nivo-ajax-search-for-woocommerce'); ?></h1>
-            <p class="subtitle"><?php _e('Advanced AJAX Product Search for WooCommerce', 'nivo-ajax-search-for-woocommerce'); ?></p>
+            <div class="nivo-settings-header">
+                <img src="<?php echo esc_url( NIVO_SEARCH_PLUGIN_URL . 'assets/imgs/nivo-search-icon.png' ); ?>" alt="NivoSearch Icon" class="nivo-settings-icon">
+                <div>
+                    <h1><?php _e('NivoSearch', 'nivo-ajax-search-for-woocommerce'); ?></h1>
+                    <p><?php _e('AJAX Product Search for WooCommerce', 'nivo-ajax-search-for-woocommerce'); ?></p>
+                </div>
+            </div>
             
             <div class="nivo-card">
                 <h2>

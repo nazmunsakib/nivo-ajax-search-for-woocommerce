@@ -173,8 +173,9 @@ final class Nivo_Ajax_Search {
 		if ( $preset_id && get_post_type( $preset_id ) === 'nivo_search_preset' ) {
 			$generale_settings = get_post_meta( $preset_id, '_nivo_search_generale', true ) ?: [];
 			$query_settings    = get_post_meta( $preset_id, '_nivo_search_query', true ) ?: [];
+			$display_settings  = get_post_meta( $preset_id, '_nivo_search_display', true ) ?: [];
 			
-			$preset_settings = array_merge( $generale_settings, $query_settings );
+			$preset_settings = array_merge( $generale_settings, $query_settings, $display_settings );
 		}
 
 		// Check if AJAX search is enabled
@@ -200,6 +201,8 @@ final class Nivo_Ajax_Search {
 				'exclude'              => $this->get_excluded_products(),
 				'search_fields'        => $this->get_search_fields( $preset_settings ),
 				'exclude_out_of_stock' => $exclude_out_of_stock,
+				'search_product_categories' => ! empty( $preset_settings['search_product_categories'] ) ? 1 : 0,
+				'search_product_tags'       => ! empty( $preset_settings['search_product_tags'] ) ? 1 : 0,
 			),
 			$query
 		);

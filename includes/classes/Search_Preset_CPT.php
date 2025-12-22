@@ -220,14 +220,14 @@ class Search_Preset_CPT {
             
             <div class="nivo-setting-row">
                 <label>
-                    <input type="checkbox" name="nivo_settings[search_in_categories]" value="1" <?php checked($settings['search_product_categories'], 1); ?>>
+                    <input type="checkbox" name="nivo_settings[search_product_categories]" value="1" <?php checked($settings['search_product_categories'], 1); ?>>
                     <?php _e('Show Categories', 'nivo-ajax-search-for-woocommerce'); ?>
                 </label>
             </div>
 
             <div class="nivo-setting-row">
                 <label>
-                    <input type="checkbox" name="nivo_settings[search_in_tags]" value="1" <?php checked($settings['search_product_tags'], 1); ?>>
+                    <input type="checkbox" name="nivo_settings[search_product_tags]" value="1" <?php checked($settings['search_product_tags'], 1); ?>>
                     <?php _e('Show Tags', 'nivo-ajax-search-for-woocommerce'); ?>
                 </label>
             </div>

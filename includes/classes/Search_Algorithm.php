@@ -54,13 +54,13 @@ class Search_Algorithm {
         
         // Get matching tags if enabled
         $tags = [];
-        if (!empty($args['search_in_tags']) || get_option('nivo_search_in_tags', 1)) {
+        if (!empty($args['search_product_tags'])) {
             $tags = $this->get_tags($query, $args);
         }
 
         // Get matching categories if enabled
         $categories = [];
-        if (!empty($args['search_in_categories']) || get_option('nivo_search_in_categories', 1)) {
+        if (!empty($args['search_product_categories'])) {
             $categories = $this->get_categories($query, $args);
         }
         

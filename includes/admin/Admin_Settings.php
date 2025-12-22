@@ -29,7 +29,6 @@ class Admin_Settings {
      */
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
         add_action( 'admin_head', array( $this, 'remove_notices' ) );
         add_action( 'admin_head', array( $this, 'fix_menu_icon_style' ) );
     }
@@ -97,23 +96,6 @@ class Admin_Settings {
         }
     }
     
-    /**
-     * Enqueue admin styles
-     *
-     * @since 1.1.0
-     */
-    public function enqueue_admin_styles( $hook ) {
-        if ( 'toplevel_page_nivo-search' !== $hook ) {
-            return;
-        }
-        // Enqueue admin styles
-        wp_enqueue_style(
-            'nivo-search-admin',
-            NIVO_SEARCH_PLUGIN_URL . 'assets/css/admin.css',
-            array(),
-            NIVO_SEARCH_VERSION
-        );
-    }
     
     /**
      * Settings page HTML

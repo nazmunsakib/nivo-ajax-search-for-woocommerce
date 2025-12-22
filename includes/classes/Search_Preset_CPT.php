@@ -287,7 +287,7 @@ class Search_Preset_CPT {
 
             <div class="nivo-setting-row">
                 <label><?php _e('Border Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="color" name="nivo_settings[border_color]" value="<?php echo esc_attr($settings['border_color']); ?>">
+                <input type="text" class="nivo-color-picker" name="nivo_settings[border_color]" value="<?php echo esc_attr($settings['border_color']); ?>">
             </div>
 
             <div class="nivo-setting-row">
@@ -297,12 +297,12 @@ class Search_Preset_CPT {
 
             <div class="nivo-setting-row">
                 <label><?php _e('Background Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="color" name="nivo_settings[bg_color]" value="<?php echo esc_attr($settings['bg_color']); ?>">
+                <input type="text" class="nivo-color-picker" name="nivo_settings[bg_color]" value="<?php echo esc_attr($settings['bg_color']); ?>">
             </div>
 
             <div class="nivo-setting-row">
                 <label><?php _e('Text Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="color" name="nivo_settings[text_color]" value="<?php echo esc_attr($settings['text_color']); ?>">
+                <input type="text" class="nivo-color-picker" name="nivo_settings[text_color]" value="<?php echo esc_attr($settings['text_color']); ?>">
             </div>
         </div>
 
@@ -317,7 +317,7 @@ class Search_Preset_CPT {
 
             <div class="nivo-setting-row">
                 <label><?php _e('Border Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="color" name="nivo_settings[results_border_color]" value="<?php echo esc_attr($settings['results_border_color']); ?>">
+                <input type="text" class="nivo-color-picker" name="nivo_settings[results_border_color]" value="<?php echo esc_attr($settings['results_border_color']); ?>">
             </div>
 
             <div class="nivo-setting-row">
@@ -327,7 +327,7 @@ class Search_Preset_CPT {
 
             <div class="nivo-setting-row">
                 <label><?php _e('Background Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="color" name="nivo_settings[results_bg_color]" value="<?php echo esc_attr($settings['results_bg_color']); ?>">
+                <input type="text" class="nivo-color-picker" name="nivo_settings[results_bg_color]" value="<?php echo esc_attr($settings['results_bg_color']); ?>">
             </div>
 
             <div class="nivo-setting-row">

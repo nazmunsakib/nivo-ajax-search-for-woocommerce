@@ -88,8 +88,30 @@ class Enqueue {
 	 * @return void
 	 */
 	public function enqueue_admin_assets( $hook ) {
-		// No admin assets needed for simple settings page
-		return;
+        if ( 'toplevel_page_nivo-search' === $hook ) {
+            wp_enqueue_style(
+                'nivo-search-admin',
+                NIVO_SEARCH_PLUGIN_URL . 'assets/css/admin.css',
+                array(),
+                NIVO_SEARCH_VERSION
+            );
+        }
+
+        if ($hook === 'post.php' || $hook === 'post-new.php') {
+            global $post_type;
+            if ($post_type === 'nivo_search_preset') {
+                wp_enqueue_style('wp-color-picker');
+                wp_enqueue_script('wp-color-picker');
+
+				wp_enqueue_script(
+					'nivo-search-admin',
+					NIVO_SEARCH_PLUGIN_URL . 'assets/js/admin.js',
+					array('jquery', 'wp-color-picker'),
+					NIVO_SEARCH_VERSION,
+					true
+				);
+            }
+        }
 	}
 
 	/**

@@ -126,6 +126,7 @@ class Search_Preset_CPT {
             .nivo-setting-row input[type="number"]{ width: 100px; }
             .nivo-setting-row input[type="text"] { width: 200px; }
             .nivo-setting-row input[type="color"] { width: 80px; height: 35px; }
+            h4.nivo-search-settings-sub {font-size: 16px;margin-top: 15px;}
         </style>
 
         <!-- General Settings -->
@@ -151,6 +152,11 @@ class Search_Preset_CPT {
         <!-- Search Bar Styling -->
         <div class="nivo-settings-section">
             <h3><?php _e('Search Bar Layout & Styling', 'nivo-ajax-search-for-woocommerce'); ?></h3>
+
+            <div class="nivo-setting-row">
+                <label><?php _e('Height (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="number" name="nivo_settings[bar_height]" value="<?php echo esc_attr($settings['bar_height']); ?>" min="30" max="100">
+            </div>
             
             <div class="nivo-setting-row">
                 <label><?php _e('Width (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
@@ -158,23 +164,8 @@ class Search_Preset_CPT {
             </div>
 
             <div class="nivo-setting-row">
-                <label><?php _e('Height (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="number" name="nivo_settings[bar_height]" value="<?php echo esc_attr($settings['bar_height']); ?>" min="30" max="100">
-            </div>
-
-            <div class="nivo-setting-row">
-                <label><?php _e('Border Width (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="number" name="nivo_settings[border_width]" value="<?php echo esc_attr($settings['border_width']); ?>" min="0" max="10">
-            </div>
-
-            <div class="nivo-setting-row">
                 <label><?php _e('Border Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
                 <input type="text" class="nivo-color-picker" name="nivo_settings[border_color]" value="<?php echo esc_attr($settings['border_color']); ?>">
-            </div>
-
-            <div class="nivo-setting-row">
-                <label><?php _e('Border Radius (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="number" name="nivo_settings[border_radius]" value="<?php echo esc_attr($settings['border_radius']); ?>" min="0" max="50">
             </div>
 
             <div class="nivo-setting-row">
@@ -195,31 +186,23 @@ class Search_Preset_CPT {
             <h4 class="nivo-search-settings-sub"><?php _e('Display Products Info', 'nivo-ajax-search-for-woocommerce'); ?></h4>
             
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_images]" value="1" <?php checked($settings['show_images'], 1); ?>>
-                    <?php _e('Show Product Images', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Show Product Images', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[show_images]" value="1" <?php checked($settings['show_images'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_price]" value="1" <?php checked($settings['show_price'], 1); ?>>
-                    <?php _e('Show Price', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label> <?php _e('Show Price', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[show_price]" value="1" <?php checked($settings['show_price'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_sku]" value="1" <?php checked($settings['show_sku'], 1); ?>>
-                    <?php _e('Show SKU', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Show SKU', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[show_sku]" value="1" <?php checked($settings['show_sku'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_description]" value="1" <?php checked($settings['show_description'], 1); ?>>
-                    <?php _e('Show Short Description', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Show Short Description', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[show_description]" value="1" <?php checked($settings['show_description'], 1); ?>>
             </div>
 
             <h4 class="nivo-search-settings-sub"><?php _e('Display Styling', 'nivo-ajax-search-for-woocommerce'); ?></h4>
@@ -233,11 +216,6 @@ class Search_Preset_CPT {
                 <label><?php _e('Text Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
                 <input type="text" class="nivo-color-picker" name="nivo_settings[results_text_color]" value="<?php echo esc_attr($settings['results_text_color']); ?>">
             </div>
-            
-            <div class="nivo-setting-row">
-                <label><?php _e('Border Width (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="number" name="nivo_settings[results_border_width]" value="<?php echo esc_attr($settings['results_border_width']); ?>" min="0" max="10">
-            </div>
 
             <div class="nivo-setting-row">
                 <label><?php _e('Border Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
@@ -245,19 +223,10 @@ class Search_Preset_CPT {
             </div>
 
             <div class="nivo-setting-row">
-                <label><?php _e('Border Radius (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="number" name="nivo_settings[results_border_radius]" value="<?php echo esc_attr($settings['results_border_radius']); ?>" min="0" max="50">
-            </div>
-
-            <div class="nivo-setting-row">
                 <label><?php _e('Background Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
                 <input type="text" class="nivo-color-picker" name="nivo_settings[results_bg_color]" value="<?php echo esc_attr($settings['results_bg_color']); ?>">
             </div>
 
-            <div class="nivo-setting-row">
-                <label><?php _e('Padding (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
-                <input type="number" name="nivo_settings[results_padding]" value="<?php echo esc_attr($settings['results_padding']); ?>" min="0" max="50">
-            </div>
         </div>
 
         <!-- Configuration -->
@@ -267,54 +236,40 @@ class Search_Preset_CPT {
             <h4 class="nivo-search-settings-sub"><?php _e('Search Scope', 'nivo-ajax-search-for-woocommerce'); ?></h4>
             
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_title]" value="1" <?php checked($settings['search_in_title'], 1); ?>>
-                    <?php _e('Search in Title', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Search in Title', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[search_in_title]" value="1" <?php checked($settings['search_in_title'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_sku]" value="1" <?php checked($settings['search_in_sku'], 1); ?>>
-                    <?php _e('Search in SKU', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Search in SKU', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[search_in_sku]" value="1" <?php checked($settings['search_in_sku'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_content]" value="1" <?php checked($settings['search_in_content'], 1); ?>>
-                    <?php _e('Search in Description', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Search in Description', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[search_in_content]" value="1" <?php checked($settings['search_in_content'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_excerpt]" value="1" <?php checked($settings['search_in_excerpt'], 1); ?>>
-                    <?php _e('Search in Short Description', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Search in Short Description', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[search_in_excerpt]" value="1" <?php checked($settings['search_in_excerpt'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[exclude_out_of_stock]" value="1" <?php checked($settings['exclude_out_of_stock'], 1); ?>>
-                    <?php _e('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[exclude_out_of_stock]" value="1" <?php checked($settings['exclude_out_of_stock'], 1); ?>>
             </div>
 
             <h4 class="nivo-search-settings-sub"><?php _e('Others Content', 'nivo-ajax-search-for-woocommerce'); ?></h4>
             
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_product_categories]" value="1" <?php checked($settings['search_product_categories'], 1); ?>>
-                    <?php _e('Show Product Categories', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Show Product Categories', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[search_product_categories]" value="1" <?php checked($settings['search_product_categories'], 1); ?>>
             </div>
 
             <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_product_tags]" value="1" <?php checked($settings['search_product_tags'], 1); ?>>
-                    <?php _e('Show Product Tags', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
+                <label><?php _e('Show Product Tags', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="checkbox" name="nivo_settings[search_product_tags]" value="1" <?php checked($settings['search_product_tags'], 1); ?>>
             </div>
 
         </div>
@@ -370,18 +325,13 @@ class Search_Preset_CPT {
             $style_settings = [
                 'bar_width' => absint($settings['bar_width'] ?? 600),
                 'bar_height' => absint($settings['bar_height'] ?? 50),
-                'border_width' => absint($settings['border_width'] ?? 1),
                 'border_color' => sanitize_hex_color($settings['border_color'] ?? '#ddd'),
-                'border_radius' => absint($settings['border_radius'] ?? 5),
                 'bg_color' => sanitize_hex_color($settings['bg_color'] ?? '#ffffff'),
                 'text_color' => sanitize_hex_color($settings['text_color'] ?? '#333333'),
                 'results_text_color' => sanitize_hex_color($settings['results_text_color'] ?? '#333333'),
                 'results_width' => absint($settings['results_width'] ?? 600),
-                'results_border_width' => absint($settings['results_border_width'] ?? 1),
                 'results_border_color' => sanitize_hex_color($settings['results_border_color'] ?? '#ddd'),
-                'results_border_radius' => absint($settings['results_border_radius'] ?? 4),
                 'results_bg_color' => sanitize_hex_color($settings['results_bg_color'] ?? '#ffffff'),
-                'results_padding' => absint($settings['results_padding'] ?? 10),
             ];
 
             // Save split keys

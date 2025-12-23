@@ -367,10 +367,9 @@
      * Render individual tag item
      */
     function renderTagItem(tag, query, settings) {
-        const padding = settings.results_padding || 10;
         const highlightedTitle = highlightKeywords(tag.title, query);
 
-        return `<li class="nivo-search-tag-item" style="padding: ${padding}px;">
+        return `<li class="nivo-search-tag-item">
                 <a href="${escapeHtml(tag.url)}" class="nivo-search-tag-link">
                     <span class="nivo-search-tag-title">${highlightedTitle}</span>
                     <span class="nivo-search-tag-count">(${escapeHtml(tag.count)})</span>
@@ -382,10 +381,9 @@
      * Render individual category item
      */
     function renderCategoryItem(category, query, settings) {
-        const padding = settings.results_padding || 10;
         const highlightedTitle = highlightKeywords(category.title, query);
 
-        return `<li class="nivo-search-category-item" style="padding: ${padding}px;">
+        return `<li class="nivo-search-category-item">
                 <a href="${escapeHtml(category.url)}" class="nivo-search-category-link">
                     <span class="nivo-search-category-title">${highlightedTitle}</span>
                     <span class="nivo-search-category-count">(${escapeHtml(category.count)})</span>
@@ -401,7 +399,6 @@
         const showPrice = settings.show_price === 1;
         const showSku = settings.show_sku === 1;
         const showDescription = settings.show_description === 1;
-        const padding = settings.results_padding || 10;
 
         const imageHtml = (showImages && product.image)
             ? `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" class="nivo-search-product-image">`
@@ -421,7 +418,7 @@
             ? `<span class="nivo-search-product-description">${highlightKeywords(product.short_description, query)}</span>`
             : '';
 
-        return `<li class="nivo-search-result-item" style="padding: ${padding}px;">
+        return `<li class="nivo-search-result-item">
                 <a href="${escapeHtml(product.url)}" class="nivo-search-product-link">
                     ${imageHtml}
                     <div class="nivo-search-product-info">

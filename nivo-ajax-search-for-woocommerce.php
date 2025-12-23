@@ -117,10 +117,10 @@ function nivo_search_activate() {
 	$query_settings = [
 		'search_in_title' 			=> 1,
 		'search_in_sku' 			=> 1,
-		'search_in_content' 		=> 0,
-		'search_in_excerpt' 		=> 0,
-		'search_product_categories' => 0,
-		'search_product_tags' 		=> 0,
+		'search_in_content' 		=> 1,
+		'search_in_excerpt' 		=> 1,
+		'search_product_categories' => 1,
+		'search_product_tags' 		=> 0,	
 		'exclude_out_of_stock' 		=> 0,
 	];
 
@@ -128,26 +128,21 @@ function nivo_search_activate() {
 	$display_settings = [
 		'show_images' 		=> 1,
 		'show_price' 		=> 1,
-		'show_sku' 			=> 0,
-		'show_description' 	=> 0,
+		'show_sku' 			=> 1,
+		'show_description' 	=> 1,
 	];
 
 	// 4. Process Style Settings
 	$style_settings = [
 		'bar_width' 		=> 600,
 		'bar_height' 		=> 50,
-		'border_width' 		=> 1,
 		'border_color' 		=> '#ddd',
-		'border_radius' 	=> 5,
 		'bg_color' 			=> '#dfdfdf',
 		'text_color' 		=> '#333333',
 		'results_width'		=> 600,
 		'results_text_color' => '#333333',
-		'results_border_width' => 1,
 		'results_border_color' => '#ddd',
-		'results_border_radius' => 4,
 		'results_bg_color' 	=> '#ffffff',
-		'results_padding' 	=> 10,
 	];
 
 	// Save split keys

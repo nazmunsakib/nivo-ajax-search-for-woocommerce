@@ -99,12 +99,6 @@ class Helper {
         if (isset($settings['bar_height'])) {
             $input_styles[] = 'height:' . absint($settings['bar_height']) . 'px';
         }
-        if (isset($settings['border_width'], $settings['border_color'])) {
-            $input_styles[] = 'border:' . absint($settings['border_width']) . 'px solid ' . esc_attr($settings['border_color']);
-        }
-        if (isset($settings['border_radius'])) {
-            $input_styles[] = 'border-radius:' . absint($settings['border_radius']) . 'px';
-        }
         if (isset($settings['bg_color'])) {
             $input_styles[] = 'background-color:' . esc_attr($settings['bg_color']);
         }
@@ -120,17 +114,8 @@ class Helper {
         if (isset($settings['results_width'])) {
             $results_styles[] = 'max-width:' . absint($settings['results_width']) . 'px';
         }
-        if (isset($settings['results_border_width'], $settings['results_border_color'])) {
-            $results_styles[] = 'border:' . absint($settings['results_border_width']) . 'px solid ' . esc_attr($settings['results_border_color']);
-        }
-        if (isset($settings['results_border_radius'])) {
-            $results_styles[] = 'border-radius:' . absint($settings['results_border_radius']) . 'px';
-        }
         if (isset($settings['results_bg_color'])) {
             $results_styles[] = 'background-color:' . esc_attr($settings['results_bg_color']);
-        }
-        if (isset($settings['results_padding'])) {
-            $results_styles[] = 'padding:' . absint($settings['results_padding']) . 'px';
         }
         if (isset($settings['results_text_color'])) {
             $css .= $selector . ' .nivo-search-results .nivo-search-product-description{ color:' . esc_attr($settings['results_text_color']) . '}';
@@ -157,29 +142,24 @@ class Helper {
             'placeholder' => 'Search products...',
             'search_in_title' => 1,
             'search_in_sku' => 1,
-            'search_in_content' => 0,
-            'search_in_excerpt' => 0,
-            'search_product_categories' => 0,
+            'search_in_content' => 1,
+            'search_in_excerpt' => 1,
+            'search_product_categories' => 1,
             'search_product_tags' => 0,
             'exclude_out_of_stock' => 0,
             'show_images' => 1,
             'show_price' => 1,
-            'show_sku' => 0,
-            'show_description' => 0,
+            'show_sku' => 1,
+            'show_description' => 1,
             'bar_width' => 600,
             'bar_height' => 50,
-            'border_width' => 1,
             'border_color' => '#ddd',
-            'border_radius' => 5,
             'bg_color' => '#ffffff',
             'text_color' => '#333333',
             'results_text_color' => '#333333',
             'results_width' => 600,
-            'results_border_width' => 1,
             'results_border_color' => '#ddd',
-            'results_border_radius' => 4,
             'results_bg_color' => '#ffffff',
-            'results_padding' => 10,
         ];
     }
 }

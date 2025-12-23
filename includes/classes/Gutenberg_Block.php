@@ -74,22 +74,12 @@ class Gutenberg_Block {
      */
     public function render_block($attributes = []) {
         // Get default preset if no preset specified
-        $default_preset = get_option( 'nivo_search_default_preset_created' ) ?? 0;
+        $default_preset = Helper::get_default_preset_id();
         $preset_id = ( isset($attributes['presetId']) && $attributes['presetId'] !== 0 ) ? absint($attributes['presetId']) : $default_preset;
 
-        $preset_settings = [];
-        $preset_style_settings = [];
-        
-        if ($preset_id && get_post_type($preset_id) === 'nivo_search_preset') {
-            // Fetch new split meta
-            $generale_settings = get_post_meta($preset_id, '_nivo_search_generale', true) ?: [];
-            $display_settings  = get_post_meta($preset_id, '_nivo_search_display', true) ?: [];
-            $style_settings    = get_post_meta($preset_id, '_nivo_search_style', true) ?: [];
-
-            // Merge all settings for frontend
-            $preset_settings = array_merge($generale_settings, $display_settings);
-            $preset_style_settings = $style_settings;
-        }
+        // Get preset settings using Helper
+        $preset_settings = Helper::get_preset_settings($preset_id);
+        $preset_style_settings = Helper::get_preset_style_settings($preset_id);
         
         // Use preset settings with defaults
         $placeholder = $preset_settings['placeholder'] ?? __('Search products...', 'nivo-ajax-search-for-woocommerce');
@@ -157,32 +147,6 @@ class Gutenberg_Block {
      * @return string CSS styles
      */
     private function generate_preset_styles($preset_id, $settings) {
-        $css = '';
-        $selector = '.nivo-preset-' . $preset_id;
-        
-        if (isset($settings['bar_width'])) {
-            $css .= $selector . ' .nivo-search-form-wrapper { max-width: ' . $settings['bar_width'] . 'px; }';
-        }
-        
-        if (isset($settings['border_width'], $settings['border_color'], $settings['border_radius'], $settings['bg_color'])) {
-            $css .= $selector . ' input.nivo-search-product-search {';
-            $css .= 'border: ' . $settings['border_width'] . 'px solid ' . $settings['border_color'] . ';';
-            $css .= 'border-radius: ' . $settings['border_radius'] . 'px;';
-            $css .= 'background-color: ' . $settings['bg_color'] . ';';
-            if (isset($settings['text_color'])) {
-                $css .= 'color: ' . $settings['text_color'] . ';';
-            }
-            $css .= '}';
-        }
-        
-        if (isset($settings['results_border_width'], $settings['results_border_color'], $settings['results_border_radius'], $settings['results_bg_color'])) {
-            $css .= $selector . ' .nivo-search-results {';
-            $css .= 'border: ' . $settings['results_border_width'] . 'px solid ' . $settings['results_border_color'] . ';';
-            $css .= 'border-radius: ' . $settings['results_border_radius'] . 'px;';
-            $css .= 'background-color: ' . $settings['results_bg_color'] . ';';
-            $css .= '}';
-        }
-        
-        return $css;
+        return Helper::generate_preset_css($preset_id, $settings);
     }
 }

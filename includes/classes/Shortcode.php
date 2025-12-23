@@ -70,22 +70,12 @@ class Shortcode {
         ob_start();
         
         // Check for preset ID
-        $default_preset = get_option( 'nivo_search_default_preset_created' ) ?? 0;
+        $default_preset = Helper::get_default_preset_id();
         $preset_id = isset($atts['id']) ? absint($atts['id']) : $default_preset;
 
-        $preset_settings = [];
-        $preset_style_settings = [];
-        
-        if ($preset_id && get_post_type($preset_id) === 'nivo_search_preset') {
-			// Fetch new split meta
-			$generale_settings = get_post_meta($preset_id, '_nivo_search_generale', true) ?: [];
-			$display_settings  = get_post_meta($preset_id, '_nivo_search_display', true) ?: [];
-			$style_settings    = get_post_meta($preset_id, '_nivo_search_style', true) ?: [];
-
-			// Merge all settings for frontend
-			$preset_settings = array_merge($generale_settings, $display_settings);
-			$preset_style_settings = $style_settings;
-        }
+        // Get preset settings using Helper
+        $preset_settings = Helper::get_preset_settings($preset_id);
+        $preset_style_settings = Helper::get_preset_style_settings($preset_id);
 
         // Parse shortcode attributes with preset fallback
         $atts = shortcode_atts([
@@ -150,56 +140,7 @@ class Shortcode {
      * @return string
      */
     private function generate_preset_css($preset_id, $settings) {
-        $css = '';
-        $selector = '.nivo-preset-' . $preset_id;
-        
-        if (isset($settings['bar_width'])) {
-            $css .= $selector . ' .nivo-search-form-wrapper{max-width:' . absint($settings['bar_width']) . 'px}';
-        }
-        
-        $input_styles = [];
-        if (isset($settings['bar_height'])) {
-            $input_styles[] = 'height:' . absint($settings['bar_height']) . 'px';
-        }
-        if (isset($settings['border_width'], $settings['border_color'])) {
-            $input_styles[] = 'border:' . absint($settings['border_width']) . 'px solid ' . esc_attr($settings['border_color']);
-        }
-        if (isset($settings['border_radius'])) {
-            $input_styles[] = 'border-radius:' . absint($settings['border_radius']) . 'px';
-        }
-        if (isset($settings['bg_color'])) {
-            $input_styles[] = 'background-color:' . esc_attr($settings['bg_color']);
-        }
-        if (isset($settings['text_color'])) {
-            $input_styles[] = 'color:' . esc_attr($settings['text_color']);
-        }
-        
-        if (!empty($input_styles)) {
-            $css .= $selector . ' .nivo-search-wrapper input[type=search].nivo-search-product-search{' . implode(';', $input_styles) . '}';
-        }
-        
-        $results_styles = [];
-        if (isset($settings['results_width'])) {
-            $results_styles[] = 'max-width:' . absint($settings['results_width']) . 'px';
-        }
-        if (isset($settings['results_border_width'], $settings['results_border_color'])) {
-            $results_styles[] = 'border:' . absint($settings['results_border_width']) . 'px solid ' . esc_attr($settings['results_border_color']);
-        }
-        if (isset($settings['results_border_radius'])) {
-            $results_styles[] = 'border-radius:' . absint($settings['results_border_radius']) . 'px';
-        }
-        if (isset($settings['results_bg_color'])) {
-            $results_styles[] = 'background-color:' . esc_attr($settings['results_bg_color']);
-        }
-        if (isset($settings['results_padding'])) {
-            $results_styles[] = 'padding:' . absint($settings['results_padding']) . 'px';
-        }
-        
-        if (!empty($results_styles)) {
-            $css .= $selector . ' .nivo-search-results{' . implode(';', $results_styles) . '}';
-        }
-        
-        return $css;
+        return Helper::generate_preset_css($preset_id, $settings);
     }
     
     /**

@@ -190,15 +190,9 @@ class Enqueue {
 		);
 
 		// Use default preset settings if available
-		$default_preset = get_option( 'nivo_search_default_preset_created' );
+		$default_preset = Helper::get_default_preset_id();
 		if ( $default_preset ) {
-			// Fetch split meta
-			$generale_settings = get_post_meta( $default_preset, '_nivo_search_generale', true ) ?: [];
-			$query_settings    = get_post_meta( $default_preset, '_nivo_search_query', true ) ?: [];
-			$display_settings  = get_post_meta( $default_preset, '_nivo_search_display', true ) ?: [];
-			$style_settings    = get_post_meta( $default_preset, '_nivo_search_style', true ) ?: [];
-			
-			$preset_settings = array_merge( $generale_settings, $query_settings, $display_settings, $style_settings );
+			$preset_settings = Helper::get_preset_settings( $default_preset );
 
 			if ( is_array( $preset_settings ) ) {
 				$localize_data['settings']['min_chars'] = isset( $preset_settings['min_chars'] ) ? absint( $preset_settings['min_chars'] ) : 2;

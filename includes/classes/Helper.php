@@ -1,0 +1,185 @@
+<?php
+/**
+ * Helper Class
+ *
+ * @package NivoSearch
+ * @since 1.0.0
+ */
+
+namespace NivoSearch;
+
+defined('ABSPATH') || exit;
+
+/**
+ * Helper Class
+ *
+ * Provides common utility methods used across the plugin
+ *
+ * @since 1.0.0
+ */
+class Helper {
+    
+    /**
+     * Get default preset ID
+     *
+     * @since 1.0.0
+     * @return int Default preset ID or 0 if not set
+     */
+    public static function get_default_preset_id() {
+        return absint(get_option('nivo_search_default_preset_created', 0));
+    }
+    
+    /**
+     * Validate if preset ID is valid
+     *
+     * @since 1.0.0
+     * @param int $preset_id Preset ID to validate
+     * @return bool True if valid preset, false otherwise
+     */
+    public static function is_valid_preset($preset_id) {
+        if (!$preset_id) {
+            return false;
+        }
+        
+        return get_post_type($preset_id) === 'nivo_search_preset';
+    }
+    
+    /**
+     * Get all preset settings (generale + display)
+     *
+     * @since 1.0.0
+     * @param int $preset_id Preset ID
+     * @return array Merged preset settings array
+     */
+    public static function get_preset_settings($preset_id) {
+        if (!self::is_valid_preset($preset_id)) {
+            return [];
+        }
+        
+        // Fetch new split meta
+        $generale_settings = get_post_meta($preset_id, '_nivo_search_generale', true) ?: [];
+        $display_settings  = get_post_meta($preset_id, '_nivo_search_display', true) ?: [];
+        
+        // Merge all settings for frontend
+        return array_merge($generale_settings, $display_settings);
+    }
+    
+    /**
+     * Get preset style settings only
+     *
+     * @since 1.0.0
+     * @param int $preset_id Preset ID
+     * @return array Style settings array
+     */
+    public static function get_preset_style_settings($preset_id) {
+        if (!self::is_valid_preset($preset_id)) {
+            return [];
+        }
+        
+        return get_post_meta($preset_id, '_nivo_search_style', true) ?: [];
+    }
+    
+    /**
+     * Generate CSS for preset
+     *
+     * @since 1.0.0
+     * @param int $preset_id Preset ID
+     * @param array $settings Style settings
+     * @return string Generated CSS
+     */
+    public static function generate_preset_css($preset_id, $settings) {
+        $css = '';
+        $selector = '.nivo-preset-' . $preset_id;
+        
+        if (isset($settings['bar_width'])) {
+            $css .= $selector . ' .nivo-search-form-wrapper{max-width:' . absint($settings['bar_width']) . 'px}';
+        }
+        
+        $input_styles = [];
+        if (isset($settings['bar_height'])) {
+            $input_styles[] = 'height:' . absint($settings['bar_height']) . 'px';
+        }
+        if (isset($settings['border_width'], $settings['border_color'])) {
+            $input_styles[] = 'border:' . absint($settings['border_width']) . 'px solid ' . esc_attr($settings['border_color']);
+        }
+        if (isset($settings['border_radius'])) {
+            $input_styles[] = 'border-radius:' . absint($settings['border_radius']) . 'px';
+        }
+        if (isset($settings['bg_color'])) {
+            $input_styles[] = 'background-color:' . esc_attr($settings['bg_color']);
+        }
+        if (isset($settings['text_color'])) {
+            $input_styles[] = 'color:' . esc_attr($settings['text_color']);
+        }
+        
+        if (!empty($input_styles)) {
+            $css .= $selector . ' .nivo-search-wrapper input[type=search].nivo-search-product-search{' . implode(';', $input_styles) . '}';
+        }
+        
+        $results_styles = [];
+        if (isset($settings['results_width'])) {
+            $results_styles[] = 'max-width:' . absint($settings['results_width']) . 'px';
+        }
+        if (isset($settings['results_border_width'], $settings['results_border_color'])) {
+            $results_styles[] = 'border:' . absint($settings['results_border_width']) . 'px solid ' . esc_attr($settings['results_border_color']);
+        }
+        if (isset($settings['results_border_radius'])) {
+            $results_styles[] = 'border-radius:' . absint($settings['results_border_radius']) . 'px';
+        }
+        if (isset($settings['results_bg_color'])) {
+            $results_styles[] = 'background-color:' . esc_attr($settings['results_bg_color']);
+        }
+        if (isset($settings['results_padding'])) {
+            $results_styles[] = 'padding:' . absint($settings['results_padding']) . 'px';
+        }
+        if (isset($settings['results_text_color'])) {
+            $css .= $selector . ' .nivo-search-results .nivo-search-product-description{ color:' . esc_attr($settings['results_text_color']) . '}';
+            $css .= $selector . ' .nivo-search-results .nivo-search-product-title{ color:' . esc_attr($settings['results_text_color']) . '}';
+        }
+        
+        if (!empty($results_styles)) {
+            $css .= $selector . ' .nivo-search-results{' . implode(';', $results_styles) . '}';
+        }
+        
+        return $css;
+    }
+    
+    /**
+     * Get default settings array
+     *
+     * @since 1.0.0
+     * @return array Default settings
+     */
+    public static function get_default_settings() {
+        return [
+            'limit' => 10,
+            'min_chars' => 2,
+            'placeholder' => 'Search products...',
+            'search_in_title' => 1,
+            'search_in_sku' => 1,
+            'search_in_content' => 0,
+            'search_in_excerpt' => 0,
+            'search_product_categories' => 0,
+            'search_product_tags' => 0,
+            'exclude_out_of_stock' => 0,
+            'show_images' => 1,
+            'show_price' => 1,
+            'show_sku' => 0,
+            'show_description' => 0,
+            'bar_width' => 600,
+            'bar_height' => 50,
+            'border_width' => 1,
+            'border_color' => '#ddd',
+            'border_radius' => 5,
+            'bg_color' => '#ffffff',
+            'text_color' => '#333333',
+            'results_text_color' => '#333333',
+            'results_width' => 600,
+            'results_border_width' => 1,
+            'results_border_color' => '#ddd',
+            'results_border_radius' => 4,
+            'results_bg_color' => '#ffffff',
+            'results_padding' => 10,
+        ];
+    }
+}

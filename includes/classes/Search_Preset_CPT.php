@@ -43,7 +43,7 @@ class Search_Preset_CPT {
             'public' => false,
             'show_ui' => true,
             'show_in_menu' => 'nivo-search',
-            'show_in_rest' => true, // Enable REST API for Gutenberg
+            'show_in_rest' => true,
             'menu_icon' => 'dashicons-search',
             'supports' => ['title'],
             'capability_type' => 'post',
@@ -115,35 +115,7 @@ class Search_Preset_CPT {
         // Merge all for display logic
         $settings = array_merge($generale_settings, $query_settings, $display_settings, $style_settings);
 
-        $defaults = [
-            'limit' => 10,
-            'min_chars' => 2,
-            'placeholder' => 'Search products...',
-            'search_in_title' => 1,
-            'search_in_sku' => 1,
-            'search_in_content' => 0,
-            'search_in_excerpt' => 0,
-            'search_product_categories' => 0,
-            'search_product_tags' => 0,
-            'exclude_out_of_stock' => 0,
-            'show_images' => 1,
-            'show_price' => 1,
-            'show_sku' => 0,
-            'show_description' => 0,
-            'bar_width' => 600,
-            'bar_height' => 50,
-            'border_width' => 1,
-            'border_color' => '#ddd',
-            'border_radius' => 5,
-            'bg_color' => '#ffffff',
-            'text_color' => '#333333',
-            'results_width' => 600,
-            'results_border_width' => 1,
-            'results_border_color' => '#ddd',
-            'results_border_radius' => 4,
-            'results_bg_color' => '#ffffff',
-            'results_padding' => 10,
-        ];
+        $defaults = Helper::get_default_settings();
         $settings = wp_parse_args($settings, $defaults);
         ?>
         <style>
@@ -176,101 +148,9 @@ class Search_Preset_CPT {
             </div>
         </div>
 
-        <!-- Search Scope -->
-        <div class="nivo-settings-section">
-            <h3><?php _e('Search Scope', 'nivo-ajax-search-for-woocommerce'); ?></h3>
-            
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_title]" value="1" <?php checked($settings['search_in_title'], 1); ?>>
-                    <?php _e('Search in Title', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_sku]" value="1" <?php checked($settings['search_in_sku'], 1); ?>>
-                    <?php _e('Search in SKU', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_content]" value="1" <?php checked($settings['search_in_content'], 1); ?>>
-                    <?php _e('Search in Description', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_in_excerpt]" value="1" <?php checked($settings['search_in_excerpt'], 1); ?>>
-                    <?php _e('Search in Short Description', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[exclude_out_of_stock]" value="1" <?php checked($settings['exclude_out_of_stock'], 1); ?>>
-                    <?php _e('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-        </div>
-
-        <!-- Others Content -->
-        <div class="nivo-settings-section">
-            <h3><?php _e('Others Content', 'nivo-ajax-search-for-woocommerce'); ?></h3>
-            
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_product_categories]" value="1" <?php checked($settings['search_product_categories'], 1); ?>>
-                    <?php _e('Show Categories', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[search_product_tags]" value="1" <?php checked($settings['search_product_tags'], 1); ?>>
-                    <?php _e('Show Tags', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-        </div>
-
-        <!-- Display Options -->
-        <div class="nivo-settings-section">
-            <h3><?php _e('Display Options', 'nivo-ajax-search-for-woocommerce'); ?></h3>
-            
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_images]" value="1" <?php checked($settings['show_images'], 1); ?>>
-                    <?php _e('Show Product Images', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_price]" value="1" <?php checked($settings['show_price'], 1); ?>>
-                    <?php _e('Show Price', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_sku]" value="1" <?php checked($settings['show_sku'], 1); ?>>
-                    <?php _e('Show SKU', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-
-            <div class="nivo-setting-row">
-                <label>
-                    <input type="checkbox" name="nivo_settings[show_description]" value="1" <?php checked($settings['show_description'], 1); ?>>
-                    <?php _e('Show Short Description', 'nivo-ajax-search-for-woocommerce'); ?>
-                </label>
-            </div>
-        </div>
-
         <!-- Search Bar Styling -->
         <div class="nivo-settings-section">
-            <h3><?php _e('Search Bar Styling', 'nivo-ajax-search-for-woocommerce'); ?></h3>
+            <h3><?php _e('Search Bar Layout & Styling', 'nivo-ajax-search-for-woocommerce'); ?></h3>
             
             <div class="nivo-setting-row">
                 <label><?php _e('Width (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
@@ -310,11 +190,48 @@ class Search_Preset_CPT {
 
         <!-- Results Styling -->
         <div class="nivo-settings-section">
-            <h3><?php _e('Results Styling', 'nivo-ajax-search-for-woocommerce'); ?></h3>
+            <h3><?php _e('Search Results Layout & Styling', 'nivo-ajax-search-for-woocommerce'); ?></h3>
+
+            <h4 class="nivo-search-settings-sub"><?php _e('Display Products Info', 'nivo-ajax-search-for-woocommerce'); ?></h4>
+            
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[show_images]" value="1" <?php checked($settings['show_images'], 1); ?>>
+                    <?php _e('Show Product Images', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[show_price]" value="1" <?php checked($settings['show_price'], 1); ?>>
+                    <?php _e('Show Price', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[show_sku]" value="1" <?php checked($settings['show_sku'], 1); ?>>
+                    <?php _e('Show SKU', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[show_description]" value="1" <?php checked($settings['show_description'], 1); ?>>
+                    <?php _e('Show Short Description', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <h4 class="nivo-search-settings-sub"><?php _e('Display Styling', 'nivo-ajax-search-for-woocommerce'); ?></h4>
 
             <div class="nivo-setting-row">
                 <label><?php _e('Width (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
                 <input type="number" name="nivo_settings[results_width]" value="<?php echo esc_attr($settings['results_width']); ?>" min="200" max="1200">
+            </div>
+
+            <div class="nivo-setting-row">
+                <label><?php _e('Text Color', 'nivo-ajax-search-for-woocommerce'); ?></label>
+                <input type="text" class="nivo-color-picker" name="nivo_settings[results_text_color]" value="<?php echo esc_attr($settings['results_text_color']); ?>">
             </div>
             
             <div class="nivo-setting-row">
@@ -341,6 +258,65 @@ class Search_Preset_CPT {
                 <label><?php _e('Padding (px)', 'nivo-ajax-search-for-woocommerce'); ?></label>
                 <input type="number" name="nivo_settings[results_padding]" value="<?php echo esc_attr($settings['results_padding']); ?>" min="0" max="50">
             </div>
+        </div>
+
+        <!-- Configuration -->
+        <div class="nivo-settings-section">
+            <h3><?php _e('Search Configuration', 'nivo-ajax-search-for-woocommerce'); ?></h3>
+
+            <h4 class="nivo-search-settings-sub"><?php _e('Search Scope', 'nivo-ajax-search-for-woocommerce'); ?></h4>
+            
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[search_in_title]" value="1" <?php checked($settings['search_in_title'], 1); ?>>
+                    <?php _e('Search in Title', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[search_in_sku]" value="1" <?php checked($settings['search_in_sku'], 1); ?>>
+                    <?php _e('Search in SKU', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[search_in_content]" value="1" <?php checked($settings['search_in_content'], 1); ?>>
+                    <?php _e('Search in Description', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[search_in_excerpt]" value="1" <?php checked($settings['search_in_excerpt'], 1); ?>>
+                    <?php _e('Search in Short Description', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[exclude_out_of_stock]" value="1" <?php checked($settings['exclude_out_of_stock'], 1); ?>>
+                    <?php _e('Exclude Out of Stock', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <h4 class="nivo-search-settings-sub"><?php _e('Others Content', 'nivo-ajax-search-for-woocommerce'); ?></h4>
+            
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[search_product_categories]" value="1" <?php checked($settings['search_product_categories'], 1); ?>>
+                    <?php _e('Show Product Categories', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
+            <div class="nivo-setting-row">
+                <label>
+                    <input type="checkbox" name="nivo_settings[search_product_tags]" value="1" <?php checked($settings['search_product_tags'], 1); ?>>
+                    <?php _e('Show Product Tags', 'nivo-ajax-search-for-woocommerce'); ?>
+                </label>
+            </div>
+
         </div>
         <?php
     }
@@ -399,6 +375,7 @@ class Search_Preset_CPT {
                 'border_radius' => absint($settings['border_radius'] ?? 5),
                 'bg_color' => sanitize_hex_color($settings['bg_color'] ?? '#ffffff'),
                 'text_color' => sanitize_hex_color($settings['text_color'] ?? '#333333'),
+                'results_text_color' => sanitize_hex_color($settings['results_text_color'] ?? '#333333'),
                 'results_width' => absint($settings['results_width'] ?? 600),
                 'results_border_width' => absint($settings['results_border_width'] ?? 1),
                 'results_border_color' => sanitize_hex_color($settings['results_border_color'] ?? '#ddd'),

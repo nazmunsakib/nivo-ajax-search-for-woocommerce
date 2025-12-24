@@ -23,6 +23,12 @@ Transform your WooCommerce search experience with professional live search funct
 
 = Key WooCommerce Search Features =
 
+**Unlimited Search Presets (New!)**
+* ✅ **Unlimited Search Bars** - Create distinct search forms for your Header, Sidebar, or Footer
+* ✅ **Different Styles** - Customize each search bar with unique colors, sizes, and settings
+* ✅ **Place Anywhere** - Use shortcodes or Gutenberg blocks to place specific presets anywhere
+* ✅ **Specific Configurations** - Set different search logic (e.g., SKU only) for different locations
+
 **Live Product Search:**
 * ✅ **Instant AJAX Search** - Real-time product search as customers type
 * ✅ **Live Search Results** - Display products instantly without page reload
@@ -90,18 +96,15 @@ Transform your WooCommerce search experience with professional live search funct
 = WooCommerce Search Integration Options =
 
 **Easy Implementation:**
-* **Search Shortcode** - `[nivo_search]` shortcode with attributes
-* **Gutenberg Search Block** - Drag-and-drop search block
-* **PHP Integration** - Programmatic search implementation
+* **Search Shortcode** - `[nivo_search id="123"]` shortcode with preset ID
+* **Gutenberg Search Block** - Drag-and-drop search block with preset selection
+* **PHP Integration** - Programmatic search implementation with presets
 * **Theme Integration** - Easy theme integration
 
 **Search Shortcode Attributes:**
-* `placeholder` - Custom placeholder text
-* `container_class` - Container CSS class
-* `input_class` - Input CSS class
-* `results_class` - Results CSS class
-* `show_icon` - Display search icon
-* `style` - Custom inline styles
+* `id` - Preset ID to load specific configuration
+* `placeholder` - Override preset placeholder
+* `search_bar_layout` - Override preset layout
 
 = WooCommerce Search Use Cases =
 
@@ -149,8 +152,9 @@ Transform your WooCommerce search experience with professional live search funct
 2. **Navigate to Plugins** - Go to Plugins → Add New
 3. **Search for Plugin** - Search "AJAX Product Search for WooCommerce" or "NivoSearch"
 4. **Install Plugin** - Click "Install Now" then "Activate"
-5. **Configure Search** - Go to WooCommerce → NivoSearch
-6. **Add Search Form** - Use shortcode `[nivo_search]` or Gutenberg block
+5. **Create Preset** - Go to Nivo Search → Presets → Add New
+6. **Configure Search** - Customize your search settings and styling
+7. **Add Search Form** - Use shortcode `[nivo_search id="123"]` or Gutenberg block
 
 = Manual Installation =
 
@@ -158,14 +162,14 @@ Transform your WooCommerce search experience with professional live search funct
 2. **Upload Plugin** - Go to Plugins → Add New → Upload Plugin
 3. **Install ZIP File** - Choose ZIP file and click "Install Now"
 4. **Activate Plugin** - Click "Activate Plugin"
-5. **Configure Settings** - Navigate to WooCommerce → NivoSearch
+5. **Create Preset** - Navigate to Nivo Search → Presets → Add New
 
 = Quick Setup Guide =
 
 **Step 1: Basic Configuration**
+* Create a new search preset
 * Set search result limit (recommended: 10-15)
 * Configure minimum characters (recommended: 2-3)
-* Set search delay (recommended: 300ms)
 
 **Step 2: Search Scope**
 * Enable product title search (recommended)
@@ -180,28 +184,26 @@ Transform your WooCommerce search experience with professional live search funct
 * Enable live preview for real-time changes
 
 **Step 4: Testing**
+* Copy the shortcode from your preset
+* Add to any page or widget area
 * Test search functionality with various queries
-* Verify mobile responsiveness
-* Check performance on your site
 
 = Implementation Methods =
 
 **Shortcode Implementation:**
 ```
-[nivo_search]
-[nivo_search placeholder="Search products..."]
-[nivo_search show_icon="true" style="width: 100%;"]
+[nivo_search id="123"]
 ```
 
 **Gutenberg Block:**
 1. Add new block in editor
 2. Search for "Nivo Search"
-3. Configure block settings
-4. Customize appearance
+3. Select your created preset from the dropdown
+4. Customize block appearance if needed
 
 **PHP Implementation:**
 ```php
-<?php echo do_shortcode('[nivo_search]'); ?>
+<?php echo do_shortcode('[nivo_search id="123"]'); ?>
 ```
 
 == Frequently Asked Questions ==
@@ -209,6 +211,10 @@ Transform your WooCommerce search experience with professional live search funct
 = What is AJAX Product Search for WooCommerce? =
 
 NivoSearch – AJAX Product Search for WooCommerce is a live product search plugin that replaces the default WooCommerce product search with an advanced AJAX-powered search system. It provides instant search results as customers type, improving the shopping experience and helping customers find products faster.
+
+= How does the new Preset System work? =
+
+The new preset system allows you to create unlimited search configurations. You can create different search bars for different parts of your site (e.g., a header search, a sidebar search, and a footer search), each with its own settings, styling, and search scope.
 
 = How does AJAX Product search improve WooCommerce? =
 
@@ -235,7 +241,7 @@ No, the plugin is optimized for performance with:
 
 = Can customers search by product SKU? =
 
-Yes, enable "SKU Search" in the plugin settings to allow customers to find products by entering SKU codes. This is particularly useful for B2B stores and repeat customers who know specific product codes.
+Yes, enable "SKU Search" in your preset settings to allow customers to find products by entering SKU codes. This is particularly useful for B2B stores and repeat customers who know specific product codes.
 
 = Does it support WooCommerce product variations? =
 
@@ -283,15 +289,25 @@ Yes, the plugin supports multilingual WooCommerce stores with:
 == Screenshots ==
 
 1. **Live AJAX Search Results** - Real-time product search with images, prices, and categories
-2. **Advanced Admin Settings** - Comprehensive configuration panel with live preview
-3. **Mobile Search Interface** - Responsive design optimized for mobile devices
-4. **Category Search Results** - Separate category search with product counts
-5. **Gutenberg Block Integration** - Easy drag-and-drop search block
-6. **Search Scope Configuration** - Control which product fields to search
-7. **Styling Customization** - Live preview of search bar and results styling
+2. **Unlimited Presets** - Create and manage multiple search configurations
+3. **Advanced Preset Settings** - Comprehensive configuration panel with live preview
+4. **Mobile Search Interface** - Responsive design optimized for mobile devices
+5. **Category Search Results** - Separate category search with product counts
+6. **Gutenberg Block Integration** - Easy drag-and-drop search block with preset selection
+7. **Search Scope Configuration** - Control which product fields to search
+8. **Styling Customization** - Live preview of search bar and results styling
 
 
 == Changelog ==
+
+= 1.1.0 – December 24, 2025 =
+NEW: Unlimited Search Presets system - Create multiple search bars with different settings
+NEW: Advanced Helper class for better code optimization
+NEW: Updated Gutenberg block with preset selection support
+NEW: Enhanced Shortcode with ID parameter support
+UPDATED: Refactored database logic for better performance
+UPDATED: Improved search result styling options
+FIXED: Various minor bugs and stability improvements
 
 = 1.0.1, November 17, 2025 =
 UPDATED: Update The Plugin name

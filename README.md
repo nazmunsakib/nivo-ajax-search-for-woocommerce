@@ -11,6 +11,7 @@
 
 | Feature | Nivo Search | Other Free Plugins |
 |---------|-------------|---------------------|
+| **Unlimited Presets** | ✅ Create unlimited search bars | ❌ Single global setting |
 | **Performance** | ⚡ Optimized single query (premium-level) | ❌ Multiple slow queries |
 | **AI Features** | ✅ Typo correction + Synonym support | ❌ Basic search only |
 | **Category Search** | ✅ Separate category results | ❌ Mixed or no categories |
@@ -22,6 +23,12 @@
 | **Developer Friendly** | ✅ 15+ hooks and filters | ❌ Limited customization |
 
 ## ✨ **Unique Features**
+
+### 🎨 **Unlimited Search Presets (New!)**
+- **Unlimited Search Bars** - Create distinct search forms for your Header, Sidebar, or Footer
+- **Different Styles** - Customize each search bar with unique colors, sizes, and settings
+- **Place Anywhere** - Use shortcodes or Gutenberg blocks to place specific presets anywhere
+- **Specific Configurations** - Set different search logic (e.g., SKU only) for different locations
 
 ### 🔍 **High-Performance Search Engine**
 - **Single Query Optimization** - Premium-level performance approach
@@ -59,23 +66,25 @@
 ### **Installation**
 1. **Upload** plugin to `/wp-content/plugins/nivo-ajax-search-for-woocommerce/`
 2. **Activate** through WordPress admin
-3. **Configure** in WooCommerce → NivoSearch
-4. **Add** search using shortcode or Gutenberg block
+3. **Create Preset** in Nivo Search → Presets → Add New
+4. **Configure** your search settings and styling
+5. **Add** search using shortcode or Gutenberg block
 
 ### **Basic Usage**
 
 #### **Simple Shortcode**
 ```php
-[nivo_search]
+[nivo_search id="123"]
 ```
+*Replace 123 with your preset ID*
 
 #### **Advanced Shortcode**
 ```php
-[nivo_search placeholder="Find products..." show_icon="true" style="width: 100%;"]
+[nivo_search id="123" placeholder="Find products..."]
 ```
 
 #### **Gutenberg Block**
-Search "Nivo Search" in block editor → Customize in inspector panel
+Search "Nivo Search" in block editor → Select **Preset** in inspector panel
 
 ## 📋 **Requirements**
 
@@ -118,12 +127,12 @@ Search "Nivo Search" in block editor → Customize in inspector panel
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `placeholder` | string | "Search products..." | Input placeholder text |
+| `id` | integer | 0 | **Required** Preset ID to load configuration |
+| `placeholder` | string | (Preset Value) | Override input placeholder text |
 | `container_class` | string | "nivo-ajax-search-container" | Container CSS class |
 | `input_class` | string | "nivo-search-product-search" | Input CSS class |
 | `results_class` | string | "nivo-search-results" | Results CSS class |
-| `show_icon` | boolean | true | Display search icon |
-| `style` | string | "" | Inline CSS styles |
+| `search_bar_layout` | integer | (Preset Value) | Override preset layout style |
 
 ## 🔧 **Developer Hooks** (15+ Available)
 
@@ -242,6 +251,14 @@ nivo-ajax-search-for-woocommerce/
 | **Customization** | 15+ hooks | 2-3 hooks |
 
 ## 📝 **Changelog**
+
+### **Version 1.1.0** (December 2025)
+- 🚀 **NEW: Unlimited Search Keys** - Create multiple search presets
+- ⚡ **NEW: Helper Class Refactoring** - Improved code structure and performance
+- 🧱 **NEW: Updated Gutenberg Block** - select specific presets directly
+- 🔧 **UPDATED: Shortcode** - added `id` parameter support
+- 🎨 **UPDATED: Styling Options** - new color controls for results
+- 🐛 **FIXED:** Minor bugs and stability improvements
 
 ### **Version 1.0.0**
 - ✅ **High-performance search engine** (single query optimization)

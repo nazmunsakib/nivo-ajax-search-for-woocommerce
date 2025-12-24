@@ -1,168 +1,156 @@
 === NivoSearch – AJAX Product Search for WooCommerce ===
 Contributors: nazmunsakib
 Donate link: https://nazmunsakib.com/donate
-Tags: woocommerce search, product search, ajax search, live search, search
+Tags: woocommerce product search, woocommerce search, product search, ajax search, live search
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A powerful WooCommerce Product Search plugin with AJAX results. Instantly find products by title, SKU, category, tags, and descriptions.
+A fast and reliable WooCommerce product search plugin with AJAX results. Instantly find products by title, SKU, category, tags, and descriptions.
 
 == Description ==
 
-**NivoSearch – AJAX Product Search for WooCommerce** is a powerful WooCommerce Product Search plugin that enhances your WooCommerce store's search functionality. Replace the default WooCommerce search with an advanced AJAX search system that provides instant product search results as customers type.
+**NivoSearch – AJAX Product Search for WooCommerce** is a modern **WooCommerce product search plugin** designed to replace the default WooCommerce search with a faster, more accurate, AJAX-powered search experience.
+
+It allows customers to instantly find products while typing, improving usability, reducing search friction, and increasing conversions for WooCommerce stores of all sizes.
 
 = Why Choose NivoSearch – AJAX Product Search for WooCommerce? =
 
-Transform your WooCommerce search experience with professional live search functionality. This WooCommerce search plugin provides instant product search results, helping customers find products faster and increasing your store's conversion rates.
+WooCommerce’s default search is limited. NivoSearch upgrades it with a professional **WooCommerce product search system** that delivers instant, relevant results without page reloads.
 
-**[Live Demo](https://nivosearch.com/demo)** | See AJAX Product Search in action!
+Built with performance and scalability in mind, NivoSearch is suitable for both small stores and large product catalogs.
+
+Live Demo: https://nivosearch.com
 
 = Key WooCommerce Search Features =
 
 **Unlimited Search Presets (New!)**
-* ✅ **Unlimited Search Bars** - Create distinct search forms for your Header, Sidebar, or Footer
-* ✅ **Different Styles** - Customize each search bar with unique colors, sizes, and settings
-* ✅ **Place Anywhere** - Use shortcodes or Gutenberg blocks to place specific presets anywhere
-* ✅ **Specific Configurations** - Set different search logic (e.g., SKU only) for different locations
+* Create unlimited WooCommerce product search bars
+* Use different presets for header, sidebar, footer, or landing pages
+* Apply unique styles and search logic per preset
+* Insert presets using shortcodes or Gutenberg blocks
 
-**Live Product Search:**
-* ✅ **Instant AJAX Search** - Real-time product search as customers type
-* ✅ **Live Search Results** - Display products instantly without page reload
-* ✅ **Search Autocomplete** - Smart search suggestions and autocomplete functionality
-* ✅ **Fast Product Search** - Optimized database queries for quick results
-* ✅ **Mobile Product Search** - Responsive design for mobile WooCommerce stores
+**Live Product Search**
+* Instant AJAX-based WooCommerce product search
+* Live results without page reloads
+* Autocomplete search suggestions
+* Optimized queries for fast response
+* Fully responsive and mobile-friendly
 
-**Advanced Search Functionality:**
-* ✅ **Multi-field Product Search** - Search in product titles, descriptions, SKUs, and categories
-* ✅ **WooCommerce Category Search** - Separate category search results
-* ✅ **Product SKU Search** - Find products by SKU codes
-* ✅ **Variable Product Search** - Full support for WooCommerce variations
-* ✅ **Search Filter Options** - Filter by stock status and product visibility
+**Advanced Search Functionality**
+* Search by product title, description, SKU, and categories
+* Dedicated WooCommerce category search
+* SKU-based product search
+* Full support for variable products and variations
+* Optional stock and visibility filtering
 
-**Smart Search Features:**
-* ✅ **Search Suggestions** - Intelligent product suggestions
-* ✅ **Relevance Ranking** - Smart product result ordering
+**Smart Search Features**
+* Intelligent product suggestions
+* Relevance-based result ordering
 
-**WooCommerce Integration:**
-* **Native WooCommerce Search** - Deep integration with WooCommerce
-* **Product Image Search** - Display product thumbnails in search results
-* **Price Display** - Show product prices in search results
-* **Stock Status** - Display product availability
+**WooCommerce Integration**
+* Native WooCommerce search replacement
+* Product images in search results
+* Price and stock status display
+* Seamless WooCommerce data integration
 
 = Live Search Customization =
 
-**Search Bar Customization:**
-* **Custom Search Styling** - Customize colors, borders, and layout
-* **Live Preview** - See changes in real-time
-* **Search Placeholder** - Custom placeholder text
-* **Search Icon** - Customizable search icons
-* **Responsive Design** - Mobile-optimized search interface
+**Search Bar Customization**
+* Colors, borders, icons, and layout controls
+* Custom placeholder text
+* Live preview while editing
+* Mobile-optimized interface
 
-**Search Results Customization:**
-* **Result Layout** - Customize search result appearance
-* **Product Information** - Choose what product data to display
-* **Search Result Limit** - Control number of results shown
-* **Search Categories** - Enable/disable category search
-* **Custom CSS** - Advanced styling options
+**Search Results Customization**
+* Control result layout and appearance
+* Choose which product data to display
+* Set result limits
+* Enable or disable category results
+* Custom CSS support
 
 = WooCommerce Search Performance =
 
-**Optimized Search Performance:**
-* **Single Query Search** - Efficient database queries
-* **Fast Search Response** - Optimized for speed
-* **Lightweight Code** - Minimal impact on site speed
-* **Mobile Optimized** - Fast search on mobile devices
-
-
+* Optimized single-query WooCommerce product search
+* Lightweight and performance-focused codebase
+* Minimal impact on site speed
+* Optimized for mobile and large catalogs
 
 = Developer-Friendly WooCommerce Search =
 
-**Extensive Customization:**
-* **15+ Search Hooks** - Extensive filter and action hooks
-* **Custom Search Fields** - Add custom product fields to search
-* **Search Events** - JavaScript events for custom functionality
+**Extensibility**
+* 15+ hooks and filters
+* Add custom product fields to search
+* JavaScript events for advanced integrations
 
-**Technical Features:**
-* **Modern Architecture** - PSR-4 autoloading and clean code
-* **Security Hardened** - Nonce verification and sanitization
-* **Translation Ready** - Complete internationalization support
-* **WPML Compatible** - Multi-language search support
-* **Accessibility** - WCAG compliant search interface
+**Technical Quality**
+* Modern PSR-4 architecture
+* Secure sanitization and validation
+* Translation-ready and WPML compatible
+* Accessibility-focused UI (WCAG-friendly)
 
 = WooCommerce Search Integration Options =
 
-**Easy Implementation:**
-* **Search Shortcode** - `[nivo_search id="123"]` shortcode with preset ID
-* **Gutenberg Search Block** - Drag-and-drop search block with preset selection
-* **PHP Integration** - Programmatic search implementation with presets
-* **Theme Integration** - Easy theme integration
+**Easy Implementation**
+* Shortcode support with preset ID
+* Gutenberg block for block editor users
+* PHP-based integration
+* Works with any WordPress theme
 
-**Search Shortcode Attributes:**
-* `id` - Preset ID to load specific configuration
-* `placeholder` - Override preset placeholder
-* `search_bar_layout` - Override preset layout
+**Search Shortcode Attributes**
+* `id` – Load a specific preset
+* `placeholder` – Override default placeholder
+* `search_bar_layout` – Override preset layout
 
 = WooCommerce Search Use Cases =
 
-**Perfect for:**
-* **Online Stores** - Enhance product discovery
-* **Large Catalogs** - Help customers find products quickly
-* **Mobile Commerce** - Improve mobile shopping experience
-* **Multilingual Stores** - Support international customers
-* **B2B Stores** - Professional search functionality
+**Ideal For**
+* WooCommerce stores with large catalogs
+* Mobile-first eCommerce websites
+* Multilingual stores
+* B2B WooCommerce setups
+* Conversion-focused online shops
 
-**Industries:**
-* Fashion and Apparel
-* Electronics and Technology
-* Home and Garden
-* Health and Beauty
-* Sports and Outdoors
-* Books and Media
+**Industries**
+* Fashion & Apparel
+* Electronics
+* Home & Garden
+* Health & Beauty
+* Sports & Outdoors
+* Books & Media
 
 = Search Compatibility =
 
-**WordPress Compatibility:**
+**WordPress & WooCommerce**
 * WordPress 5.0+ (tested up to 6.8)
-* WooCommerce 5.0+ (latest version compatible)
-* PHP 7.4+ (optimized for PHP 8.0+)
-* MySQL 5.6+ / MariaDB 10.0+
+* WooCommerce 5.0+
+* PHP 7.4+ (optimized for PHP 8+)
+* MySQL / MariaDB supported
 
-**Theme Compatibility:**
-* Works with any WordPress theme
-* Popular theme tested (Astra, OceanWP, Storefront)
-* Page builder compatible (Elementor, Beaver Builder)
-* Custom theme integration support
-
-**Plugin Compatibility:**
-* WPML (multilingual support)
-* Polylang (translation support)
-* WP Rocket (caching compatibility)
-* W3 Total Cache (performance optimization)
-* Yoast SEO (search optimization)
+**Themes & Plugins**
+* Compatible with all WordPress themes
+* Tested with Astra, OceanWP, Storefront
+* Elementor and Gutenberg compatible
+* Works with major caching plugins
+* Compatible with SEO plugins
 
 == Installation ==
 
-= Automatic Installation (Recommended) =
-
-1. **Login to WordPress Admin** - Access your WordPress dashboard
-2. **Navigate to Plugins** - Go to Plugins → Add New
-3. **Search for Plugin** - Search "AJAX Product Search for WooCommerce" or "NivoSearch"
-4. **Install Plugin** - Click "Install Now" then "Activate"
-5. **Create Preset** - Go to Nivo Search → Presets → Add New
-6. **Configure Search** - Customize your search settings and styling
-7. **Add Search Form** - Use shortcode `[nivo_search id="123"]` or Gutenberg block
+= Automatic Installation =
+1. Go to Plugins → Add New
+2. Search for "NivoSearch" or "WooCommerce Product Search"
+3. Install and activate
+4. Create a search preset
+5. Insert search using shortcode or block
 
 = Manual Installation =
-
-1. **Download Plugin** - Download the plugin ZIP file
-2. **Upload Plugin** - Go to Plugins → Add New → Upload Plugin
-3. **Install ZIP File** - Choose ZIP file and click "Install Now"
-4. **Activate Plugin** - Click "Activate Plugin"
-5. **Create Preset** - Navigate to Nivo Search → Presets → Add New
+1. Upload the plugin ZIP file
+2. Activate the plugin
+3. Create a preset
+4. Add the search form to your site
 
 = Quick Setup Guide =
 
@@ -187,219 +175,70 @@ Transform your WooCommerce search experience with professional live search funct
 * Copy the shortcode from your preset
 * Add to any page or widget area
 * Test search functionality with various queries
+== Implementation Methods ==
 
-= Implementation Methods =
-
-**Shortcode Implementation:**
-```
+Shortcode:
 [nivo_search id="123"]
-```
 
-**Gutenberg Block:**
-1. Add new block in editor
-2. Search for "Nivo Search"
-3. Select your created preset from the dropdown
-4. Customize block appearance if needed
-
-**PHP Implementation:**
-```php
+PHP:
 <?php echo do_shortcode('[nivo_search id="123"]'); ?>
-```
 
 == Frequently Asked Questions ==
 
-= What is AJAX Product Search for WooCommerce? =
+= What is WooCommerce Product Search? =
+WooCommerce product search allows customers to find products by name, SKU, category, or description. NivoSearch enhances this by adding live AJAX-based results for faster discovery.
 
-NivoSearch – AJAX Product Search for WooCommerce is a live product search plugin that replaces the default WooCommerce product search with an advanced AJAX-powered search system. It provides instant search results as customers type, improving the shopping experience and helping customers find products faster.
+= Does this replace the default WooCommerce search? =
+Yes. NivoSearch replaces the default WooCommerce product search with a faster and more accurate system.
 
-= How does the new Preset System work? =
+= Is it performance friendly? =
+Yes. The plugin uses optimized queries and lightweight scripts to ensure fast performance.
 
-The new preset system allows you to create unlimited search configurations. You can create different search bars for different parts of your site (e.g., a header search, a sidebar search, and a footer search), each with its own settings, styling, and search scope.
-
-= How does AJAX Product search improve WooCommerce? =
-
-AJAX Product search enhances WooCommerce by providing:
-* Instant search results without page reloads
-* Better user experience with live search
-* Faster product discovery
-* Reduced bounce rates
-* Increased conversion rates
-* Mobile-optimized search functionality
-
-= Does this work with my WooCommerce theme? =
-
-Yes, the AJAX Product search plugin works with any WordPress theme and WooCommerce setup. It inherits your theme's styling and can be fully customized to match your store's design. The plugin has been tested with popular themes like Astra, OceanWP, and Storefront.
-
-= Will AJAX Product search slow down my website? =
-
-No, the plugin is optimized for performance with:
-* Lightweight JavaScript (15KB minified)
-* Efficient database queries
-* Smart caching mechanisms
-* Optimized for mobile devices
-* Compatible with caching plugins
-
-= Can customers search by product SKU? =
-
-Yes, enable "SKU Search" in your preset settings to allow customers to find products by entering SKU codes. This is particularly useful for B2B stores and repeat customers who know specific product codes.
-
-= Does it support WooCommerce product variations? =
-
-Yes, the plugin fully supports WooCommerce variable products and searches through all product variations. Customers can find products by searching for variation-specific attributes and details.
-
-
-= Can I customize the search results appearance? =
-
-Yes, you can fully customize:
-* Search bar colors and styling
-* Search result layout and design
-* Product information displayed
-* Number of results shown
-* Mobile responsiveness
-* Custom CSS for advanced styling
-
-= Is the plugin translation ready? =
-
-Yes, the plugin is fully translation ready with:
-* Complete .pot file for translations
-* WPML compatibility for multilingual stores
-* RTL language support
-* Unicode character support
-* Professional translation support
-
-= Does it work with caching plugins? =
-
-Yes, the AJAX Product search (NivoSearch) plugin is compatible with all major caching plugins including:
-* WP Rocket
-* W3 Total Cache
-* WP Super Cache
-* LiteSpeed Cache
-* Cloudflare
-
-
-= Is it compatible with multilingual stores? =
-
-Yes, the plugin supports multilingual WooCommerce stores with:
-* WPML integration
-* Polylang compatibility
-* RTL language support
-* Translation-ready architecture
-* Multi-currency support
+= Does it support SKUs and variations? =
+Yes. SKU search and variable product search are fully supported.
 
 == Screenshots ==
 
-1. **Live AJAX Search Results** - Real-time product search with images, prices, and categories
-2. **Unlimited Presets** - Create and manage multiple search configurations
-3. **Advanced Preset Settings** - Comprehensive configuration panel with live preview
-4. **Mobile Search Interface** - Responsive design optimized for mobile devices
-5. **Category Search Results** - Separate category search with product counts
-6. **Gutenberg Block Integration** - Easy drag-and-drop search block with preset selection
-7. **Search Scope Configuration** - Control which product fields to search
-8. **Styling Customization** - Live preview of search bar and results styling
-
+1. Live AJAX product search results
+2. Unlimited search presets
+3. Advanced preset configuration
+4. Mobile-optimized search interface
+5. Category-based search results
+6. Gutenberg block integration
+7. Search scope controls
+8. Styling customization options
 
 == Changelog ==
 
 = 1.1.0 – December 24, 2025 =
-NEW: Unlimited Search Presets system - Create multiple search bars with different settings
+NEW: Unlimited search presets
 NEW: Advanced Helper class for better code optimization
-NEW: Updated Gutenberg block with preset selection support
+NEW: Updated Gutenberg block with preset selection
 NEW: Enhanced Shortcode with ID parameter support
-UPDATED: Refactored database logic for better performance
-UPDATED: Improved search result styling options
-FIXED: Various minor bugs and stability improvements
+UPDATED: Refactored database queries
+UPDATED: Improved styling controls
+FIXED: Minor bugs and stability issues
 
-= 1.0.1, November 17, 2025 =
-UPDATED: Update The Plugin name
-UPDATED: Change the Block Name
+= 1.0.1 – November 17, 2025 =
+UPDATED: Plugin name
+UPDATED: Block name
 
 = 1.0.0 – November 2025 =
-
-**Initial Release - Complete AJAX Product Search Solution**
-
-**Core Search Functionality:**
-* Real-time AJAX search implementation
-* Live product search results
-* Multi-field search (title, SKU, description, categories)
-* Single optimized database query for performance
-* Debounced input with configurable delay
-* Smart request cancellation for better performance
-
-**Advanced Search Features:**
-* Intelligent relevance-based result ranking
-* Search suggestions and autocomplete
-
-**WooCommerce Integration:**
-* Native WooCommerce search
-* Full support for variable products and variations
-* Product category search with separate results
-* SKU-based product search
-* Stock status filtering and control
-* Price display in search results
-
-**User Interface & Experience:**
-* Modern React-based admin settings panel
-* Live preview for all styling customizations
-* Responsive design for mobile devices
-* Touch-optimized mobile interface
-* Accessibility compliant (WCAG 2.1)
-* Theme compatibility system
-
-**Customization Options:**
-* Comprehensive search bar styling options
-* Customizable search result layouts
-* Color and border customization
-* Typography and spacing controls
-* Custom CSS injection support
-* Live preview for all changes
-
-**Integration & Implementation:**
-* Shortcode support with multiple attributes
-* Gutenberg block integration
-
-* PHP function integration
-
-
-**Developer Features:**
-* PSR-4 autoloading architecture
-* 15+ hooks and filters for customization
-* Custom JavaScript events system
-
-* Clean, documented codebase
-* GitHub repository with examples
-
-**Technical Compatibility:**
-* WordPress 5.0+ (tested up to 6.8)
-* WooCommerce 5.0+ (latest version compatible)
-* PHP 7.4+ (optimized for PHP 8.0+)
-* MySQL 5.6+ / MariaDB 10.0+
-* Major caching plugin compatibility
-* Popular theme compatibility
+Initial release of AJAX Product Search for WooCommerce
 
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial release of AJAX Product Search for WooCommerce. Install now to enhance your WooCommerce store with professional live product search functionality, improving customer experience and increasing sales conversions.
+Initial release of WooCommerce Product Search with AJAX functionality.
 
 == Additional Information ==
 
-= About AJAX Product Search for WooCommerce (NivoSearch) =
+= About NivoSearch =
+NivoSearch is a performance-focused WooCommerce product search plugin designed to improve product discovery and shopping experience.
 
-WooCommerce Product Search (NivoSearch) is developed to provide WooCommerce store owners with a professional-grade search solution that enhances the customer shopping experience. The plugin focuses on performance, usability, and conversion optimization.
+= Developer =
+Nazmun Sakib  
+https://nazmunsakib.com  
+https://github.com/nazmunsakib  
 
-= Developer Information =
-
-**Developer:** [Nazmun Sakib](https://nazmunsakib.com)  
-**GitHub:** [nazmunsakib](https://github.com/nazmunsakib/)  
-**Experience:** WordPress and WooCommerce development specialist
-**Focus:** eCommerce solutions and performance optimization
-
-= Useful Resources =
-
-**Documentation & Support:**
-* [Docs](https://nivosearch.com/docs)
-* [GitHub Repository](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce)
-* [WordPress Support Forum](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
-* [Feature Requests](https://github.com/nazmunsakib/nivo-ajax-search-for-woocommerce/issues)
-
-**Privacy:** zero tracking, zero external calls, 100 % GPL.
+Privacy: No tracking, no external requests, 100% GPL.

@@ -1,20 +1,20 @@
 === NivoSearch – Ajax Search for WooCommerce ===
 Contributors: nazmunsakib
 Donate link: https://nivosearch.com
-Tags: woocommerce search, product search, instant search, ajax search, autocomplete
+Tags: woocommerce ajax search, woocommerce search, product search, instant search, ajax search, autocomplete, live search, search plugin
 Requires at least: 5.6
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Powerful WooCommerce Ajax search with instant product results, autocomplete, fuzzy matching, typo correction, and SKU search.
+Powerful WooCommerce Ajax Plugin search with instant product results, autocomplete, fuzzy matching, typo correction, and SKU search.
 
 
 == Description ==
 
-[NivoSearch](https://nivosearch.com/) is a WooCommerce Ajax search plugin that delivers instant product results as shoppers type. It replaces the default WooCommerce search with a fast autocomplete experience that displays product images, prices, stock status, and relevant product information without reloading the page.
+[NivoSearch](https://nivosearch.com/) is a free **WooCommerce Ajax Search plugin**. It turns the default WooCommerce search into a live, instant product search with autocomplete: shoppers type, and matching products appear in a dropdown immediately — with images, prices, stock status, and add-to-cart — in under 200 ms, without reloading the page.
 
 Most WooCommerce search plugins lock their best features behind a paid subscription. NivoSearch gives you a powerful WooCommerce product search experience at no cost: typo correction with 300+ built-in rules, smart fuzzy matching, parent and variation SKU search, add-to-cart directly from the results dropdown, mobile full-screen overlay, search history, WPML and Polylang multilingual support, and unlimited individually styled search bars. No subscription. No feature locks. Everything works the moment you activate the plugin.
 
@@ -313,6 +313,18 @@ All events fire on `document` and are prefixed `nivo_search:`.
 
 == Changelog ==
 
+= 2.0.5 =
+* FIX: Search results cache is now scoped per language and per accuracy setting — multilingual sites and typo/fuzzy toggle changes no longer serve stale results
+* FIX: Typo-correction analytics are now counted on cached searches too, not only the first uncached search
+* FIX: Removed a PHP 8.2 deprecation warning caused by an undeclared property
+* FIX: Plugin uninstall now fully clears search result transients and search index options
+* PERFORMANCE: Product term caching enabled — removes per-result category queries from result rendering
+* PERFORMANCE: Add-to-cart nonce generated once per response instead of once per product
+* PERFORMANCE: Fuzzy search now batch-checks publish status in a single query instead of one per product
+* IMPROVED: SEO and GEO metadata updated around the "WooCommerce Ajax Search" keyword
+* CLEANUP: Removed an unused legacy admin script
+* CLEANUP: Result list styling hardened against theme conflicts
+
 = 2.0.3 =
 * NEW: Default WooCommerce search form is now replaced by NivoSearch automatically when theme integration is enabled
 * NEW: Native WordPress search form and WooCommerce product search form both route through NivoSearch
@@ -368,7 +380,6 @@ All events fire on `document` and are prefixed `nivo_search:`.
 
 = 1.2.0 =
 * FIX: Activation race condition, default preset now reliably created on fresh install
-* FIX: Activation race condition, default preset now reliably created on fresh install
 * FIX: Deactivation hook now correctly flushes rewrite rules
 * FIX: Shortcode container_class, input_class, and results_class attributes now applied to rendered HTML
 * FIX: Duplicate clear button, suppressed browser-native X icon on type="search" inputs
@@ -385,6 +396,9 @@ All events fire on `document` and are prefixed `nivo_search:`.
 —
 
 == Upgrade Notice ==
+
+= 2.0.5 =
+Maintenance release with performance improvements and multilingual search cache fixes. Recommended for all users.
 
 = 2.0.3 =
 Maintenance release. Improves theme search form integration and fixes a search caching edge case. Recommended for all users.

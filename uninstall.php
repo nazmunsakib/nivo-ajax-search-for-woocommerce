@@ -27,14 +27,20 @@ global $wpdb;
 // Bulk-delete all NivoSearch transients using prepare() + esc_like().
 // delete_transient() does not support prefix-based bulk deletion,
 // so a direct query is required here.
-$transient_prefix         = $wpdb->esc_like( '_transient_nivo_search_' ) . '%';
-$transient_timeout_prefix = $wpdb->esc_like( '_transient_timeout_nivo_search_' ) . '%';
+// Prefixes: `nivo_search_*` (typo rules, etc.) and `nivo_s_*` (search result cache).
+$transient_prefixes = array(
+	$wpdb->esc_like( '_transient_nivo_search_' ) . '%',
+	$wpdb->esc_like( '_transient_timeout_nivo_search_' ) . '%',
+	$wpdb->esc_like( '_transient_nivo_s_' ) . '%',
+	$wpdb->esc_like( '_transient_timeout_nivo_s_' ) . '%',
+);
+
+$where_sql = implode( ' OR ', array_fill( 0, count( $transient_prefixes ), 'option_name LIKE %s' ) );
 
 $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$wpdb->prepare(
-		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$transient_prefix,
-		$transient_timeout_prefix
+		"DELETE FROM {$wpdb->options} WHERE {$where_sql}",
+		$transient_prefixes
 	)
 );
 
@@ -99,6 +105,9 @@ $options = array(
 	'nivo_search_auto_replace',
 	'nivo_search_theme_preset_id',
 	'nivo_search_ga_tracking',
+	// Index engine options (Phase 4).
+	'nivo_search_index_last_rebuilt',
+	'nivo_search_index_count',
 );
 
 foreach ( $options as $option ) {

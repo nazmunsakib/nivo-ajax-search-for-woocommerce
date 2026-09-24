@@ -106,7 +106,7 @@ class Search_Algorithm {
                 'meta_query'             => $args['meta_query'],
                 'post__not_in'           => $args['excluded_products'],
                 'no_found_rows'          => true,
-                'update_post_term_cache' => false,
+                'update_post_term_cache' => true,
                 'update_post_meta_cache' => true,
             );
 
@@ -298,9 +298,21 @@ class Search_Algorithm {
             // variation SKU, meta joins) are the sole search logic. meta_query and
             // tax_query conditions are added via separate filter hooks and are not
             // passed through posts_search, so replacing here does not affect them.
-            $where  = ' AND (' . implode( ' OR ', $term_conditions ) . ') ';
-            $where .= " AND {$wpdb->posts}.post_type IN ('product') ";
-            $where .= " AND {$wpdb->posts}.post_status = 'publish' ";
+            $where = ' AND (' . implode( ' OR ', $term_conditions ) . ') ';
+
+            // Honour the configured post types / statuses (defaults: product, publish)
+            // instead of hardcoding them, so the nivo_search_args filter can broaden scope.
+            $post_types = ! empty( $args['post_types'] ) ? (array) $args['post_types'] : array( 'product' );
+            if ( ! empty( $post_types ) ) {
+                $type_ph = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+                $where  .= $wpdb->prepare( " AND {$wpdb->posts}.post_type IN ({$type_ph}) ", $post_types );
+            }
+
+            $post_statuses = ! empty( $args['post_status'] ) ? (array) $args['post_status'] : array( 'publish' );
+            if ( ! empty( $post_statuses ) ) {
+                $status_ph = implode( ', ', array_fill( 0, count( $post_statuses ), '%s' ) );
+                $where    .= $wpdb->prepare( " AND {$wpdb->posts}.post_status IN ({$status_ph}) ", $post_statuses );
+            }
         }
 
         return $where;

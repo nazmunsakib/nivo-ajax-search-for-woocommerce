@@ -235,8 +235,8 @@ input.nivo-search-product-search.form-control {
 /* Results List */
 ul.nivo-search-results-list {
     list-style: none;
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .nivo-search-result-item {

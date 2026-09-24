@@ -69,6 +69,16 @@ final class Nivo_Ajax_Search {
 	public $admin_settings;
 
 	/**
+	 * Search optimization admin page handler
+	 *
+	 * Declared explicitly to avoid a PHP 8.2 dynamic-property deprecation.
+	 *
+	 * @since 2.0.5
+	 * @var Search_Optimization
+	 */
+	public $search_optimization;
+
+	/**
 	 * Gutenberg block handler
 	 *
 	 * @since 1.0.0
@@ -159,6 +169,40 @@ final class Nivo_Ajax_Search {
 	 */
 	private function get_cache_version() {
 		return (int) get_option( 'nivo_search_cache_ver', 1 );
+	}
+
+	/**
+	 * Build the transient cache key for a search request.
+	 *
+	 * Includes the current language and the global accuracy settings so that
+	 * multilingual results (WPML/Polylang) and accuracy-toggle changes never
+	 * serve stale cached data.
+	 *
+	 * @since 2.0.5
+	 * @param string $query     Sanitized search query.
+	 * @param int    $preset_id Preset post ID (0 when none).
+	 * @return string
+	 */
+	private function get_cache_key( $query, $preset_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- lang is informational, not security-sensitive.
+		$lang = isset( $_POST['lang'] ) ? sanitize_key( wp_unslash( $_POST['lang'] ) ) : '';
+
+		$accuracy = implode(
+			'|',
+			array(
+				(int) get_option( 'nivo_search_enable_fuzzy_search', 1 ),
+				(int) get_option( 'nivo_search_enable_typo_tolerance', 1 ),
+				(int) get_option( 'nivo_search_show_did_you_mean', 1 ),
+				(int) get_option( 'nivo_search_max_typo_distance', 2 ),
+				(string) get_option( 'nivo_search_excluded_products', '' ),
+			)
+		);
+
+		return 'nivo_s_' . substr(
+			md5( $query . '|' . $preset_id . '|' . $this->get_cache_version() . '|' . $lang . '|' . $accuracy ),
+			0,
+			24
+		);
 	}
 
 	/**
@@ -262,10 +306,14 @@ final class Nivo_Ajax_Search {
 		);
 
 		// --- Transient cache check -------------------------------------------
-		$cache_ver = $this->get_cache_version();
-		$cache_key = 'nivo_s_' . substr( md5( $query . '|' . $preset_id . '|' . $cache_ver ), 0, 24 );
+		$cache_key = $this->get_cache_key( $query, $preset_id );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
+			// Re-log the correction for cache hits so analytics count every
+			// search, not only the first uncached one.
+			if ( ! empty( $cached['_corrected_from'] ) && ! empty( $cached['_corrected_to'] ) ) {
+				Search_Analytics::log_correction( $cached['_corrected_from'], $cached['_corrected_to'] );
+			}
 			wp_send_json_success( $cached );
 		}
 		// --- /Transient cache check ------------------------------------------
@@ -297,6 +345,10 @@ final class Nivo_Ajax_Search {
 		$results['products'] = array();
 
 		if ( ! empty( $raw_products ) ) {
+			// A single add-to-cart nonce is valid for the whole response — generate
+			// it once instead of per product (avoids N nonce computations).
+			$atc_nonce = wp_create_nonce( 'add-to-cart' );
+
 			// Collect ordered post IDs preserving relevance sort from Search_Algorithm.
 			$ordered_ids = array_map(
 				static function ( $post ) {
@@ -325,7 +377,7 @@ final class Nivo_Ajax_Search {
 					continue;
 				}
 
-				$result                = $this->format_search_result( $product, $query );
+				$result                = $this->format_search_result( $product, $query, $atc_nonce );
 				$results['products'][] = apply_filters( 'nivo_search_result_item', $result, $product, $query );
 			}
 		}
@@ -354,6 +406,10 @@ final class Nivo_Ajax_Search {
 				$search_results['corrected_from'],
 				$search_results['corrected_to']
 			);
+
+			// Persist in the cached payload so cache hits can re-log analytics.
+			$response_data['_corrected_from'] = $search_results['corrected_from'];
+			$response_data['_corrected_to']   = $search_results['corrected_to'];
 		}
 
 		// Add sanitized display settings to response so the JS can adapt
@@ -373,11 +429,12 @@ final class Nivo_Ajax_Search {
 	 * Format individual search result
 	 *
 	 * @since 1.0.0
-	 * @param WC_Product $product Product object
-	 * @param string     $query Search query
+	 * @param WC_Product $product  Product object
+	 * @param string     $query    Search query
+	 * @param string     $atc_nonce Add-to-cart nonce (generated once per response)
 	 * @return array Formatted result
 	 */
-	private function format_search_result( $product, $query ) {
+	private function format_search_result( $product, $query, $atc_nonce ) {
 		// Resolve variable products to their cheapest child for add-to-cart purposes.
 		$purchasable_id = $product->get_id();
 		$product_type   = $product->get_type();
@@ -426,7 +483,7 @@ final class Nivo_Ajax_Search {
 			'is_purchasable'    => $is_purchasable,
 			'add_to_cart_url'   => esc_url( $add_to_cart_url ),
 			'add_to_cart_text'  => esc_html( $add_to_cart_text ),
-			'add_to_cart_nonce' => wp_create_nonce( 'add-to-cart' ),
+			'add_to_cart_nonce' => $atc_nonce,
 		);
 
 		return $result;
@@ -553,17 +610,6 @@ final class Nivo_Ajax_Search {
             'count' => $tag->count,
         );
     }
-
-	/**
-	 * Get "View All Results" URL
-	 *
-	 * @since 1.0.0
-	 * @param string $query Search query
-	 * @return string Search results page URL
-	 */
-	private function get_view_all_url( $query ) {
-		return add_query_arg( 's', urlencode( $query ), wc_get_page_permalink( 'shop' ) );
-	}
 
 	/**
 	 * Get plugin version

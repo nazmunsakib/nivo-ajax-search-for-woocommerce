@@ -251,15 +251,21 @@ class Fuzzy_Search {
 			$ids          = array_values( array_filter( $ids, static fn( $id ) => isset( $in_stock_set[ $id ] ) ) );
 		}
 
-		// Only published products.
-		$ids = array_values(
-			array_filter(
-				$ids,
-				static function ( $id ) {
-					return get_post_status( $id ) === 'publish';
-				}
-			)
-		);
+		// Only published products — batch-check via a single get_posts() call
+		// instead of one get_post_status() per ID (N+1).
+		if ( ! empty( $ids ) ) {
+			$published = get_posts( array(
+				'post_type'      => 'product',
+				'post_status'    => 'publish',
+				'post__in'       => $ids,
+				'posts_per_page' => count( $ids ),
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			) );
+
+			$published_set = array_flip( array_map( 'intval', $published ) );
+			$ids           = array_values( array_filter( $ids, static fn( $id ) => isset( $published_set[ $id ] ) ) );
+		}
 
 		return $ids;
 	}

@@ -155,6 +155,19 @@ class Search_Algorithm {
             return $wq;
         };
 
+        // Engine selector: use the index when it is built and covers the preset's
+        // fields (fast, word-prefix matching); otherwise the WP_Query LIKE scan.
+        $use_index     = Index_Query::can_handle( $args );
+        $find_products = function ( $term ) use ( $args, $run_wp_query, $pool_size, $use_index ) {
+            if ( $use_index ) {
+                $ids = Index_Query::find_ids( $term, $args['search_fields'], $pool_size );
+
+                return $this->load_products_by_ids( $ids, $args );
+            }
+
+            return $run_wp_query( $term )->posts;
+        };
+
         // -------------------------------------------------------
         // Pass 1: search with the diacritics-normalized query.
         // "café" → "cafe", so users find ASCII-titled products.
@@ -162,8 +175,7 @@ class Search_Algorithm {
         // like "logo", "case", "cord" must not be mangled by the
         // Levenshtein fallback before we even try the real search.
         // -------------------------------------------------------
-        $search_query    = $run_wp_query( $original_query );
-        $ranked_products = $this->rank_results( $search_query->posts, $original_query, $args );
+        $ranked_products = $this->rank_results( $find_products( $original_query ), $original_query, $args );
 
         // -------------------------------------------------------
         // Pass 1b (diacritics complement): if the user typed without
@@ -179,8 +191,7 @@ class Search_Algorithm {
         // no need to re-read $_POST here; using the local variable is cleaner and
         // works even when search() is called programmatically (not via AJAX).
         if ( empty( $ranked_products ) && '' !== $raw_query && $raw_query !== $original_query ) {
-            $alt_query   = $run_wp_query( $raw_query );
-            $alt_ranked  = $this->rank_results( $alt_query->posts, $raw_query, $args );
+            $alt_ranked  = $this->rank_results( $find_products( $raw_query ), $raw_query, $args );
             if ( ! empty( $alt_ranked ) ) {
                 $ranked_products = $alt_ranked;
             }
@@ -197,8 +208,7 @@ class Search_Algorithm {
             $corrected_query = $this->apply_typo_corrections( $original_query, $corrected_from, $corrected_to );
 
             if ( $corrected_query !== $original_query ) {
-                $retry_query     = $run_wp_query( $corrected_query );
-                $ranked_products = $this->rank_results( $retry_query->posts, $corrected_query, $args );
+                $ranked_products = $this->rank_results( $find_products( $corrected_query ), $corrected_query, $args );
                 // Update the active query term so fuzzy fallback and did_you_mean
                 // both reference the corrected word, not the original typo.
                 if ( ! empty( $ranked_products ) ) {
@@ -345,6 +355,60 @@ class Search_Algorithm {
         return $where;
     }
     
+    /**
+     * Load published, visible products for a list of candidate IDs, keeping the order.
+     *
+     * Applies the same visibility, password, stock, exclusion and language rules as
+     * the WP_Query path, but without any text matching, so it is a cheap primary-key lookup.
+     *
+     * @since 2.0.8
+     *
+     * @param int[] $ids  Candidate product IDs, best first.
+     * @param array $args Search arguments.
+     * @return \WP_Post[]
+     */
+    private function load_products_by_ids( $ids, $args ) {
+        if ( empty( $ids ) ) {
+            return array();
+        }
+
+        $qargs = array(
+            'post_type'              => $args['post_types'],
+            'post_status'            => $args['post_status'],
+            'post__in'               => $ids,
+            'post__not_in'           => $args['excluded_products'],
+            'orderby'                => 'post__in',
+            'posts_per_page'         => count( $ids ),
+            'has_password'           => false,
+            'tax_query'              => array_merge( (array) $args['tax_query'], array( self::get_visibility_tax_clause() ) ),
+            'meta_query'             => $args['meta_query'],
+            'no_found_rows'          => true,
+            'update_post_term_cache' => true,
+            'update_post_meta_cache' => true,
+        );
+
+        if ( true === $args['exclude_out_of_stock'] || 1 === $args['exclude_out_of_stock'] || 'yes' === $args['exclude_out_of_stock'] ) {
+            $qargs['meta_query'][] = array(
+                'relation' => 'OR',
+                array(
+                    'key'     => '_stock_status',
+                    'value'   => 'outofstock',
+                    'compare' => '!=',
+                ),
+                array(
+                    'key'     => '_stock_status',
+                    'compare' => 'NOT EXISTS',
+                ),
+            );
+        }
+
+        $qargs = self::apply_language_filter( $qargs );
+
+        $query = new \WP_Query( $qargs );
+
+        return $query->posts;
+    }
+
     /**
      * Order candidates by title relevance so the best matches survive the pool limit.
      *

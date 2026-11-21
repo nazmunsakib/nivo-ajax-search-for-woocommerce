@@ -20,13 +20,20 @@ defined('ABSPATH') || exit;
 class Search_Algorithm {
     
     /**
-     * Search products
+     * Tax query clause that hides products WooCommerce marks as excluded from
+     * search ("Hidden" and "Shop only" catalog visibility).
      *
-     * @since 1.0.0
-     * @param string $query Search query
-     * @param array $args Additional search arguments
-     * @return array Search results
+     * @return array
      */
+    public static function get_visibility_tax_clause() {
+        return array(
+            'taxonomy' => 'product_visibility',
+            'field'    => 'name',
+            'terms'    => array( 'exclude-from-search' ),
+            'operator' => 'NOT IN',
+        );
+    }
+
     /**
      * Search products
      *
@@ -102,7 +109,8 @@ class Search_Algorithm {
                 'posts_per_page'         => $args['limit'],
                 's'                      => $search_term,
                 'nivo_search_args'       => $args,
-                'tax_query'              => $args['tax_query'],
+                'tax_query'              => array_merge( (array) $args['tax_query'], array( self::get_visibility_tax_clause() ) ),
+                'has_password'           => false,
                 'meta_query'             => $args['meta_query'],
                 'post__not_in'           => $args['excluded_products'],
                 'no_found_rows'          => true,

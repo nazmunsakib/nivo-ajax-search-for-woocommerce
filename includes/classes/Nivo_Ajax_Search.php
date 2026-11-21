@@ -139,7 +139,8 @@ final class Nivo_Ajax_Search {
 		// Invalidate search result cache whenever products or presets change.
 		add_action( 'save_post_product',                     array( __CLASS__, 'invalidate_search_cache' ) );
 		add_action( 'deleted_post',                          array( __CLASS__, 'invalidate_search_cache' ) );
-		add_action( 'woocommerce_product_set_stock_status',  array( __CLASS__, 'invalidate_search_cache' ) );
+		// Stock changes are frequent on busy stores (every order): throttle those bumps.
+		add_action( 'woocommerce_product_set_stock_status',  array( __CLASS__, 'invalidate_search_cache_throttled' ) );
 		add_action( 'save_post_nivo_search_preset',          array( __CLASS__, 'invalidate_search_cache' ) );
 
 		// Allow other plugins to hook into our initialization.
@@ -159,6 +160,59 @@ final class Nivo_Ajax_Search {
 	public static function invalidate_search_cache() {
 		$ver = (int) get_option( 'nivo_search_cache_ver', 1 );
 		update_option( 'nivo_search_cache_ver', $ver + 1, false );
+	}
+
+	/**
+	 * Invalidate the search cache at most once per interval (default 30 s).
+	 *
+	 * Used for high-frequency events such as stock changes, so a busy store does not
+	 * empty the cache on every order. Product saves and imports still invalidate
+	 * immediately; cached results are otherwise at most 5 minutes old.
+	 *
+	 * @since 2.0.8
+	 * @return void
+	 */
+	public static function invalidate_search_cache_throttled() {
+		$interval = (int) apply_filters( 'nivo_search_cache_bump_interval', 30 );
+
+		if ( $interval > 0 && get_transient( 'nivo_search_cache_bump_lock' ) ) {
+			return;
+		}
+
+		set_transient( 'nivo_search_cache_bump_lock', 1, max( 1, $interval ) );
+		self::invalidate_search_cache();
+	}
+
+	/**
+	 * Read a cached search response (object cache when persistent, transient otherwise).
+	 *
+	 * @since 2.0.8
+	 * @param string $key Cache key.
+	 * @return array|false
+	 */
+	private static function cache_get( $key ) {
+		if ( wp_using_ext_object_cache() ) {
+			return wp_cache_get( $key, 'nivo_search' );
+		}
+
+		return get_transient( $key );
+	}
+
+	/**
+	 * Store a search response for 5 minutes.
+	 *
+	 * @since 2.0.8
+	 * @param string $key  Cache key.
+	 * @param array  $data Response data.
+	 * @return void
+	 */
+	private static function cache_set( $key, $data ) {
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_set( $key, $data, 'nivo_search', 5 * MINUTE_IN_SECONDS );
+			return;
+		}
+
+		set_transient( $key, $data, 5 * MINUTE_IN_SECONDS );
 	}
 
 	/**
@@ -195,6 +249,7 @@ final class Nivo_Ajax_Search {
 				(int) get_option( 'nivo_search_show_did_you_mean', 1 ),
 				(int) get_option( 'nivo_search_max_typo_distance', 2 ),
 				(string) get_option( 'nivo_search_excluded_products', '' ),
+				md5( (string) wp_json_encode( Ranking_Settings::get() ) ),
 			)
 		);
 
@@ -202,6 +257,43 @@ final class Nivo_Ajax_Search {
 			md5( $query . '|' . $preset_id . '|' . $this->get_cache_version() . '|' . $lang . '|' . $accuracy ),
 			0,
 			24
+		);
+	}
+
+	/**
+	 * Minimal core-WordPress product search used when the NivoSearch engine fails.
+	 *
+	 * Applies the same visibility, password and exclusion rules, with no ranking,
+	 * typo handling or index.
+	 *
+	 * @since 2.0.8
+	 *
+	 * @param string $query Search query.
+	 * @param array  $args  Search arguments.
+	 * @return array Same shape as Search_Algorithm::search().
+	 */
+	private function fallback_search( $query, $args ) {
+		$posts = get_posts(
+			array(
+				'post_type'        => 'product',
+				'post_status'      => 'publish',
+				's'                => $query,
+				'posts_per_page'   => isset( $args['limit'] ) ? max( 1, absint( $args['limit'] ) ) : 10,
+				'has_password'     => false,
+				'suppress_filters' => true,
+				'post__not_in'     => ! empty( $args['exclude'] ) ? array_map( 'absint', (array) $args['exclude'] ) : array(),
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				'tax_query'        => array( Search_Algorithm::get_visibility_tax_clause() ),
+			)
+		);
+
+		return array(
+			'products'        => $posts,
+			'categories'      => array(),
+			'tags'            => array(),
+			'total'           => count( $posts ),
+			'execution_time'  => 0,
+			'engine_fallback' => true,
 		);
 	}
 
@@ -222,10 +314,17 @@ final class Nivo_Ajax_Search {
 		// Background index rebuild (batched, resumable) and WP-CLI commands.
 		Index_Rebuilder::init();
 
+		// REST API (nivo-search/v1).
+		new REST_API();
+
+		// Query rules (pin / bury / redirect) front-end hooks.
+		Merchandising::init();
+
 		// Initialize admin components
 		if ( is_admin() ) {
 			$this->admin_settings       = new Admin_Settings();
 			$this->search_optimization  = new Search_Optimization();
+			new Ranking_Admin();
 		}
 
 		// Search results page + seamless theme integration (front-end only).
@@ -286,6 +385,25 @@ final class Nivo_Ajax_Search {
 		$query = isset( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : ( isset( $_POST['query'] ) ? sanitize_text_field( wp_unslash( $_POST['query'] ) ) : '' );
 		$preset_id = isset( $_POST['preset_id'] ) ? absint( $_POST['preset_id'] ) : 0;
 
+		$response = $this->build_search_response( $query, $preset_id );
+
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( array( 'message' => $response->get_error_message() ) );
+		}
+
+		wp_send_json_success( $response );
+	}
+
+	/**
+	 * Run a search and build the response payload (shared by AJAX and REST).
+	 *
+	 * @since 2.0.8
+	 *
+	 * @param string $query     Sanitised search query.
+	 * @param int    $preset_id Preset post ID (0 for defaults).
+	 * @return array|\WP_Error Response data, or an error (search disabled, query too short).
+	 */
+	public function build_search_response( $query, $preset_id ) {
 		// Get preset settings if available
 		$preset_settings = [];
 		if ( $preset_id && get_post_type( $preset_id ) === 'nivo_search_preset' ) {
@@ -303,13 +421,13 @@ final class Nivo_Ajax_Search {
 
 		// Check if AJAX search is enabled
 		if ( ! get_option( 'nivo_search_enable_ajax', 1 ) ) {
-			wp_send_json_error( array( 'message' => __( 'AJAX search is disabled', 'nivo-ajax-search-for-woocommerce' ) ) );
+			return new \WP_Error( 'nivo_search_disabled', __( 'AJAX search is disabled', 'nivo-ajax-search-for-woocommerce' ) );
 		}
 
 		// Validate minimum query length
 		$min_length = ! empty( $preset_settings['min_chars'] ) ? absint( $preset_settings['min_chars'] ) : 2;
 		if ( strlen( $query ) < $min_length ) {
-			wp_send_json_error( array( 'message' => __( 'Query too short', 'nivo-ajax-search-for-woocommerce' ) ) );
+			return new \WP_Error( 'nivo_search_query_too_short', __( 'Query too short', 'nivo-ajax-search-for-woocommerce' ) );
 		}
 
 		// Prepare search arguments
@@ -318,7 +436,9 @@ final class Nivo_Ajax_Search {
 		
 		$search_args = apply_filters(
 			'nivo_search_args',
-			array(
+			array_merge(
+				Ranking_Settings::get(),
+				array(
 				'limit'                     => $limit,
 				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 				'exclude'                   => $this->get_excluded_products(),
@@ -326,25 +446,43 @@ final class Nivo_Ajax_Search {
 				'exclude_out_of_stock'      => $exclude_out_of_stock,
 				'search_product_categories' => ! empty( $preset_settings['search_product_categories'] ) ? 1 : 0,
 				'search_product_tags'       => ! empty( $preset_settings['search_product_tags'] ) ? 1 : 0,
+				)
 			),
 			$query
 		);
 
 		// --- Transient cache check -------------------------------------------
 		$cache_key = $this->get_cache_key( $query, $preset_id );
-		$cached    = get_transient( $cache_key );
+		$cached    = self::cache_get( $cache_key );
 		if ( false !== $cached ) {
 			// Re-log the correction for cache hits so analytics count every
 			// search, not only the first uncached one.
 			if ( ! empty( $cached['_corrected_from'] ) && ! empty( $cached['_corrected_to'] ) ) {
 				Search_Analytics::log_correction( $cached['_corrected_from'], $cached['_corrected_to'] );
 			}
-			wp_send_json_success( $cached );
+			return $cached;
 		}
 		// --- /Transient cache check ------------------------------------------
 
 		// Use nivo search algorithm
-		$search_results = $this->search_algorithm->search( $query, $search_args );
+		// If the engine throws (database error, broken index...), fall back to a plain
+		// core search instead of showing shoppers an error.
+		try {
+			$search_results = $this->search_algorithm->search( $query, $search_args );
+		} catch ( \Throwable $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'NivoSearch: search engine failed, using core search fallback: ' . $e->getMessage() );
+
+			/**
+			 * Fires when the NivoSearch engine fails and the core fallback is used.
+			 *
+			 * @param \Throwable $e     The error.
+			 * @param string     $query Search query.
+			 */
+			do_action( 'nivo_search_engine_failed', $e, $query );
+
+			$search_results = $this->fallback_search( $query, $search_args );
+		}
 
 		// Format results
 		$results = array();
@@ -413,6 +551,10 @@ final class Nivo_Ajax_Search {
 
 		// Pass "did you mean" suggestion to the frontend when present.
 		// Priority 1: fuzzy-search suggestion (fires when WP_Query returns 0 results).
+		if ( ! empty( $search_results['redirect_url'] ) ) {
+			$response_data['redirect_url'] = esc_url_raw( $search_results['redirect_url'] );
+		}
+
 		if ( ! empty( $search_results['did_you_mean'] ) && get_option( 'nivo_search_show_did_you_mean', 1 ) ) {
 			$response_data['did_you_mean'] = sanitize_text_field( $search_results['did_you_mean'] );
 		}
@@ -445,9 +587,9 @@ final class Nivo_Ajax_Search {
 		}
 
 		// Store in transient cache (5 minutes TTL).
-		set_transient( $cache_key, $response_data, 5 * MINUTE_IN_SECONDS );
+		self::cache_set( $cache_key, $response_data );
 
-		wp_send_json_success( $response_data );
+		return $response_data;
 	}
 
 	/**
@@ -559,7 +701,7 @@ final class Nivo_Ajax_Search {
 	 * @param array $settings Raw merged preset settings.
 	 * @return array Safe, client-facing subset of settings.
 	 */
-	private function sanitize_settings_for_response( array $settings ) {
+	public function sanitize_settings_for_response( array $settings ) {
 		// Keys that the frontend JS actually reads from the settings object.
 		$allowed_keys = array(
 			'limit', 'min_chars', 'delay', 'placeholder',

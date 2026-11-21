@@ -101,7 +101,9 @@ class Search_Algorithm {
         // Fetch a candidate pool larger than the display limit, ordered by title
         // relevance in SQL, then re-rank in PHP and cut to the limit. Ranking only
         // the first N arbitrary rows would hide better matches.
-        $pool_size = max( absint( $args['limit'] ), min( 200, absint( apply_filters( 'nivo_search_candidate_pool', max( 40, absint( $args['limit'] ) * 4 ), $args ) ) ) );
+        $has_signals = ! empty( $args['boost_popularity'] ) || ! empty( $args['boost_rating'] ) || ! empty( $args['boost_recency'] ) || ! empty( $args['boost_instock'] );
+        // Signals reorder the candidates, so give them a wider pool to choose from.
+        $pool_size   = max( absint( $args['limit'] ), min( 200, absint( apply_filters( 'nivo_search_candidate_pool', max( $has_signals ? 100 : 40, absint( $args['limit'] ) * 4 ), $args ) ) ) );
 
         $run_wp_query = function( $search_term ) use ( $args, $pool_size ) {
             add_filter( 'posts_search',   array( $this, 'search_where' ),    10, 2 );
@@ -249,6 +251,13 @@ class Search_Algorithm {
             }
         }
 
+        // Merchandising rule for this query: pin / bury products.
+        $merch_rule = Merchandising::find_rule( $raw_query );
+        if ( $merch_rule && ( ! empty( $merch_rule['pin'] ) || ! empty( $merch_rule['bury'] ) ) ) {
+            $pinned = ! empty( $merch_rule['pin'] ) ? $this->load_products_by_ids( $merch_rule['pin'], $args ) : array();
+            $ranked_products = Merchandising::apply( $ranked_products, $merch_rule, $pinned, absint( $args['limit'] ) );
+        }
+
         $execution_time = microtime(true) - $start_time;
 
         $result = array(
@@ -258,6 +267,10 @@ class Search_Algorithm {
             'total'          => count( $ranked_products ),
             'execution_time' => $execution_time,
         );
+
+        if ( $merch_rule && ! empty( $merch_rule['redirect'] ) ) {
+            $result['redirect_url'] = $merch_rule['redirect'];
+        }
 
         if ( null !== $corrected_from ) {
             $result['corrected_from'] = $corrected_from;
@@ -626,6 +639,67 @@ class Search_Algorithm {
     }
 
     /**
+     * Bulk-load popularity, rating and stock meta for the candidate pool (one query).
+     *
+     * @since 2.0.8
+     *
+     * @param \WP_Post[] $products   Candidate products.
+     * @param bool       $popularity Load total_sales.
+     * @param bool       $rating     Load average rating.
+     * @param bool       $stock      Load stock status.
+     * @return array{sales:array<int,float>,rating:array<int,float>,stock:array<int,string>}
+     */
+    private function load_signals( $products, $popularity, $rating, $stock ) {
+        global $wpdb;
+
+        $signals = array(
+            'sales'  => array(),
+            'rating' => array(),
+            'stock'  => array(),
+        );
+
+        $keys = array();
+        if ( $popularity ) {
+            $keys[] = 'total_sales';
+        }
+        if ( $rating ) {
+            $keys[] = '_wc_average_rating';
+        }
+        if ( $stock ) {
+            $keys[] = '_stock_status';
+        }
+
+        if ( empty( $keys ) || empty( $products ) ) {
+            return $signals;
+        }
+
+        $ids          = array_map( static fn( $p ) => (int) $p->ID, $products );
+        $id_ph        = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $key_ph       = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ({$id_ph}) AND meta_key IN ({$key_ph})",
+                array_merge( $ids, $keys )
+            )
+        );
+
+        foreach ( $rows as $row ) {
+            $id = (int) $row->post_id;
+            if ( 'total_sales' === $row->meta_key ) {
+                $signals['sales'][ $id ] = max( 0, (float) $row->meta_value );
+            } elseif ( '_wc_average_rating' === $row->meta_key ) {
+                $signals['rating'][ $id ] = max( 0, (float) $row->meta_value );
+            } else {
+                $signals['stock'][ $id ] = (string) $row->meta_value;
+            }
+        }
+
+        return $signals;
+    }
+
+    /**
      * Rank results based on relevance.
      *
      * Uses configurable weights from the preset settings, falling back to
@@ -647,6 +721,15 @@ class Search_Algorithm {
         $w_title_contains = isset( $args['weight_title_contains'] ) ? (int) $args['weight_title_contains'] : 20;
         $w_sku_exact      = isset( $args['weight_sku'] )            ? (int) $args['weight_sku']            : 80;
         $w_sku_partial    = max( 1, (int) round( $w_sku_exact * 0.375 ) ); // ~30 at default weight 80.
+
+        // Relevance signals (max points each). All default to 0 = off.
+        $b_popularity = isset( $args['boost_popularity'] ) ? max( 0, (int) $args['boost_popularity'] ) : 0;
+        $b_rating     = isset( $args['boost_rating'] ) ? max( 0, (int) $args['boost_rating'] ) : 0;
+        $b_recency    = isset( $args['boost_recency'] ) ? max( 0, (int) $args['boost_recency'] ) : 0;
+        $b_instock    = isset( $args['boost_instock'] ) ? max( 0, (int) $args['boost_instock'] ) : 0;
+        $signals      = $this->load_signals( $products, $b_popularity > 0, $b_rating > 0, $b_instock > 0 );
+        $max_sales    = ! empty( $signals['sales'] ) ? max( $signals['sales'] ) : 0;
+        $now          = time();
 
         $ranked = array();
         $tokens = array_map( 'strtolower', self::tokenize_query( $query ) );
@@ -746,6 +829,21 @@ class Search_Algorithm {
                         }
                     }
                 }
+            }
+
+            // Relevance signals, each scaled 0..1 within the candidate pool.
+            if ( $b_popularity > 0 && $max_sales > 0 ) {
+                $score += (int) round( $b_popularity * ( $signals['sales'][ $product->ID ] ?? 0 ) / $max_sales );
+            }
+            if ( $b_rating > 0 ) {
+                $score += (int) round( $b_rating * min( 5, $signals['rating'][ $product->ID ] ?? 0 ) / 5 );
+            }
+            if ( $b_recency > 0 ) {
+                $age_days = max( 0, ( $now - (int) strtotime( $product->post_date_gmt . ' UTC' ) ) / DAY_IN_SECONDS );
+                $score   += (int) round( $b_recency * max( 0, 1 - $age_days / 365 ) );
+            }
+            if ( $b_instock > 0 && 'instock' === ( $signals['stock'][ $product->ID ] ?? 'instock' ) ) {
+                $score += $b_instock;
             }
 
             $product->relevance_score = $score;

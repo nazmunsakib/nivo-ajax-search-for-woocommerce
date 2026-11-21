@@ -68,6 +68,10 @@ class Shortcode {
             name="s"
             placeholder="<?php echo esc_attr( $atts['placeholder'] ); ?>"
             aria-label="<?php echo esc_attr( $atts['placeholder'] ); ?>"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-haspopup="listbox"
+            aria-expanded="false"
             autocomplete="off"
         >
         <div class="nivo-search-loader-icons">
@@ -167,9 +171,8 @@ class Shortcode {
 
             <div
                 class="<?php echo esc_attr( $results_classes ); ?>"
-                aria-live="polite"
-                aria-atomic="true"
                 role="listbox"
+                aria-label="<?php esc_attr_e( 'Search results', 'nivo-ajax-search-for-woocommerce' ); ?>"
             ></div>
         </div>
         <?php

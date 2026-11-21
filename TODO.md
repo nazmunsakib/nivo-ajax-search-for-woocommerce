@@ -75,3 +75,25 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 3. Scale engine (C), then REST API
 4. Relevance + merchandising, analytics, facets
 5. Accessibility pass and compatibility matrix
+
+## G. Benchmark findings (2026-11-21, synthetic catalog, local MySQL 8.4, PHP 8.2, one machine — indicative only)
+
+Setup: raw-SQL products in a throwaway DB, title/SKU/stock meta only (no variations, no taxonomies), `Search_Algorithm::search()` called directly, no result cache.
+
+| Products | Index rebuild | Common word | SKU exact | Multi-word ("premium hoodie") | No match |
+|---|---|---|---|---|---|
+| 10k | 11.5 s | 0.5 ms | 1.8 ms | 16.8 ms | 10.2 ms |
+| 100k | 116 s (about 860 products/s) | 2.6 ms | 2.2 ms | 180 ms | 88 ms |
+| 500k | not rebuilt (index still 100k) | 1.8 ms | 2.0 ms | 164 ms | 83 ms |
+
+- The plain `LIKE '%term%'` path is fast at these sizes because `LIMIT 10` stops early, so scaling is NOT where the first read suggested. Real catalogs with descriptions, variations and taxonomies are heavier — re-measure with realistic data.
+- **P0 correctness bug: multi-word queries are matched as ONE exact phrase** (`post_title LIKE '%premium hoodie%'`, `Search_Algorithm::search_where`). "premium hoodie" does not match "Premium Red Hoodie", and "hoodie red" does not match "Red Hoodie". With fuzzy ON, such queries are only rescued by the index fallback, which cost about 2.0 s per search at 500k products (7 to 15 SQL queries).
+- No-match queries trigger the fuzzy fallback every time: about 2.0 s at 500k, 83 ms at 100k.
+- Ranking is applied after `LIMIT`: results are re-ordered by relevance only among the first N rows MySQL returned, not among all matches. Verify and fix.
+- Index rebuild is single-pass (about 20 minutes for 1M products at the measured rate) and runs inside one request.
+
+New TODO items from this:
+- [ ] P0: tokenize multi-word queries (every word must match, any order, across title/SKU/content) instead of one phrase.
+- [ ] P0: rank across all matches, not only the first N rows.
+- [ ] Bound the cost of the fuzzy fallback at scale (cap candidates, cache negative results, timeout).
+- [ ] Re-run the benchmark with realistic data (variations, categories, long descriptions) and keep the script in the repo.

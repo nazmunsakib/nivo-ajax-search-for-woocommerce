@@ -139,7 +139,8 @@ final class Nivo_Ajax_Search {
 		// Invalidate search result cache whenever products or presets change.
 		add_action( 'save_post_product',                     array( __CLASS__, 'invalidate_search_cache' ) );
 		add_action( 'deleted_post',                          array( __CLASS__, 'invalidate_search_cache' ) );
-		add_action( 'woocommerce_product_set_stock_status',  array( __CLASS__, 'invalidate_search_cache' ) );
+		// Stock changes are frequent on busy stores (every order): throttle those bumps.
+		add_action( 'woocommerce_product_set_stock_status',  array( __CLASS__, 'invalidate_search_cache_throttled' ) );
 		add_action( 'save_post_nivo_search_preset',          array( __CLASS__, 'invalidate_search_cache' ) );
 
 		// Allow other plugins to hook into our initialization.
@@ -159,6 +160,59 @@ final class Nivo_Ajax_Search {
 	public static function invalidate_search_cache() {
 		$ver = (int) get_option( 'nivo_search_cache_ver', 1 );
 		update_option( 'nivo_search_cache_ver', $ver + 1, false );
+	}
+
+	/**
+	 * Invalidate the search cache at most once per interval (default 30 s).
+	 *
+	 * Used for high-frequency events such as stock changes, so a busy store does not
+	 * empty the cache on every order. Product saves and imports still invalidate
+	 * immediately; cached results are otherwise at most 5 minutes old.
+	 *
+	 * @since 2.0.8
+	 * @return void
+	 */
+	public static function invalidate_search_cache_throttled() {
+		$interval = (int) apply_filters( 'nivo_search_cache_bump_interval', 30 );
+
+		if ( $interval > 0 && get_transient( 'nivo_search_cache_bump_lock' ) ) {
+			return;
+		}
+
+		set_transient( 'nivo_search_cache_bump_lock', 1, max( 1, $interval ) );
+		self::invalidate_search_cache();
+	}
+
+	/**
+	 * Read a cached search response (object cache when persistent, transient otherwise).
+	 *
+	 * @since 2.0.8
+	 * @param string $key Cache key.
+	 * @return array|false
+	 */
+	private static function cache_get( $key ) {
+		if ( wp_using_ext_object_cache() ) {
+			return wp_cache_get( $key, 'nivo_search' );
+		}
+
+		return get_transient( $key );
+	}
+
+	/**
+	 * Store a search response for 5 minutes.
+	 *
+	 * @since 2.0.8
+	 * @param string $key  Cache key.
+	 * @param array  $data Response data.
+	 * @return void
+	 */
+	private static function cache_set( $key, $data ) {
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_set( $key, $data, 'nivo_search', 5 * MINUTE_IN_SECONDS );
+			return;
+		}
+
+		set_transient( $key, $data, 5 * MINUTE_IN_SECONDS );
 	}
 
 	/**
@@ -391,7 +445,7 @@ final class Nivo_Ajax_Search {
 
 		// --- Transient cache check -------------------------------------------
 		$cache_key = $this->get_cache_key( $query, $preset_id );
-		$cached    = get_transient( $cache_key );
+		$cached    = self::cache_get( $cache_key );
 		if ( false !== $cached ) {
 			// Re-log the correction for cache hits so analytics count every
 			// search, not only the first uncached one.
@@ -521,7 +575,7 @@ final class Nivo_Ajax_Search {
 		}
 
 		// Store in transient cache (5 minutes TTL).
-		set_transient( $cache_key, $response_data, 5 * MINUTE_IN_SECONDS );
+		self::cache_set( $cache_key, $response_data );
 
 		return $response_data;
 	}

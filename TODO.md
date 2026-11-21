@@ -40,7 +40,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 - [ ] Index table: add FULLTEXT or prefix strategy, drop the row-per-token duplication where possible, store normalized fields.
 - [x] Background batch indexing (2026-11-21): `Index_Rebuilder` (Action Scheduler, WP-Cron fallback; 20 s runs, resumable via `last_id`; progress notice on NivoSearch screens), starts automatically once per index version for admins, admin button goes background above 2,000 products, `wp nivo-search index rebuild|status`. Search stays on the standard path until it finishes. Verified: resume and Action Scheduler chaining on the 500k bench DB; 22 tests. Also verified on the dev site (1,030 products) 2026-11-21: `wp nivo-search index rebuild|status`, the WP-Cron fallback (filter `nivo_search_use_action_scheduler`), the auto-start after upgrade (job state showed `auto_started`), the admin button's background message and the progress notice in the browser, and that search keeps working before, during and after a rebuild. Bug found by this testing and fixed: the plugin clears all admin notices on its own screens, which hid the progress notice.
 - [ ] Zero-downtime reindex (build into a shadow table, then swap).
-- [ ] Cache: use the object cache when available; replace the single global version bump (`invalidate_search_cache`) with targeted invalidation.
+- [x] Cache: object cache used when persistent (else transients); stock-status invalidation throttled to once per 30 s (`nivo_search_cache_bump_interval`); product saves still invalidate immediately. Per-product targeted invalidation not done (any product can appear in any query).
 - [ ] Optional external engine adapter (Meilisearch / Elasticsearch / OpenSearch / Typesense).
 
 ## D. P1 — enterprise features
@@ -57,7 +57,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 
 ## E. P1 — accessibility and compatibility
 
-- [ ] WCAG 2.1 AA: combobox/listbox roles, `aria-activedescendant`, full keyboard nav, focus management in the mobile overlay, screen-reader announcements, contrast.
+- [~] WCAG 2.1 AA — DONE and browser-verified 2026-11-21 (`assets/js/nivo-search-a11y.js`): combobox/listbox/option roles, `aria-activedescendant`, ArrowUp/Down/Home/End, Enter opens, Escape closes, separate polite status announcement, listbox no longer a live region. STILL OPEN: mobile overlay keyboard/focus trap, focus management, contrast audit, screen-reader testing (VoiceOver/NVDA), full WCAG audit. Original item: combobox/listbox roles, `aria-activedescendant`, full keyboard nav, focus management in the mobile overlay, screen-reader announcements, contrast.
 - [ ] Test with block themes, popular classic themes, Elementor/Divi, and caching plugins (WP Rocket, LiteSpeed).
 - [ ] Verify WPML / Polylang with real installs.
 

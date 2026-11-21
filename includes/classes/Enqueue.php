@@ -160,6 +160,15 @@ class Enqueue {
 			true
 		);
 
+		// Accessibility layer: combobox roles, arrow-key navigation, screen-reader status.
+		wp_enqueue_script(
+			'nivo-search-a11y',
+			$this->plugin_url . 'assets/js/nivo-search-a11y.js',
+			array( 'nivo-search' ),
+			$script_version,
+			true
+		);
+
 		// Allow additional scripts
 		do_action( 'nivo_search_after_enqueue_scripts' );
 	}
@@ -208,6 +217,10 @@ class Enqueue {
 			'wc_cart_ajax_url' => class_exists( 'WC_AJAX' ) ? esc_url_raw( add_query_arg( 'wc-ajax', '%%endpoint%%', home_url( '/' ) ) ) : '',
 				'strings'     => array(
 					'no_results'    => esc_html__( 'No products found', 'nivo-ajax-search-for-woocommerce' ),
+					'a11y_one_result'   => esc_html__( '1 result available. Use up and down arrow keys to review.', 'nivo-ajax-search-for-woocommerce' ),
+					/* translators: %d: number of results */
+					'a11y_many_results' => esc_html__( '%d results available. Use up and down arrow keys to review.', 'nivo-ajax-search-for-woocommerce' ),
+					'a11y_no_results'   => esc_html__( 'No results found.', 'nivo-ajax-search-for-woocommerce' ),
 					'error'         => esc_html__( 'Search error occurred', 'nivo-ajax-search-for-woocommerce' ),
 					/* translators: %s is the search query */
 					'view_all'      => esc_html__( 'View all results for "%s"', 'nivo-ajax-search-for-woocommerce' ),

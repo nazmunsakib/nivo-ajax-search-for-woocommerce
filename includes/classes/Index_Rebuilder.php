@@ -147,7 +147,15 @@ class Index_Rebuilder {
 	 * @return void
 	 */
 	public static function schedule_next() {
-		if ( function_exists( 'as_enqueue_async_action' ) && function_exists( 'as_get_scheduled_actions' ) ) {
+		/**
+		 * Filters whether the rebuild is queued through Action Scheduler (when available)
+		 * instead of WP-Cron. Return false to force WP-Cron.
+		 *
+		 * @param bool $use Default true.
+		 */
+		$use_action_scheduler = (bool) apply_filters( 'nivo_search_use_action_scheduler', true );
+
+		if ( $use_action_scheduler && function_exists( 'as_enqueue_async_action' ) && function_exists( 'as_get_scheduled_actions' ) ) {
 			// Look only for PENDING actions: as_has_scheduled_action() also counts the
 			// in-progress action that is calling us, which would stop the job chaining itself.
 			$pending = as_get_scheduled_actions(

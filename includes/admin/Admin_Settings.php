@@ -95,6 +95,9 @@ class Admin_Settings {
              $screen->post_type === 'nivo_search_preset' ) {
             remove_all_actions( 'admin_notices' );
             remove_all_actions( 'all_admin_notices' );
+
+            // Keep our own index-rebuild progress / error notice.
+            add_action( 'admin_notices', array( 'NivoSearch\\Index_Rebuilder', 'render_notice' ) );
         }
     }
     
@@ -185,7 +188,7 @@ class Admin_Settings {
 
         // Large catalogs rebuild in the background (batched, resumable) so the request
         // cannot time out; small ones finish immediately.
-        if ( (int) wp_count_posts( 'product' )->publish > Index_Rebuilder::SYNC_LIMIT ) {
+        if ( (int) wp_count_posts( 'product' )->publish > (int) apply_filters( 'nivo_search_sync_rebuild_limit', Index_Rebuilder::SYNC_LIMIT ) ) {
             $job   = Index_Rebuilder::start();
             $stats = Product_Indexer::get_stats();
 

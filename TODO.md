@@ -38,7 +38,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 - [x] Make the indexed engine the primary path (2026-11-21, branch `perf/benchmark`): about 2 s to about 100 ms or less at 500k products, see section G.2. Follow-ups below.
 - [ ] Replace `LIKE '%term%'` with indexed or full-text matching; benchmark at 10k / 100k / 500k products.
 - [ ] Index table: add FULLTEXT or prefix strategy, drop the row-per-token duplication where possible, store normalized fields.
-- [x] Background batch indexing (2026-11-21): `Index_Rebuilder` (Action Scheduler, WP-Cron fallback; 20 s runs, resumable via `last_id`; progress notice on NivoSearch screens), starts automatically once per index version for admins, admin button goes background above 2,000 products, `wp nivo-search index rebuild|status`. Search stays on the standard path until it finishes. Verified: resume and Action Scheduler chaining on the 500k bench DB; 22 tests. NOT yet verified: WP-Cron fallback and the WP-CLI commands in a real run, and the admin button in a browser.
+- [x] Background batch indexing (2026-11-21): `Index_Rebuilder` (Action Scheduler, WP-Cron fallback; 20 s runs, resumable via `last_id`; progress notice on NivoSearch screens), starts automatically once per index version for admins, admin button goes background above 2,000 products, `wp nivo-search index rebuild|status`. Search stays on the standard path until it finishes. Verified: resume and Action Scheduler chaining on the 500k bench DB; 22 tests. Also verified on the dev site (1,030 products) 2026-11-21: `wp nivo-search index rebuild|status`, the WP-Cron fallback (filter `nivo_search_use_action_scheduler`), the auto-start after upgrade (job state showed `auto_started`), the admin button's background message and the progress notice in the browser, and that search keeps working before, during and after a rebuild. Bug found by this testing and fixed: the plugin clears all admin notices on its own screens, which hid the progress notice.
 - [ ] Zero-downtime reindex (build into a shadow table, then swap).
 - [ ] Cache: use the object cache when available; replace the single global version bump (`invalidate_search_cache`) with targeted invalidation.
 - [ ] Optional external engine adapter (Meilisearch / Elasticsearch / OpenSearch / Typesense).
@@ -121,3 +121,8 @@ New TODO items:
 - [x] Background batch rebuild with resume + progress, auto-start after upgrade (see section C). Remaining: live progress bar in the admin card (only a notice today) and a non-destructive rebuild into a shadow table (search is on the standard path while rebuilding).
 - [ ] Size/rows budget: consider dropping `idx_token` and the duplicate content rows, or moving description words into a smaller side table.
 - [ ] Keep the benchmark script in the repo (flush the object cache between runs).
+
+Follow-ups from the rebuild testing:
+- [ ] The Search Index card still shows the old "1030 / 1030 indexed (100%)" with a green dot while a background rebuild has emptied the index; make it show the job progress instead.
+- [ ] With typo tolerance on, a mid-word query such as "oodie" still finds "Hoodie" through the typo/fuzzy fallback on the index path. Fine, but note that it is not an exact substring match.
+- [ ] Action Scheduler async runs only fire on web requests: on a site with no traffic and DISABLE_WP_CRON, a rebuild waits for a visit or `wp action-scheduler run`.

@@ -384,6 +384,9 @@ class Product_Indexer {
 	public function rebuild_all( $batch_size = 100 ) {
 		global $wpdb;
 
+		// Search must not use a half-built index: turn the index-first path off until this finishes.
+		delete_option( 'nivo_search_index_version' );
+
 		// Clear existing index.
 		$wpdb->query( 'TRUNCATE TABLE ' . self::get_table_name() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 

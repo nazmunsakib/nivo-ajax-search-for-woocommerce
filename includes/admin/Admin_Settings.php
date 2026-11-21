@@ -183,6 +183,25 @@ class Admin_Settings {
             wp_send_json_error( array( 'message' => __( 'Insufficient permissions.', 'nivo-ajax-search-for-woocommerce' ) ), 403 );
         }
 
+        // Large catalogs rebuild in the background (batched, resumable) so the request
+        // cannot time out; small ones finish immediately.
+        if ( (int) wp_count_posts( 'product' )->publish > Index_Rebuilder::SYNC_LIMIT ) {
+            $job   = Index_Rebuilder::start();
+            $stats = Product_Indexer::get_stats();
+
+            wp_send_json_success(
+                array(
+                    'queued'       => true,
+                    'indexed'      => $stats['indexed'],
+                    'total'        => $stats['total'],
+                    'count'        => 0,
+                    'last_rebuilt' => $stats['last_rebuilt'],
+                    /* translators: %d number of products */
+                    'message'      => sprintf( __( 'Rebuild started in the background for %d products. Search keeps working and switches to the faster index when it finishes.', 'nivo-ajax-search-for-woocommerce' ), (int) $job['total'] ),
+                )
+            );
+        }
+
         $indexer = new Product_Indexer();
         $count   = $indexer->rebuild_all();
         $stats   = Product_Indexer::get_stats();
@@ -345,6 +364,7 @@ class Admin_Settings {
                         btn.querySelector('.nivo-rebuild-btn__icon').style.display    = 'inline';
                         if (data.success) {
                             var d   = data.data;
+                            if (d.queued) { result.className = 'nivo-index-rebuild-result nivo-index-rebuild-result--ok'; result.textContent = d.message; result.style.display = 'flex'; return; }
                             var pct = d.total > 0 ? Math.round(d.indexed / d.total * 100) : 0;
                             dot.className = 'nivo-index-status-dot nivo-index-status-dot--lg nivo-index-status-dot--ok';
                             sub.textContent = d.indexed + ' / ' + d.total + ' <?php echo esc_js( __( "products indexed", "nivo-ajax-search-for-woocommerce" ) ); ?> (' + pct + '%) • <?php echo esc_js( __( "Just rebuilt", "nivo-ajax-search-for-woocommerce" ) ); ?>';
@@ -588,6 +608,7 @@ class Admin_Settings {
                                 btn.querySelector('.nivo-rebuild-btn__icon').style.display    = 'inline';
                                 if (data.success) {
                                     var d   = data.data;
+                            if (d.queued) { result.className = 'nivo-index-rebuild-result nivo-index-rebuild-result--ok'; result.textContent = d.message; result.style.display = 'flex'; return; }
                                     var pct = d.total > 0 ? Math.round(d.indexed / d.total * 100) : 0;
                                     text.childNodes[0].textContent = d.indexed + ' / ' + d.total + ' <?php echo esc_js( __( "products indexed", "nivo-ajax-search-for-woocommerce" ) ); ?> (' + pct + '%) • ';
                                     rebuilt.textContent = '<?php echo esc_js( __( 'Just rebuilt', 'nivo-ajax-search-for-woocommerce' ) ); ?>';

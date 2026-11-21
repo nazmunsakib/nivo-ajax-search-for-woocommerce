@@ -45,6 +45,8 @@ jobs:
           extensions: mysqli
       - name: Install dev dependencies
         run: composer update --no-interaction --prefer-dist
+      - name: Install Subversion (needed to fetch the WordPress test suite)
+        run: sudo apt-get update && sudo apt-get install -y subversion
       - name: Install WordPress, test suite and WooCommerce
         run: bash bin/install-wp-tests.sh wp_test root root 127.0.0.1 latest latest
       - name: Link plugin into WordPress

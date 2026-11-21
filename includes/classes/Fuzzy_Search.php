@@ -258,6 +258,8 @@ class Fuzzy_Search {
 				'post_type'      => 'product',
 				'post_status'    => 'publish',
 				'post__in'       => $ids,
+				'has_password'   => false,
+				'tax_query'      => array( \NivoSearch\Search_Algorithm::get_visibility_tax_clause() ),
 				'posts_per_page' => count( $ids ),
 				'fields'         => 'ids',
 				'no_found_rows'  => true,

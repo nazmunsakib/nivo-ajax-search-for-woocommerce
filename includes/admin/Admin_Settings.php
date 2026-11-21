@@ -367,7 +367,7 @@ class Admin_Settings {
                         btn.querySelector('.nivo-rebuild-btn__icon').style.display    = 'inline';
                         if (data.success) {
                             var d   = data.data;
-                            if (d.queued) { result.className = 'nivo-index-rebuild-result nivo-index-rebuild-result--ok'; result.textContent = d.message; result.style.display = 'flex'; return; }
+                            if (d.queued) { result.className = 'nivo-index-rebuild-result nivo-index-rebuild-result--ok'; result.textContent = d.message; result.style.display = 'flex'; if (typeof sub !== 'undefined' && sub) { sub.textContent = '<?php echo esc_js( __( "Rebuilding in the background…", "nivo-ajax-search-for-woocommerce" ) ); ?>'; } if (typeof bar !== 'undefined' && bar) { bar.style.width = '0%'; } return; }
                             var pct = d.total > 0 ? Math.round(d.indexed / d.total * 100) : 0;
                             dot.className = 'nivo-index-status-dot nivo-index-status-dot--lg nivo-index-status-dot--ok';
                             sub.textContent = d.indexed + ' / ' + d.total + ' <?php echo esc_js( __( "products indexed", "nivo-ajax-search-for-woocommerce" ) ); ?> (' + pct + '%) • <?php echo esc_js( __( "Just rebuilt", "nivo-ajax-search-for-woocommerce" ) ); ?>';
@@ -611,7 +611,7 @@ class Admin_Settings {
                                 btn.querySelector('.nivo-rebuild-btn__icon').style.display    = 'inline';
                                 if (data.success) {
                                     var d   = data.data;
-                            if (d.queued) { result.className = 'nivo-index-rebuild-result nivo-index-rebuild-result--ok'; result.textContent = d.message; result.style.display = 'flex'; return; }
+                            if (d.queued) { result.className = 'nivo-index-rebuild-result nivo-index-rebuild-result--ok'; result.textContent = d.message; result.style.display = 'flex'; if (typeof rebuilt !== 'undefined' && rebuilt) { rebuilt.textContent = '<?php echo esc_js( __( "Rebuilding in the background…", "nivo-ajax-search-for-woocommerce" ) ); ?>'; } if (typeof text !== 'undefined' && text && text.childNodes[0]) { text.childNodes[0].textContent = '0 / ' + d.total + ' <?php echo esc_js( __( "products indexed", "nivo-ajax-search-for-woocommerce" ) ); ?> '; } if (typeof dot !== 'undefined' && dot) { dot.className = 'nivo-index-status-dot nivo-index-status-dot--warn nivo-integration-card__toggle'; } return; }
                                     var pct = d.total > 0 ? Math.round(d.indexed / d.total * 100) : 0;
                                     text.childNodes[0].textContent = d.indexed + ' / ' + d.total + ' <?php echo esc_js( __( "products indexed", "nivo-ajax-search-for-woocommerce" ) ); ?> (' + pct + '%) • ';
                                     rebuilt.textContent = '<?php echo esc_js( __( 'Just rebuilt', 'nivo-ajax-search-for-woocommerce' ) ); ?>';

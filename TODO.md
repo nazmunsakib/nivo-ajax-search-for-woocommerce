@@ -36,7 +36,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 ## C. P0 — scale
 
 - [x] Make the indexed engine the primary path (2026-11-21, branch `perf/benchmark`): about 2 s to about 100 ms or less at 500k products, see section G.2. Follow-ups below.
-- [ ] Replace `LIKE '%term%'` with indexed or full-text matching; benchmark at 10k / 100k / 500k products.
+- [x] Replace `LIKE '%term%'` with indexed prefix matching; benchmarked at 500k (section G.2).
 - [ ] Index table: add FULLTEXT or prefix strategy, drop the row-per-token duplication where possible, store normalized fields.
 - [x] Background batch indexing (2026-11-21): `Index_Rebuilder` (Action Scheduler, WP-Cron fallback; 20 s runs, resumable via `last_id`; progress notice on NivoSearch screens), starts automatically once per index version for admins, admin button goes background above 2,000 products, `wp nivo-search index rebuild|status`. Search stays on the standard path until it finishes. Verified: resume and Action Scheduler chaining on the 500k bench DB; 22 tests. Also verified on the dev site (1,030 products) 2026-11-21: `wp nivo-search index rebuild|status`, the WP-Cron fallback (filter `nivo_search_use_action_scheduler`), the auto-start after upgrade (job state showed `auto_started`), the admin button's background message and the progress notice in the browser, and that search keeps working before, during and after a rebuild. Bug found by this testing and fixed: the plugin clears all admin notices on its own screens, which hid the progress notice.
 - [ ] Zero-downtime reindex (build into a shadow table, then swap).
@@ -50,10 +50,10 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 - [ ] Merchandising: pin/boost/bury products, query rules, query redirects, banners.
 - [ ] Filters / facets (category, price, attribute, availability).
 - [ ] Analytics: unhide `Search_Analytics_Page`; zero-result report, CTR, search-to-cart/revenue.
-- [ ] REST API: search and presets endpoints (Phase 5.1/5.2).
+- [x] REST API `nivo-search/v1`: `GET /search?q=&preset_id=` (public, rate limited), `GET /presets` (admins), `GET /presets/<id>` (public, sanitised settings). Tests + live smoke test 2026-11-21.
 - [ ] Overridable templates (Phase 5.3).
 - [ ] B2B: role/customer-group visibility and pricing; multi-currency; multisite check.
-- [ ] Fallback to core WooCommerce search if the engine fails.
+- [x] Core-search fallback when the engine throws (`nivo_search_engine_failed` action), tested.
 
 ## E. P1 — accessibility and compatibility
 
@@ -92,8 +92,8 @@ Setup: raw-SQL products in a throwaway DB (title, short content, `_sku`, `_stock
 - Both fixes are covered by `tests/unit/test-search-multiword.php`; the fix did not change speed (2.0 s before and after at 500k).
 
 Open items from this:
-- [ ] P0: make the indexed engine the primary path so a search no longer scans `post_content` / joins postmeta (target: under 100 ms at 500k).
-- [ ] Bound the cost of the fuzzy fallback at scale (cap candidates, cache negative results, timeout).
+- [x] P0: indexed engine is the primary path (about 97 ms or less at 500k).
+- [~] Fuzzy fallback bounded: index-friendly candidate prefixes, LIMIT 300; no-match 2 ms at 500k. Negative-result caching still open.
 - [ ] Re-run the benchmark with realistic data (variations, categories, long descriptions) and keep the script in the repo (always flush the object cache between runs).
 
 ### G.2 Index-first engine results (500k synthetic products, cold cache, same machine)
@@ -123,6 +123,6 @@ New TODO items:
 - [ ] Keep the benchmark script in the repo (flush the object cache between runs).
 
 Follow-ups from the rebuild testing:
-- [ ] The Search Index card still shows the old "1030 / 1030 indexed (100%)" with a green dot while a background rebuild has emptied the index; make it show the job progress instead.
+- [x] Search Index card now switches to a "Rebuilding in the background…" state after the button is clicked (page reloads show the real counts).
 - [ ] With typo tolerance on, a mid-word query such as "oodie" still finds "Hoodie" through the typo/fuzzy fallback on the index path. Fine, but note that it is not an exact substring match.
 - [ ] Action Scheduler async runs only fire on web requests: on a site with no traffic and DISABLE_WP_CRON, a rebuild waits for a visit or `wp action-scheduler run`.

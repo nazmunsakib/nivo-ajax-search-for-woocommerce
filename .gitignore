@@ -72,7 +72,7 @@ Desktop.ini
 .env.*.local
 
 # Testing
-/tests/
+# (tests/ is tracked; excluded from releases via .distignore)
 phpunit.xml
 .phpunit.result.cache
 

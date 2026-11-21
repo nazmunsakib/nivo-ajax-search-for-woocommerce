@@ -26,11 +26,11 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 ## B. P0 — correctness and trust
 
 - [x] Respect catalog visibility + password-protected products in WP_Query and fuzzy paths (2026-11-21, lint only — test on a live store).
-- [ ] Verify the visibility fix with a hidden, a "shop only" and a password-protected product (normal + fuzzy/typo search).
+- [x] Visibility fix verified on the local site 2026-11-21: hidden, shop-only and password products excluded; "search only" included; typo query behaved the same.
 - [ ] Decide on synonyms: implement (Pro-gated) or delete `synonyms.php`. CLAUDE.md note already corrected.
-- [ ] Verify relevance weights are saved and used end to end; fix or remove the setting.
-- [ ] Add PHPUnit (WP test suite) covering search, indexer, typo manager, caching.
-- [ ] Add PHPCS (WPCS) and a CI workflow (lint + tests, PHP 7.4–8.3, a WP/WC matrix).
+- [ ] Relevance weights: VERIFIED NOT CONFIGURABLE. `rank_results()` reads `weight_*` args but no admin UI saves them and nothing passes them, so defaults always apply. Build the UI/filter or stop claiming it.
+- [~] PHPUnit scaffold added (`tests/`, `phpunit.xml.dist`, `bin/install-wp-tests.sh`) with a visibility test. Not yet run: needs Composer. Still to cover: indexer, typo manager, caching.
+- [~] PHPCS (`phpcs.xml.dist`, security + compatibility rules first) and `.github/workflows/ci.yml` added. Not yet run on GitHub; widen PHPCS rules later.
 - [ ] Rate limiting / abuse protection on the public search endpoint; handle nonce expiry on CDN-cached pages.
 
 ## C. P0 — scale

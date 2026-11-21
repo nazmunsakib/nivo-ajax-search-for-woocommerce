@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+      - name: PHP syntax check
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l > /dev/null
+      - name: Install dev dependencies
+        run: composer update --no-interaction --prefer-dist
+      - name: PHPCS
+        run: composer lint
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.3']
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+          extensions: mysqli
+      - name: Install dev dependencies
+        run: composer update --no-interaction --prefer-dist
+      - name: Install WordPress, test suite and WooCommerce
+        run: bash bin/install-wp-tests.sh wp_test root root 127.0.0.1 latest latest
+      - name: Link plugin into WordPress
+        run: ln -s "$GITHUB_WORKSPACE" /tmp/wordpress/wp-content/plugins/nivo-ajax-search-for-woocommerce
+      - name: PHPUnit
+        run: composer test
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib

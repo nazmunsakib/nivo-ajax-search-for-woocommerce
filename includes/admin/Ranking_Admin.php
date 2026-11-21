@@ -18,6 +18,7 @@ class Ranking_Admin {
 	public function __construct() {
 		add_action( 'nivo_render_ranking_tab', array( $this, 'render_ranking_tab' ) );
 		add_action( 'nivo_render_merch_tab', array( $this, 'render_merch_tab' ) );
+		add_action( 'nivo_render_synonyms_tab', array( $this, 'render_synonyms_tab' ) );
 		add_action( 'admin_init', array( $this, 'handle_post' ) );
 	}
 
@@ -52,6 +53,16 @@ class Ranking_Admin {
 			Nivo_Ajax_Search::invalidate_search_cache();
 
 			wp_safe_redirect( $this->tab_url( 'ranking', array( 'saved' => 1 ) ) );
+			exit;
+		}
+
+		if ( 'save_synonyms' === $action ) {
+			update_option( Synonyms::OPTION_ENABLED, isset( $_POST['nivo_synonyms_enabled'] ) ? 1 : 0 );
+
+			$parsed = Synonyms::parse_text( isset( $_POST['nivo_synonyms_text'] ) ? sanitize_textarea_field( wp_unslash( $_POST['nivo_synonyms_text'] ) ) : '' );
+			Synonyms::save_custom_groups( $parsed['groups'] );
+
+			wp_safe_redirect( $this->tab_url( 'synonyms', array( 'saved' => 1, 'dropped' => $parsed['dropped'] ) ) );
 			exit;
 		}
 
@@ -149,6 +160,66 @@ class Ranking_Admin {
 				<?php endforeach; ?>
 
 				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save ranking', 'nivo-ajax-search-for-woocommerce' ); ?></button></p>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Synonyms tab.
+	 *
+	 * @return void
+	 */
+	public function render_synonyms_tab() {
+		$groups = Synonyms::get_custom_groups();
+		$max    = Synonyms::max_custom_groups();
+		$text   = implode( "\n", array_map( static function ( $group ) {
+			return implode( ', ', $group );
+		}, $groups ) );
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$saved   = isset( $_GET['saved'] );
+		$dropped = isset( $_GET['dropped'] ) ? absint( $_GET['dropped'] ) : 0;
+		// phpcs:enable
+		?>
+		<div class="nivo-card nivo-accuracy-card">
+			<h2><?php esc_html_e( 'Synonyms', 'nivo-ajax-search-for-woocommerce' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Teach the search that different words mean the same thing, so "sofa" also finds "couch". NivoSearch already knows a long list of common ones; add your own for your products.', 'nivo-ajax-search-for-woocommerce' ); ?></p>
+
+			<?php if ( $saved ) : ?>
+				<div class="notice notice-success inline"><p><?php esc_html_e( 'Synonyms saved.', 'nivo-ajax-search-for-woocommerce' ); ?></p></div>
+			<?php endif; ?>
+			<?php if ( $dropped > 0 ) : ?>
+				<div class="notice notice-warning inline"><p>
+					<?php
+					/* translators: 1: groups not saved, 2: allowed groups */
+					echo esc_html( sprintf( _n( '%1$d group was not saved: the free version allows %2$d custom groups.', '%1$d groups were not saved: the free version allows %2$d custom groups.', $dropped, 'nivo-ajax-search-for-woocommerce' ), $dropped, $max ) );
+					?>
+				</p></div>
+			<?php endif; ?>
+
+			<form method="post" action="<?php echo esc_url( $this->tab_url( 'synonyms' ) ); ?>">
+				<?php wp_nonce_field( 'nivo_ranking_admin', '_nivo_ranking_nonce' ); ?>
+				<input type="hidden" name="nivo_ranking_action" value="save_synonyms">
+
+				<p>
+					<label>
+						<input type="checkbox" name="nivo_synonyms_enabled" value="1" <?php checked( Synonyms::is_enabled() ); ?>>
+						<?php esc_html_e( 'Use synonyms in search', 'nivo-ajax-search-for-woocommerce' ); ?>
+					</label>
+				</p>
+
+				<h3><?php esc_html_e( 'Your own synonyms', 'nivo-ajax-search-for-woocommerce' ); ?></h3>
+				<p class="description">
+					<?php esc_html_e( 'One group per line, words separated by commas. Single words work best.', 'nivo-ajax-search-for-woocommerce' ); ?>
+					<?php
+					/* translators: 1: groups used, 2: groups allowed */
+					echo esc_html( sprintf( __( 'Using %1$d of %2$d groups.', 'nivo-ajax-search-for-woocommerce' ), count( $groups ), $max ) );
+					?>
+				</p>
+				<textarea name="nivo_synonyms_text" rows="8" class="large-text code" placeholder="sofa, couch, settee&#10;trainers, sneakers, running shoes"><?php echo esc_textarea( $text ); ?></textarea>
+
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Save synonyms', 'nivo-ajax-search-for-woocommerce' ); ?></button></p>
 			</form>
 		</div>
 		<?php

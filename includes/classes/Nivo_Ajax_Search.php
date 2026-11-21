@@ -250,6 +250,7 @@ final class Nivo_Ajax_Search {
 				(int) get_option( 'nivo_search_max_typo_distance', 2 ),
 				(string) get_option( 'nivo_search_excluded_products', '' ),
 				md5( (string) wp_json_encode( Ranking_Settings::get() ) ),
+				Synonyms::fingerprint(),
 			)
 		);
 
@@ -679,6 +680,9 @@ final class Nivo_Ajax_Search {
 			}
 			if ( ! empty( $preset_settings['search_in_sku'] ) ) {
 				$fields[] = 'sku';
+			}
+			if ( ! empty( $preset_settings['search_in_attributes'] ) ) {
+				$fields[] = 'attributes';
 			}
 		}
 

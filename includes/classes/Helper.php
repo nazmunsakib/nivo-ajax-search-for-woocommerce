@@ -167,6 +167,7 @@ class Helper {
             'search_in_sku'             => 1,
             'search_in_content'         => 1,
             'search_in_excerpt'         => 1,
+            'search_in_attributes'      => 1,
             'search_product_categories' => 1,
             'search_product_tags'       => 0,
             'exclude_out_of_stock'      => 0,

@@ -38,6 +38,7 @@ class Index_Query {
 			'sku'     => 'sku',
 			'content' => 'content',
 			'excerpt' => 'content',
+			'attributes' => 'attribute',
 		);
 	}
 
@@ -140,13 +141,31 @@ class Index_Query {
 			$field_ph = implode( ',', array_fill( 0, count( $labels ), '%s' ) );
 			$driver   = array_shift( $tokens );
 
-			$where  = "t0.token LIKE %s AND t0.field IN ({$field_ph})";
-			$params = array_merge( array( $wpdb->esc_like( $driver ) . '%' ), $labels );
+			// A word matches itself or any of its synonyms (word prefixes).
+			$match = static function ( $alias, $word ) use ( $wpdb ) {
+				$words  = array_merge( array( $word ), Synonyms::expand( $word ) );
+				$likes  = implode( ' OR ', array_fill( 0, count( $words ), "{$alias}.token LIKE %s" ) );
+				$params = array_map(
+					static function ( $w ) use ( $wpdb ) {
+						return $wpdb->esc_like( $w ) . '%';
+					},
+					$words
+				);
+
+				return array( '(' . $likes . ')', $params );
+			};
+
+			list( $driver_sql, $driver_params ) = $match( 't0', $driver );
+
+			$where  = "{$driver_sql} AND t0.field IN ({$field_ph})";
+			$params = array_merge( $driver_params, $labels );
 
 			foreach ( $tokens as $i => $token ) {
-				$n       = $i + 1;
-				$where  .= " AND EXISTS (SELECT 1 FROM {$table} t{$n} WHERE t{$n}.product_id = t0.product_id AND t{$n}.token LIKE %s AND t{$n}.field IN ({$field_ph}))";
-				$params  = array_merge( $params, array( $wpdb->esc_like( $token ) . '%' ), $labels );
+				$n = $i + 1;
+				list( $sql_n, $params_n ) = $match( "t{$n}", $token );
+
+				$where  .= " AND EXISTS (SELECT 1 FROM {$table} t{$n} WHERE t{$n}.product_id = t0.product_id AND {$sql_n} AND t{$n}.field IN ({$field_ph}))";
+				$params  = array_merge( $params, $params_n, $labels );
 			}
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- table name is internal; values are prepared.

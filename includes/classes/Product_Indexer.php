@@ -44,11 +44,12 @@ class Product_Indexer {
 	/**
 	 * Index layout version. Bump when the stored tokens change shape so the
 	 * index-first search path stays off until the index has been rebuilt.
+	 * 3 = adds product codes (GTIN/UPC/EAN/ISBN) and attribute values.
 	 *
 	 * @since 2.0.8
 	 * @var int
 	 */
-	const INDEX_VERSION = 2;
+	const INDEX_VERSION = 3;
 
 	/**
 	 * Maximum unique description tokens stored per product (keeps the table small).
@@ -266,9 +267,17 @@ class Product_Indexer {
 			}
 		}
 
+		// GTIN / UPC / EAN / ISBN on the product itself.
+		$rows = array_merge( $rows, $this->code_rows( $product_id ) );
+
+		// Attribute values (size, colour, material...).
+		$rows = array_merge( $rows, $this->attribute_rows( $product ) );
+
 		// Variation SKUs (weight 3) — a variation SKU match returns the parent product.
 		if ( $product->is_type( 'variable' ) ) {
 			foreach ( $product->get_children() as $child_id ) {
+				$rows = array_merge( $rows, $this->code_rows( $child_id ) );
+
 				$child_sku = get_post_meta( $child_id, '_sku', true );
 				if ( '' !== (string) $child_sku ) {
 					$rows[] = array( 'token' => strtolower( $child_sku ), 'field' => 'sku', 'weight' => 3 );
@@ -460,6 +469,87 @@ class Product_Indexer {
 		$last_rebuilt = (int) get_option( 'nivo_search_index_last_rebuilt', 0 );
 
 		return compact( 'indexed', 'total', 'last_rebuilt' );
+	}
+
+	/**
+	 * Post meta keys that hold product codes besides the SKU.
+	 *
+	 * `_global_unique_id` is WooCommerce's own GTIN/UPC/EAN/ISBN field; the others are
+	 * used by popular GTIN plugins and imports.
+	 *
+	 * @since 2.0.8
+	 * @return string[]
+	 */
+	public static function code_meta_keys() {
+		return (array) apply_filters(
+			'nivo_search_code_meta_keys',
+			array( '_global_unique_id', '_gtin', '_upc', '_ean', '_isbn', '_barcode' )
+		);
+	}
+
+	/**
+	 * Index rows for the product codes stored on one post (product or variation).
+	 *
+	 * Codes are indexed under the 'sku' field, so the "Search in SKU" option also
+	 * finds them. The whole code is one token (leading zeros kept), and its pieces
+	 * are indexed too when it contains separators.
+	 *
+	 * @since 2.0.8
+	 * @param int $post_id Product or variation ID.
+	 * @return array[] Rows of token/field/weight.
+	 */
+	private function code_rows( $post_id ) {
+		$rows = array();
+
+		foreach ( self::code_meta_keys() as $key ) {
+			$value = trim( (string) get_post_meta( $post_id, $key, true ) );
+			if ( '' === $value ) {
+				continue;
+			}
+
+			$rows[] = array( 'token' => strtolower( $value ), 'field' => 'sku', 'weight' => 3 );
+
+			foreach ( $this->tokenize( $value ) as $token ) {
+				$rows[] = array( 'token' => $token, 'field' => 'sku', 'weight' => 3 );
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Index rows for a product's attribute values (taxonomy terms and custom values).
+	 *
+	 * @since 2.0.8
+	 * @param \WC_Product $product Product.
+	 * @return array[] Rows of token/field/weight.
+	 */
+	private function attribute_rows( $product ) {
+		$rows = array();
+
+		foreach ( $product->get_attributes() as $attribute ) {
+			if ( ! $attribute instanceof \WC_Product_Attribute ) {
+				continue;
+			}
+
+			$values = array();
+			if ( $attribute->is_taxonomy() ) {
+				$names = wc_get_product_terms( $product->get_id(), $attribute->get_name(), array( 'fields' => 'names' ) );
+				if ( is_array( $names ) ) {
+					$values = $names;
+				}
+			} else {
+				$values = $attribute->get_options();
+			}
+
+			foreach ( (array) $values as $value ) {
+				foreach ( $this->tokenize( (string) $value ) as $token ) {
+					$rows[] = array( 'token' => $token, 'field' => 'attribute', 'weight' => 2 );
+				}
+			}
+		}
+
+		return $rows;
 	}
 
 	/**

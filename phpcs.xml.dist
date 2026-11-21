@@ -18,7 +18,11 @@
 
 	<!-- Start with the security-critical rules; widen to the full WordPress ruleset later. -->
 	<rule ref="WordPress.Security"/>
-	<rule ref="WordPress.DB.PreparedSQL"/>
+	<rule ref="WordPress.DB.PreparedSQL">
+		<!-- Table names ($wpdb->posts, $wpdb->prefix . ...) and generated %s placeholder lists
+		     are interpolated by design; values are still passed through $wpdb->prepare(). -->
+		<exclude name="WordPress.DB.PreparedSQL.InterpolatedNotPrepared"/>
+	</rule>
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">

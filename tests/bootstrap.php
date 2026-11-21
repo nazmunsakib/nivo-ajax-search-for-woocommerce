@@ -14,7 +14,13 @@ if ( ! file_exists( $nivo_tests_dir . '/includes/functions.php' ) ) {
 }
 
 if ( ! defined( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH' ) ) {
-	define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', dirname( __DIR__ ) . '/vendor/yoast/phpunit-polyfills' );
+	$nivo_polyfills = getenv( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH' );
+	define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', $nivo_polyfills ? $nivo_polyfills : dirname( __DIR__ ) . '/vendor/yoast/phpunit-polyfills' );
+}
+
+// Allow a custom wp-tests-config.php (needed when using the wp-phpunit Composer package).
+if ( getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) && ! defined( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
+	define( 'WP_TESTS_CONFIG_FILE_PATH', getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) );
 }
 
 require_once $nivo_tests_dir . '/includes/functions.php';

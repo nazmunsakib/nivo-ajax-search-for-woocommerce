@@ -35,7 +35,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 
 ## C. P0 — scale
 
-- [ ] Make the indexed engine the primary path (not only the zero-result fallback).
+- [ ] Make the indexed engine the primary path (not only the zero-result fallback). CONFIRMED NEEDED: primary path is about 2 s at 500k products (section G).
 - [ ] Replace `LIKE '%term%'` with indexed or full-text matching; benchmark at 10k / 100k / 500k products.
 - [ ] Index table: add FULLTEXT or prefix strategy, drop the row-per-token duplication where possible, store normalized fields.
 - [ ] Background batch indexing (Action Scheduler or cron) with resume; WP-CLI `wp nivo index rebuild`; no admin-ajax timeouts.
@@ -78,22 +78,20 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 
 ## G. Benchmark findings (2026-11-21, synthetic catalog, local MySQL 8.4, PHP 8.2, one machine — indicative only)
 
-Setup: raw-SQL products in a throwaway DB, title/SKU/stock meta only (no variations, no taxonomies), `Search_Algorithm::search()` called directly, no result cache.
+Setup: raw-SQL products in a throwaway DB (title, short content, `_sku`, `_stock_status`, `_price` only; no variations or taxonomies). `Search_Algorithm::search()` called directly, WP object cache flushed before every run.
 
-| Products | Index rebuild | Common word | SKU exact | Multi-word ("premium hoodie") | No match |
-|---|---|---|---|---|---|
-| 10k | 11.5 s | 0.5 ms | 1.8 ms | 16.8 ms | 10.2 ms |
-| 100k | 116 s (about 860 products/s) | 2.6 ms | 2.2 ms | 180 ms | 88 ms |
-| 500k | not rebuilt (index still 100k) | 1.8 ms | 2.0 ms | 164 ms | 83 ms |
+**Correction:** the first version of this section reported 0.5 to 180 ms. Those numbers were wrong: the runs reused WordPress's own query cache, so they measured cache hits. Cold numbers below.
 
-- The plain `LIKE '%term%'` path is fast at these sizes because `LIMIT 10` stops early, so scaling is NOT where the first read suggested. Real catalogs with descriptions, variations and taxonomies are heavier — re-measure with realistic data.
-- **P0 correctness bug: multi-word queries are matched as ONE exact phrase** (`post_title LIKE '%premium hoodie%'`, `Search_Algorithm::search_where`). "premium hoodie" does not match "Premium Red Hoodie", and "hoodie red" does not match "Red Hoodie". With fuzzy ON, such queries are only rescued by the index fallback, which cost about 2.0 s per search at 500k products (7 to 15 SQL queries).
-- No-match queries trigger the fuzzy fallback every time: about 2.0 s at 500k, 83 ms at 100k.
-- Ranking is applied after `LIMIT`: results are re-ordered by relevance only among the first N rows MySQL returned, not among all matches. Verify and fix.
-- Index rebuild is single-pass (about 20 minutes for 1M products at the measured rate) and runs inside one request.
+| Products | Index rebuild | Any query on the primary WP_Query path (common word, multi-word, rare, SKU, no match) | Typo query (primary path, then fuzzy fallback) |
+|---|---|---|---|
+| 500k | not rebuilt (index still 100k) | about 2.0 s each | about 3.9 s |
 
-New TODO items from this:
-- [ ] P0: tokenize multi-word queries (every word must match, any order, across title/SKU/content) instead of one phrase.
-- [ ] P0: rank across all matches, not only the first N rows.
+- **The primary search does not scale.** Even an exact SKU match takes about 2 s at 500k, because the query scans titles and content with `LIKE '%term%'` and LEFT JOINs the postmeta and variation tables before applying `LIMIT`. Cold 10k and 100k numbers were not re-measured; the earlier ones are invalid.
+- Index rebuild: 116 s for 100k products (about 860 products/s), single request. That measurement did not depend on the query cache.
+- Fixed on branch `perf/benchmark`: multi-word queries used to be matched as one exact phrase (`LIKE '%premium hoodie%'`), so "premium hoodie" missed "Premium Red Hoodie". Every word must now match, in any order and field. Ranking also considered only the first N rows MySQL returned; it now ranks a candidate pool (max(40, 4 x limit), filter `nivo_search_candidate_pool`) ordered by title relevance in SQL, then cuts to the limit.
+- Both fixes are covered by `tests/unit/test-search-multiword.php`; the fix did not change speed (2.0 s before and after at 500k).
+
+Open items from this:
+- [ ] P0: make the indexed engine the primary path so a search no longer scans `post_content` / joins postmeta (target: under 100 ms at 500k).
 - [ ] Bound the cost of the fuzzy fallback at scale (cap candidates, cache negative results, timeout).
-- [ ] Re-run the benchmark with realistic data (variations, categories, long descriptions) and keep the script in the repo.
+- [ ] Re-run the benchmark with realistic data (variations, categories, long descriptions) and keep the script in the repo (always flush the object cache between runs).

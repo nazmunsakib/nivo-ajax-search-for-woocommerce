@@ -98,15 +98,21 @@ class Search_Algorithm {
         // -------------------------------------------------------
         // Helper: run WP_Query for a given search term.
         // -------------------------------------------------------
-        $run_wp_query = function( $search_term ) use ( $args ) {
+        // Fetch a candidate pool larger than the display limit, ordered by title
+        // relevance in SQL, then re-rank in PHP and cut to the limit. Ranking only
+        // the first N arbitrary rows would hide better matches.
+        $pool_size = max( absint( $args['limit'] ), min( 200, absint( apply_filters( 'nivo_search_candidate_pool', max( 40, absint( $args['limit'] ) * 4 ), $args ) ) ) );
+
+        $run_wp_query = function( $search_term ) use ( $args, $pool_size ) {
             add_filter( 'posts_search',   array( $this, 'search_where' ),    10, 2 );
+            add_filter( 'posts_orderby',  array( $this, 'search_orderby' ),  10, 2 );
             add_filter( 'posts_join',     array( $this, 'search_join' ),     10, 2 );
             add_filter( 'posts_distinct', array( $this, 'search_distinct' ), 10, 2 );
 
             $qargs = array(
                 'post_type'              => $args['post_types'],
                 'post_status'            => $args['post_status'],
-                'posts_per_page'         => $args['limit'],
+                'posts_per_page'         => $pool_size,
                 's'                      => $search_term,
                 'nivo_search_args'       => $args,
                 'tax_query'              => array_merge( (array) $args['tax_query'], array( self::get_visibility_tax_clause() ) ),
@@ -142,6 +148,7 @@ class Search_Algorithm {
             $wq = new \WP_Query( $qargs );
 
             remove_filter( 'posts_search',   array( $this, 'search_where' ),    10 );
+            remove_filter( 'posts_orderby',  array( $this, 'search_orderby' ),  10 );
             remove_filter( 'posts_join',     array( $this, 'search_join' ),     10 );
             remove_filter( 'posts_distinct', array( $this, 'search_distinct' ), 10 );
 
@@ -273,32 +280,44 @@ class Search_Algorithm {
             return $where;
         }
 
-        $search_fields   = $args['search_fields'];
-        $n               = '%';
-        $escaped         = $wpdb->esc_like( $search_term );
-        $term_conditions = array();
+        $search_fields = $args['search_fields'];
+        $n             = '%';
+        $token_groups  = array();
 
-        // Title search.
-        if ( in_array( 'title', $search_fields, true ) ) {
-            $term_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_title LIKE %s", $n . $escaped . $n );
+        // Every word must match somewhere (title, content, excerpt or SKU), in any
+        // order and in any field: "premium hoodie" finds "Premium Red Hoodie".
+        foreach ( self::tokenize_query( $search_term ) as $token ) {
+            $escaped         = $wpdb->esc_like( $token );
+            $term_conditions = array();
+
+            // Title search.
+            if ( in_array( 'title', $search_fields, true ) ) {
+                $term_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_title LIKE %s", $n . $escaped . $n );
+            }
+
+            // Content search.
+            if ( in_array( 'content', $search_fields, true ) ) {
+                $term_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_content LIKE %s", $n . $escaped . $n );
+            }
+
+            // Excerpt search.
+            if ( in_array( 'excerpt', $search_fields, true ) ) {
+                $term_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_excerpt LIKE %s", $n . $escaped . $n );
+            }
+
+            // SKU search — parent product SKU.
+            if ( in_array( 'sku', $search_fields, true ) ) {
+                $term_conditions[] = $wpdb->prepare( 'sku_meta.meta_value LIKE %s', $n . $escaped . $n );
+                // Variation-level SKU: match returns the parent product.
+                $term_conditions[] = $wpdb->prepare( 'variation_sku_meta.meta_value LIKE %s', $n . $escaped . $n );
+            }
+
+            if ( ! empty( $term_conditions ) ) {
+                $token_groups[] = '(' . implode( ' OR ', $term_conditions ) . ')';
+            }
         }
 
-        // Content search.
-        if ( in_array( 'content', $search_fields, true ) ) {
-            $term_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_content LIKE %s", $n . $escaped . $n );
-        }
-
-        // Excerpt search.
-        if ( in_array( 'excerpt', $search_fields, true ) ) {
-            $term_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_excerpt LIKE %s", $n . $escaped . $n );
-        }
-
-        // SKU search — parent product SKU.
-        if ( in_array( 'sku', $search_fields, true ) ) {
-            $term_conditions[] = $wpdb->prepare( 'sku_meta.meta_value LIKE %s', $n . $escaped . $n );
-            // Variation-level SKU: match returns the parent product.
-            $term_conditions[] = $wpdb->prepare( 'variation_sku_meta.meta_value LIKE %s', $n . $escaped . $n );
-        }
+        $term_conditions = $token_groups;
 
         if ( ! empty( $term_conditions ) ) {
             // The posts_search filter is designed to replace the search clause.
@@ -306,7 +325,7 @@ class Search_Algorithm {
             // variation SKU, meta joins) are the sole search logic. meta_query and
             // tax_query conditions are added via separate filter hooks and are not
             // passed through posts_search, so replacing here does not affect them.
-            $where = ' AND (' . implode( ' OR ', $term_conditions ) . ') ';
+            $where = ' AND (' . implode( ' AND ', $term_conditions ) . ') ';
 
             // Honour the configured post types / statuses (defaults: product, publish)
             // instead of hardcoding them, so the nivo_search_args filter can broaden scope.
@@ -326,6 +345,58 @@ class Search_Algorithm {
         return $where;
     }
     
+    /**
+     * Order candidates by title relevance so the best matches survive the pool limit.
+     *
+     * Only columns of the posts table are used, so the ORDER BY stays valid with
+     * SELECT DISTINCT.
+     *
+     * @since 2.0.8
+     *
+     * @param string    $orderby  Current ORDER BY clause.
+     * @param \WP_Query $wp_query Query being run.
+     * @return string
+     */
+    public function search_orderby( $orderby, $wp_query ) {
+        global $wpdb;
+
+        $args = $wp_query->get( 'nivo_search_args' );
+        $term = strtolower( trim( (string) $wp_query->get( 's' ) ) );
+
+        if ( empty( $args ) || '' === $term ) {
+            return $orderby;
+        }
+
+        $like  = $wpdb->esc_like( $term );
+        $title = "LOWER({$wpdb->posts}.post_title)";
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $title only interpolates table/column names.
+        return $wpdb->prepare(
+            "CASE WHEN {$title} = %s THEN 0 WHEN {$title} LIKE %s THEN 1 WHEN {$title} LIKE %s THEN 2 ELSE 3 END ASC, CHAR_LENGTH({$wpdb->posts}.post_title) ASC, {$wpdb->posts}.ID ASC",
+            $term,
+            $like . '%',
+            '%' . $like . '%'
+        );
+    }
+
+    /**
+     * Split a search query into words (max 8), dropping empty fragments.
+     *
+     * @since 2.0.8
+     *
+     * @param string $query Search query.
+     * @return string[]
+     */
+    public static function tokenize_query( $query ) {
+        $words = preg_split( '/\s+/u', trim( (string) $query ), -1, PREG_SPLIT_NO_EMPTY );
+
+        if ( ! is_array( $words ) || empty( $words ) ) {
+            return array();
+        }
+
+        return array_slice( array_values( array_unique( $words ) ), 0, 8 );
+    }
+
     /**
      * Modify search JOIN clause
      *
@@ -514,6 +585,8 @@ class Search_Algorithm {
         $w_sku_partial    = max( 1, (int) round( $w_sku_exact * 0.375 ) ); // ~30 at default weight 80.
 
         $ranked = array();
+        $tokens = array_map( 'strtolower', self::tokenize_query( $query ) );
+        $token_count = count( $tokens );
 
         // Phase 4.2 — Bulk-fetch all SKUs in a single query instead of one
         // get_post_meta() call per product (N+1 fix).
@@ -574,6 +647,15 @@ class Search_Algorithm {
                 $score += $w_title_starts;
             } elseif ( strpos( $title, $query ) !== false ) {
                 $score += $w_title_contains;
+            } elseif ( $token_count > 1 ) {
+                // Multi-word query without the exact phrase: reward each word found in the title.
+                $title_hits = 0;
+                foreach ( $tokens as $token ) {
+                    if ( false !== strpos( $title, $token ) ) {
+                        ++$title_hits;
+                    }
+                }
+                $score += (int) round( $w_title_contains * $title_hits / $token_count );
             }
 
             // SKU match — parent product SKU.
@@ -606,11 +688,23 @@ class Search_Algorithm {
             $ranked[]                 = $product;
         }
 
+        // Stable sort: equal scores keep the SQL order (best title match first).
+        $position = 0;
+        foreach ( $ranked as $item ) {
+            $item->nivo_position = $position++;
+        }
+
         usort( $ranked, static function ( $a, $b ) {
+            if ( $a->relevance_score === $b->relevance_score ) {
+                return $a->nivo_position - $b->nivo_position;
+            }
+
             return $b->relevance_score - $a->relevance_score;
         } );
 
-        return $ranked;
+        $limit = isset( $args['limit'] ) ? absint( $args['limit'] ) : 0;
+
+        return $limit > 0 ? array_slice( $ranked, 0, $limit ) : $ranked;
     }
 
     /**

@@ -42,6 +42,23 @@ class Product_Indexer {
 	const TABLE_NAME = 'nivo_search_index';
 
 	/**
+	 * Index layout version. Bump when the stored tokens change shape so the
+	 * index-first search path stays off until the index has been rebuilt.
+	 *
+	 * @since 2.0.8
+	 * @var int
+	 */
+	const INDEX_VERSION = 2;
+
+	/**
+	 * Maximum unique description tokens stored per product (keeps the table small).
+	 *
+	 * @since 2.0.8
+	 * @var int
+	 */
+	const MAX_CONTENT_TOKENS = 30;
+
+	/**
 	 * Return the full (prefixed) table name.
 	 *
 	 * @since 2.0.2
@@ -87,6 +104,36 @@ class Product_Indexer {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+
+		self::ensure_cover_index();
+	}
+
+	/**
+	 * Add the covering index used by the index-first search (token prefix lookups
+	 * answered from the index alone, with no table row reads).
+	 *
+	 * Added separately from CREATE TABLE and with errors suppressed: very old
+	 * MySQL row formats reject a full-width varchar key, and the plugin must still
+	 * work without it (just slower on very large catalogs).
+	 *
+	 * @since 2.0.8
+	 * @return void
+	 */
+	public static function ensure_cover_index() {
+		global $wpdb;
+
+		$table = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$exists = $wpdb->get_var( $wpdb->prepare( "SHOW INDEX FROM {$table} WHERE Key_name = %s", 'idx_cover' ) );
+		if ( $exists ) {
+			return;
+		}
+
+		$previous = $wpdb->suppress_errors( true );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( "ALTER TABLE {$table} ADD KEY idx_cover (token, field, weight, product_id)" );
+		$wpdb->suppress_errors( $previous );
 	}
 
 	/**
@@ -101,6 +148,7 @@ class Product_Indexer {
 		add_action( 'save_post_product',                    array( $this, 'on_product_save' ),   10, 1 );
 		add_action( 'deleted_post',                         array( $this, 'on_product_delete' ), 10, 1 );
 		add_action( 'woocommerce_product_set_stock_status', array( $this, 'on_product_save' ),   10, 1 );
+		add_action( 'save_post_product_variation',          array( $this, 'on_variation_save' ), 10, 1 );
 
 		// WooCommerce CSV importer — fires after each product is created or updated
 		// during a bulk import. save_post_product does not fire reliably in that flow.
@@ -147,6 +195,20 @@ class Product_Indexer {
 			$this->index_product( $post_id );
 		} else {
 			$this->deindex_product( $post_id );
+		}
+	}
+
+	/**
+	 * Re-index the parent product when one of its variations (and so its SKU) changes.
+	 *
+	 * @since 2.0.8
+	 * @param int $variation_id Variation post ID.
+	 * @return void
+	 */
+	public function on_variation_save( $variation_id ) {
+		$parent_id = (int) wp_get_post_parent_id( $variation_id );
+		if ( $parent_id > 0 ) {
+			$this->on_product_save( $parent_id );
 		}
 	}
 
@@ -204,6 +266,37 @@ class Product_Indexer {
 			}
 		}
 
+		// Variation SKUs (weight 3) — a variation SKU match returns the parent product.
+		if ( $product->is_type( 'variable' ) ) {
+			foreach ( $product->get_children() as $child_id ) {
+				$child_sku = get_post_meta( $child_id, '_sku', true );
+				if ( '' !== (string) $child_sku ) {
+					$rows[] = array( 'token' => strtolower( $child_sku ), 'field' => 'sku', 'weight' => 3 );
+					foreach ( $this->tokenize( $child_sku ) as $token ) {
+						$rows[] = array( 'token' => $token, 'field' => 'sku', 'weight' => 3 );
+					}
+				}
+			}
+		}
+
+		// Description tokens (weight 1) — first words of the short + full description,
+		// capped so the index stays small on large catalogs.
+		if ( apply_filters( 'nivo_search_index_content', true ) ) {
+			$description = wp_strip_all_tags( $product->get_short_description() . ' ' . mb_substr( $product->get_description(), 0, 1500 ) );
+			$count       = 0;
+			$limit       = (int) apply_filters( 'nivo_search_index_content_token_limit', self::MAX_CONTENT_TOKENS );
+			foreach ( array_unique( $this->tokenize( $description ) ) as $token ) {
+				if ( $count >= $limit ) {
+					break;
+				}
+				if ( strlen( $token ) < 3 ) {
+					continue;
+				}
+				$rows[] = array( 'token' => $token, 'field' => 'content', 'weight' => 1 );
+				++$count;
+			}
+		}
+
 		// Category tokens (weight 2).
 		$cats = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'names' ) );
 		if ( ! is_wp_error( $cats ) ) {
@@ -245,17 +338,20 @@ class Product_Indexer {
 
 		$table = self::get_table_name();
 
-		foreach ( $seen as $row ) {
-			$wpdb->insert(
-				$table,
-				array(
-					'product_id' => (int) $product_id,
-					'token'      => $row['token'],
-					'field'      => $row['field'],
-					'weight'     => (int) $row['weight'],
-				),
-				array( '%d', '%s', '%s', '%d' )
-			);
+		// One multi-row INSERT per product (and per 500 rows) instead of one query per token.
+		foreach ( array_chunk( array_values( $seen ), 500 ) as $chunk ) {
+			$placeholders = array();
+			$values       = array();
+			foreach ( $chunk as $row ) {
+				$placeholders[] = '(%d,%s,%s,%d)';
+				$values[]       = (int) $product_id;
+				$values[]       = mb_substr( $row['token'], 0, 190 );
+				$values[]       = $row['field'];
+				$values[]       = (int) $row['weight'];
+			}
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- table name is internal; values are prepared.
+			$wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$table} (product_id, token, field, weight) VALUES " . implode( ',', $placeholders ), $values ) );
 		}
 	}
 
@@ -291,28 +387,46 @@ class Product_Indexer {
 		// Clear existing index.
 		$wpdb->query( 'TRUNCATE TABLE ' . self::get_table_name() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		$page  = 1;
-		$count = 0;
+		// Cheap on an empty table; makes sure the covering index exists before the
+		// index-first search is switched on at the end of the rebuild.
+		self::ensure_cover_index();
+
+		$last_id = 0;
+		$count   = 0;
 
 		do {
-			$ids = get_posts( array(
-				'post_type'      => 'product',
-				'post_status'    => 'publish',
-				'posts_per_page' => $batch_size,
-				'paged'          => $page,
-				'fields'         => 'ids',
-			) );
+			// Keyset pagination: an OFFSET scan would get slower with every batch.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$ids = array_map(
+				'intval',
+				$wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'product' AND post_status = 'publish' AND ID > %d ORDER BY ID ASC LIMIT %d",
+						$last_id,
+						$batch_size
+					)
+				)
+			);
+
+			if ( empty( $ids ) ) {
+				break;
+			}
+
+			// Prime post, meta and term caches for the whole batch in a few queries.
+			_prime_post_caches( $ids, true, true );
 
 			foreach ( $ids as $id ) {
 				$this->index_product( $id );
 				$count++;
 			}
 
-			$page++;
+			$last_id = end( $ids );
 		} while ( count( $ids ) === $batch_size );
 
 		update_option( 'nivo_search_index_last_rebuilt', time() );
 		update_option( 'nivo_search_index_count', $count );
+		update_option( 'nivo_search_index_version', self::INDEX_VERSION );
+		update_option( 'nivo_search_index_has_content', apply_filters( 'nivo_search_index_content', true ) ? 1 : 0 );
 
 		return $count;
 	}
@@ -355,7 +469,7 @@ class Product_Indexer {
 	 * @param string $text Input text.
 	 * @return string[] Array of tokens.
 	 */
-	private function tokenize( $text ) {
+	public static function tokenize( $text ) {
 		if ( empty( $text ) ) {
 			return array();
 		}

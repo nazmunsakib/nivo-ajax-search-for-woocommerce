@@ -31,7 +31,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 - [ ] Relevance weights: VERIFIED NOT CONFIGURABLE. `rank_results()` reads `weight_*` args but no admin UI saves them and nothing passes them, so defaults always apply. Build the UI/filter or stop claiming it.
 - [~] PHPUnit scaffold added (`tests/`, `phpunit.xml.dist`, `bin/install-wp-tests.sh`) with a visibility test. Not yet run: needs Composer. Still to cover: indexer, typo manager, caching.
 - [~] PHPCS (`phpcs.xml.dist`, security + compatibility rules first) and `.github/workflows/ci.yml` added. Not yet run on GitHub; widen PHPCS rules later.
-- [ ] Rate limiting / abuse protection on the public search endpoint; handle nonce expiry on CDN-cached pages.
+- [x] Rate limiting (`Rate_Limiter`, 120 req/min per IP, filter `nivo_search_rate_limit`, 429 + Retry-After) and soft nonce check for search so cached pages with expired nonces no longer 403 (filter `nivo_search_require_nonce` restores strict mode). Verified live 2026-11-21.
 
 ## C. P0 — scale
 

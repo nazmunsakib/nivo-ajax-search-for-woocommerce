@@ -254,9 +254,31 @@ final class Nivo_Ajax_Search {
 	 * @return void
 	 */
 	public function handle_search() {
-		// Verify nonce on every request path — the JS sends it via both
-		// admin-ajax.php and the wc-ajax endpoint (set in wp_localize_script).
-		check_ajax_referer( 'nivo_search_nonce', 'nonce' );
+		// Searching is read-only public data, so a stale nonce must not break it:
+		// full-page caches (CDN, WP Rocket, LiteSpeed) can serve a page whose nonce
+		// has expired, which used to return a hard 403. Sites that want the old
+		// strict behaviour can return true from this filter. Add-to-cart keeps its
+		// own nonce.
+		$nonce_ok = false !== check_ajax_referer( 'nivo_search_nonce', 'nonce', false );
+
+		if ( ! $nonce_ok && apply_filters( 'nivo_search_require_nonce', false ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Your session expired. Please reload the page.', 'nivo-ajax-search-for-woocommerce' ) ),
+				403
+			);
+		}
+
+		// Throttle abusive clients before doing any search work.
+		if ( ! Rate_Limiter::allow() ) {
+			header( 'Retry-After: ' . Rate_Limiter::retry_after() );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Too many searches. Please wait a moment and try again.', 'nivo-ajax-search-for-woocommerce' ),
+					'code'    => 'rate_limited',
+				),
+				429
+			);
+		}
 
 		$query = isset( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : ( isset( $_POST['query'] ) ? sanitize_text_field( wp_unslash( $_POST['query'] ) ) : '' );
 		$preset_id = isset( $_POST['preset_id'] ) ? absint( $_POST['preset_id'] ) : 0;

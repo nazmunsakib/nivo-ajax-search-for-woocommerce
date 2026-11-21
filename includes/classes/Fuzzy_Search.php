@@ -123,9 +123,9 @@ class Fuzzy_Search {
 	/**
 	 * Fetch candidate index tokens for a given query token.
 	 *
-	 * Uses a two-clause LIKE query:
-	 *   1. Prefix match on the first 2 characters (fast — covered by idx_token).
-	 *   2. Substring match as a fallback for transpositions.
+	 * Uses a two-clause prefix query, both covered by idx_token:
+	 *   1. Prefix match on the first 2 characters.
+	 *   2. Prefix match on the first 2 characters swapped (transposed typo).
 	 * A CHAR_LENGTH window of ±2 chars keeps the candidate set small.
 	 *
 	 * @since 2.0.2
@@ -136,9 +136,13 @@ class Fuzzy_Search {
 	private function get_candidate_tokens( $token, $table ) {
 		global $wpdb;
 
-		$len    = strlen( $token );
-		$prefix = $wpdb->esc_like( substr( $token, 0, 2 ) ) . '%';
-		$substr = '%' . $wpdb->esc_like( $token ) . '%';
+		$len = strlen( $token );
+
+		// Index-friendly prefixes only: the first two characters, and the same two
+		// swapped (a very common typo). A '%substring%' clause would scan every
+		// row of the index on large catalogs.
+		$prefix  = $wpdb->esc_like( substr( $token, 0, 2 ) ) . '%';
+		$swapped = $wpdb->esc_like( strrev( substr( $token, 0, 2 ) ) ) . '%';
 
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
@@ -148,7 +152,7 @@ class Fuzzy_Search {
 				   AND CHAR_LENGTH(token) BETWEEN %d AND %d
 				 LIMIT 300",
 				$prefix,
-				$substr,
+				$swapped,
 				max( 1, $len - 2 ),
 				$len + 2
 			)

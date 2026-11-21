@@ -35,7 +35,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 
 ## C. P0 — scale
 
-- [ ] Make the indexed engine the primary path (not only the zero-result fallback). CONFIRMED NEEDED: primary path is about 2 s at 500k products (section G).
+- [x] Make the indexed engine the primary path (2026-11-21, branch `perf/benchmark`): about 2 s to about 100 ms or less at 500k products, see section G.2. Follow-ups below.
 - [ ] Replace `LIKE '%term%'` with indexed or full-text matching; benchmark at 10k / 100k / 500k products.
 - [ ] Index table: add FULLTEXT or prefix strategy, drop the row-per-token duplication where possible, store normalized fields.
 - [ ] Background batch indexing (Action Scheduler or cron) with resume; WP-CLI `wp nivo index rebuild`; no admin-ajax timeouts.
@@ -95,3 +95,29 @@ Open items from this:
 - [ ] P0: make the indexed engine the primary path so a search no longer scans `post_content` / joins postmeta (target: under 100 ms at 500k).
 - [ ] Bound the cost of the fuzzy fallback at scale (cap candidates, cache negative results, timeout).
 - [ ] Re-run the benchmark with realistic data (variations, categories, long descriptions) and keep the script in the repo (always flush the object cache between runs).
+
+### G.2 Index-first engine results (500k synthetic products, cold cache, same machine)
+
+| Query | Before (WP_Query LIKE scan) | After (index-first) |
+|---|---|---|
+| common word ("hoodie", about 5% of products) | about 2,010 ms | about 97 ms |
+| two words ("premium hoodie") | about 1,990 ms | about 103 ms |
+| rare ("hoodie 4321") | about 1,980 ms | about 7 ms |
+| SKU exact ("SKU-004321") | about 1,970 ms | about 2 ms |
+| typo (fuzzy fallback) | about 3,940 ms | about 94 ms |
+| no match | about 2,030 ms | about 2 ms |
+
+How: `Index_Query` drives the lookup from the longest word with indexed prefix lookups and checks other words with EXISTS probes; a covering index (`idx_cover`) answers them from the index alone; Search_Algorithm then loads the candidate products by ID and applies visibility, stock and exclusion rules. Used only after the index is rebuilt (option `nivo_search_index_version`); otherwise the old path runs. Fuzzy candidate lookup no longer uses a `%substring%` scan.
+
+Costs and limits to know:
+- Index size: 9.0M rows for 500k products (about 18 rows per product): about 456 MB data + 1.2 GB indexes in the benchmark. The old index was about 7 rows per product. Description words are capped at 30 per product (filter `nivo_search_index_content_token_limit`; `nivo_search_index_content` disables them).
+- Full rebuild: 1,386 s for 500k products (about 360 products/s), in one process. Still needs background batching (below).
+- Matching is by word start on the index path: "hood" finds "Hoodie", "oodie" does not. Turn off with option `nivo_search_use_index` (or filter `nivo_search_use_index_engine`).
+- Existing sites keep the old, slow path until they rebuild the index. There is no automatic rebuild yet.
+- Fuzzy no longer matches typos in the first two letters unless they are a swap of those two letters.
+- Still unmeasured: realistic catalogs (variations, categories, long descriptions), concurrent load, MySQL 5.7/MariaDB, shared hosting.
+
+New TODO items:
+- [ ] Background batch rebuild with resume + progress (WP-CLI and Action Scheduler); trigger automatically after upgrade so existing sites get the fast path.
+- [ ] Size/rows budget: consider dropping `idx_token` and the duplicate content rows, or moving description words into a smaller side table.
+- [ ] Keep the benchmark script in the repo (flush the object cache between runs).

@@ -126,30 +126,36 @@ class Index_Query {
 		}
 
 		if ( ! empty( $tokens ) ) {
+			// Drive the lookup from the longest (usually rarest) word and check the
+			// others with EXISTS probes on the product_id index. Joining one derived
+			// table per word would materialise every row of a very common word
+			// (e.g. "sku", which every product has) before intersecting.
+			usort(
+				$tokens,
+				static function ( $a, $b ) {
+					return strlen( $b ) - strlen( $a );
+				}
+			);
+
 			$field_ph = implode( ',', array_fill( 0, count( $labels ), '%s' ) );
-			$subs     = array();
+			$driver   = array_shift( $tokens );
+
+			$where  = "t0.token LIKE %s AND t0.field IN ({$field_ph})";
+			$params = array_merge( array( $wpdb->esc_like( $driver ) . '%' ), $labels );
 
 			foreach ( $tokens as $i => $token ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- table name is internal; values are prepared.
-				$subs[] = $wpdb->prepare(
-					"SELECT product_id, MAX(weight * 2 + (token = %s)) AS s FROM {$table} WHERE token LIKE %s AND field IN ({$field_ph}) GROUP BY product_id",
-					array_merge( array( $token, $wpdb->esc_like( $token ) . '%' ), $labels )
-				);
+				$n       = $i + 1;
+				$where  .= " AND EXISTS (SELECT 1 FROM {$table} t{$n} WHERE t{$n}.product_id = t0.product_id AND t{$n}.token LIKE %s AND t{$n}.field IN ({$field_ph}))";
+				$params  = array_merge( $params, array( $wpdb->esc_like( $token ) . '%' ), $labels );
 			}
 
-			$sql   = 'SELECT t0.product_id, (t0.s';
-			$joins = ' FROM (' . $subs[0] . ') t0';
-			foreach ( $subs as $i => $sub ) {
-				if ( 0 === $i ) {
-					continue;
-				}
-				$sql   .= " + t{$i}.s";
-				$joins .= " INNER JOIN ({$sub}) t{$i} ON t{$i}.product_id = t0.product_id";
-			}
-			$sql .= ') AS score' . $joins . ' ORDER BY score DESC, t0.product_id ASC LIMIT ' . $pool;
-
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- sub-queries are prepared above.
-			$rows = $wpdb->get_col( $sql );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- table name is internal; values are prepared.
+			$rows = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT t0.product_id FROM {$table} t0 WHERE {$where} GROUP BY t0.product_id ORDER BY MAX(t0.weight * 2 + (t0.token = %s)) DESC, t0.product_id ASC LIMIT %d",
+					array_merge( $params, array( $driver, $pool ) )
+				)
+			);
 
 			$ids = array_merge( $ids, array_map( 'intval', $rows ) );
 		}

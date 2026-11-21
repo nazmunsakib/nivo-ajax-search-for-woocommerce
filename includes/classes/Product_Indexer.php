@@ -104,6 +104,36 @@ class Product_Indexer {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+
+		self::ensure_cover_index();
+	}
+
+	/**
+	 * Add the covering index used by the index-first search (token prefix lookups
+	 * answered from the index alone, with no table row reads).
+	 *
+	 * Added separately from CREATE TABLE and with errors suppressed: very old
+	 * MySQL row formats reject a full-width varchar key, and the plugin must still
+	 * work without it (just slower on very large catalogs).
+	 *
+	 * @since 2.0.8
+	 * @return void
+	 */
+	public static function ensure_cover_index() {
+		global $wpdb;
+
+		$table = self::get_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$exists = $wpdb->get_var( $wpdb->prepare( "SHOW INDEX FROM {$table} WHERE Key_name = %s", 'idx_cover' ) );
+		if ( $exists ) {
+			return;
+		}
+
+		$previous = $wpdb->suppress_errors( true );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( "ALTER TABLE {$table} ADD KEY idx_cover (token, field, weight, product_id)" );
+		$wpdb->suppress_errors( $previous );
 	}
 
 	/**
@@ -356,6 +386,10 @@ class Product_Indexer {
 
 		// Clear existing index.
 		$wpdb->query( 'TRUNCATE TABLE ' . self::get_table_name() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		// Cheap on an empty table; makes sure the covering index exists before the
+		// index-first search is switched on at the end of the rebuild.
+		self::ensure_cover_index();
 
 		$last_id = 0;
 		$count   = 0;

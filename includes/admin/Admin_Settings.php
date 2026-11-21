@@ -234,7 +234,7 @@ class Admin_Settings {
     public function settings_page() {
         $default_preset = get_option( 'nivo_search_default_preset_created' ) ?: '123';
 
-        $allowed_tabs = array( 'settings', 'typo-rules', 'help' );
+        $allowed_tabs = array( 'settings', 'ranking', 'merchandising', 'typo-rules', 'help' );
         $active_tab   = isset( $_GET['tab'] ) && in_array( $_GET['tab'], $allowed_tabs, true ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             ? sanitize_key( $_GET['tab'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             : 'settings';
@@ -257,6 +257,14 @@ class Admin_Settings {
                     class="nav-tab<?php echo 'settings' === $active_tab ? ' nav-tab-active' : ''; ?>">
                     <?php esc_html_e( 'Settings', 'nivo-ajax-search-for-woocommerce' ); ?>
                 </a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=nivo-search&tab=ranking' ) ); ?>"
+                    class="nav-tab<?php echo 'ranking' === $active_tab ? ' nav-tab-active' : ''; ?>">
+                    <?php esc_html_e( 'Ranking', 'nivo-ajax-search-for-woocommerce' ); ?>
+                </a>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=nivo-search&tab=merchandising' ) ); ?>"
+                    class="nav-tab<?php echo 'merchandising' === $active_tab ? ' nav-tab-active' : ''; ?>">
+                    <?php esc_html_e( 'Merchandising', 'nivo-ajax-search-for-woocommerce' ); ?>
+                </a>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=nivo-search&tab=typo-rules' ) ); ?>"
                     class="nav-tab<?php echo 'typo-rules' === $active_tab ? ' nav-tab-active' : ''; ?>">
                     <?php esc_html_e( 'Typo Rules', 'nivo-ajax-search-for-woocommerce' ); ?>
@@ -268,7 +276,11 @@ class Admin_Settings {
                 </a>
             </nav>
 
-            <?php if ( 'typo-rules' === $active_tab ) : ?>
+            <?php if ( 'ranking' === $active_tab ) : ?>
+                <?php do_action( 'nivo_render_ranking_tab' ); ?>
+            <?php elseif ( 'merchandising' === $active_tab ) : ?>
+                <?php do_action( 'nivo_render_merch_tab' ); ?>
+            <?php elseif ( 'typo-rules' === $active_tab ) : ?>
                 <?php do_action( 'nivo_render_optimization_tab' ); ?>
             <?php elseif ( 'help' === $active_tab ) : ?>
                 <?php $this->render_help_tab( $default_preset ); ?>

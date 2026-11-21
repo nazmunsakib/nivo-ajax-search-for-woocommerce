@@ -28,7 +28,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 - [x] Respect catalog visibility + password-protected products in WP_Query and fuzzy paths (2026-11-21, lint only — test on a live store).
 - [x] Visibility fix verified on the local site 2026-11-21: hidden, shop-only and password products excluded; "search only" included; typo query behaved the same.
 - [ ] Decide on synonyms: implement (Pro-gated) or delete `synonyms.php`. CLAUDE.md note already corrected.
-- [ ] Relevance weights: VERIFIED NOT CONFIGURABLE. `rank_results()` reads `weight_*` args but no admin UI saves them and nothing passes them, so defaults always apply. Build the UI/filter or stop claiming it.
+- [x] Relevance weights now configurable (Ranking tab, `Ranking_Settings`); the note below is the original finding. Relevance weights: VERIFIED NOT CONFIGURABLE. `rank_results()` reads `weight_*` args but no admin UI saves them and nothing passes them, so defaults always apply. Build the UI/filter or stop claiming it.
 - [~] PHPUnit scaffold added (`tests/`, `phpunit.xml.dist`, `bin/install-wp-tests.sh`) with a visibility test. Run locally 2026-11-21: 5 tests / 31 assertions pass. Still to cover: indexer, typo manager, caching.
 - [~] PHPCS (`phpcs.xml.dist`, security + compatibility rules first) and `.github/workflows/ci.yml` added. PHPCS passes locally (security + compat rules); CI not yet run on GitHub. Widen PHPCS rules later.
 - [x] Rate limiting (`Rate_Limiter`, 120 req/min per IP, filter `nivo_search_rate_limit`, 429 + Retry-After) and soft nonce check for search so cached pages with expired nonces no longer 403 (filter `nivo_search_require_nonce` restores strict mode). Verified live 2026-11-21.
@@ -45,9 +45,9 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 
 ## D. P1 — enterprise features
 
-- [ ] Relevance signals: sales, popularity, rating, recency; per-preset ranking rules.
+- [x] Relevance signals (2026-11-21): popularity (`total_sales`), rating, newness, in-stock; max points each, all default 0; Ranking tab. Applied to the candidate pool (100 when signals are on). Per-preset ranking rules NOT done (settings are global).
 - [ ] Stemming / language-aware tokenization beyond accent folding.
-- [ ] Merchandising: pin/boost/bury products, query rules, query redirects, banners.
+- [~] Merchandising (2026-11-21): query rules (exact/starts/contains) to pin, bury and redirect (same-site only); Merchandising tab with product pickers; verified in the browser and live. NOT done: boost-by-amount rules, banners, per-category rules, rule scheduling, rule import/export.
 - [ ] Filters / facets (category, price, attribute, availability).
 - [ ] Analytics: unhide `Search_Analytics_Page`; zero-result report, CTR, search-to-cart/revenue.
 - [x] REST API `nivo-search/v1`: `GET /search?q=&preset_id=` (public, rate limited), `GET /presets` (admins), `GET /presets/<id>` (public, sanitised settings). Tests + live smoke test 2026-11-21.

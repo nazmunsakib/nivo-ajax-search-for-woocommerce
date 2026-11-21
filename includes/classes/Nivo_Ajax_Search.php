@@ -249,6 +249,7 @@ final class Nivo_Ajax_Search {
 				(int) get_option( 'nivo_search_show_did_you_mean', 1 ),
 				(int) get_option( 'nivo_search_max_typo_distance', 2 ),
 				(string) get_option( 'nivo_search_excluded_products', '' ),
+				md5( (string) wp_json_encode( Ranking_Settings::get() ) ),
 			)
 		);
 
@@ -316,10 +317,14 @@ final class Nivo_Ajax_Search {
 		// REST API (nivo-search/v1).
 		new REST_API();
 
+		// Query rules (pin / bury / redirect) front-end hooks.
+		Merchandising::init();
+
 		// Initialize admin components
 		if ( is_admin() ) {
 			$this->admin_settings       = new Admin_Settings();
 			$this->search_optimization  = new Search_Optimization();
+			new Ranking_Admin();
 		}
 
 		// Search results page + seamless theme integration (front-end only).
@@ -431,7 +436,9 @@ final class Nivo_Ajax_Search {
 		
 		$search_args = apply_filters(
 			'nivo_search_args',
-			array(
+			array_merge(
+				Ranking_Settings::get(),
+				array(
 				'limit'                     => $limit,
 				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 				'exclude'                   => $this->get_excluded_products(),
@@ -439,6 +446,7 @@ final class Nivo_Ajax_Search {
 				'exclude_out_of_stock'      => $exclude_out_of_stock,
 				'search_product_categories' => ! empty( $preset_settings['search_product_categories'] ) ? 1 : 0,
 				'search_product_tags'       => ! empty( $preset_settings['search_product_tags'] ) ? 1 : 0,
+				)
 			),
 			$query
 		);
@@ -543,6 +551,10 @@ final class Nivo_Ajax_Search {
 
 		// Pass "did you mean" suggestion to the frontend when present.
 		// Priority 1: fuzzy-search suggestion (fires when WP_Query returns 0 results).
+		if ( ! empty( $search_results['redirect_url'] ) ) {
+			$response_data['redirect_url'] = esc_url_raw( $search_results['redirect_url'] );
+		}
+
 		if ( ! empty( $search_results['did_you_mean'] ) && get_option( 'nivo_search_show_did_you_mean', 1 ) ) {
 			$response_data['did_you_mean'] = sanitize_text_field( $search_results['did_you_mean'] );
 		}

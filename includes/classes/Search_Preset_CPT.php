@@ -245,7 +245,7 @@ class Search_Preset_CPT {
                     </div>
                     <div class="nivo-setting-row__control">
                         <label class="nivo-gs-toggle">
-                            <input type="checkbox" name="nivo_settings[<?php echo esc_attr( $key ); ?>]" value="1" <?php echo $checked; ?>>
+                            <input type="checkbox" name="nivo_settings[<?php echo esc_attr( $key ); ?>]" value="1" <?php echo $checked; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a safe attribute string. ?>>
                             <span class="nivo-gs-toggle__slider"></span>
                         </label>
                     </div>
@@ -292,7 +292,7 @@ class Search_Preset_CPT {
                     </div>
                     <div class="nivo-setting-row__control">
                         <label class="nivo-gs-toggle">
-                            <input type="checkbox" name="nivo_settings[<?php echo esc_attr( $key ); ?>]" value="1" <?php echo $checked; ?>>
+                            <input type="checkbox" name="nivo_settings[<?php echo esc_attr( $key ); ?>]" value="1" <?php echo $checked; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a safe attribute string. ?>>
                             <span class="nivo-gs-toggle__slider"></span>
                         </label>
                     </div>

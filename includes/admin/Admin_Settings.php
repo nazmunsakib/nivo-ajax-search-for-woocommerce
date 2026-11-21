@@ -301,7 +301,7 @@ class Admin_Settings {
                         <?php endif; ?>
                     </strong>
                     <span class="nivo-dash-index-card__sub" id="nivo-dash-index-sub">
-                        <?php printf( esc_html__( '%1$d / %2$d products indexed (%3$d%%)', 'nivo-ajax-search-for-woocommerce' ), $idx_indexed, $idx_total, $idx_pct ); ?>
+                        <?php printf( esc_html__( '%1$d / %2$d products indexed (%3$d%%)', 'nivo-ajax-search-for-woocommerce' ), absint( $idx_indexed ), absint( $idx_total ), absint( $idx_pct ) ); ?>
                         &bull; <?php echo esc_html( $idx_rebuilt_label ); ?>
                     </span>
                 </div>
@@ -492,7 +492,7 @@ class Admin_Settings {
                                     <span class="nivo-index-status-dot <?php echo ( $health_ok && ! $is_stale ) ? 'nivo-index-status-dot--ok' : 'nivo-index-status-dot--warn'; ?>" id="nivo-index-dot"></span>
                                 </div>
                                 <p class="nivo-integration-card__desc" id="nivo-index-text" style="margin-top:2px;">
-                                    <?php printf( esc_html__( '%1$d / %2$d products indexed (%3$d%%)', 'nivo-ajax-search-for-woocommerce' ), $indexed, $total, $pct ); ?>
+                                    <?php printf( esc_html__( '%1$d / %2$d products indexed (%3$d%%)', 'nivo-ajax-search-for-woocommerce' ), absint( $indexed ), absint( $total ), absint( $pct ) ); ?>
                                     &nbsp;&bull;&nbsp;<span id="nivo-index-rebuilt"><?php echo esc_html( $rebuilt_label ); ?></span>
                                 </p>
                                 <?php if ( $is_stale ) : ?>

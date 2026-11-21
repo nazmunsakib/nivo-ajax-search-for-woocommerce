@@ -151,7 +151,7 @@ class Shortcode {
                 <form class="nivo-search-form" method="get" action="<?php echo esc_url( $action_url ); ?>">
                     <div class="nivo-search-wrapper nivo-search-box-style-<?php echo esc_attr( $atts['search_bar_layout'] ); ?>">
 
-                        <?php echo $this->get_search_form_html( $atts ); ?>
+                        <?php echo $this->get_search_form_html( $atts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is built and escaped inside get_search_form_html(). ?>
 
                         <button type="submit" class="nivosearch-search-submit" aria-label="<?php esc_attr_e( 'Search', 'nivo-ajax-search-for-woocommerce' ); ?>">
                             <span class="screen-reader-text"><?php esc_html_e( 'Search', 'nivo-ajax-search-for-woocommerce' ); ?></span>

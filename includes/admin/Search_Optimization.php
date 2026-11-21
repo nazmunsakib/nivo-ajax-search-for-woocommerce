@@ -77,9 +77,8 @@ class Search_Optimization {
 
 			$from  = sanitize_text_field( wp_unslash( $_POST['nivo_rule_from'] ?? '' ) );
 			$to    = sanitize_text_field( wp_unslash( $_POST['nivo_rule_to'] ?? '' ) );
-			$index = isset( $_POST['nivo_rule_index'] ) && '' !== $_POST['nivo_rule_index']
-				? (int) wp_unslash( $_POST['nivo_rule_index'] )
-				: null;
+			$raw_index = isset( $_POST['nivo_rule_index'] ) ? sanitize_text_field( wp_unslash( $_POST['nivo_rule_index'] ) ) : '';
+			$index     = '' !== $raw_index ? absint( $raw_index ) : null;
 
 			$saved = Typo_Manager::save_rule( $from, $to, $index );
 
@@ -611,7 +610,7 @@ class Search_Optimization {
 		);
 
 		if ( 'imported' === $notice ) {
-			$limit_reached = (int) ( isset( $_GET['limit_reached'] ) ? $_GET['limit_reached'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$limit_reached = isset( $_GET['limit_reached'] ) ? absint( wp_unslash( $_GET['limit_reached'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( $limit_reached > 0 ) {
 				$text = sprintf(
 					/* translators: 1: rules imported, 2: rules skipped due to limit, 3: max rules */

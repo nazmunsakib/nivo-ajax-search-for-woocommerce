@@ -27,7 +27,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 
 - [x] Respect catalog visibility + password-protected products in WP_Query and fuzzy paths (2026-11-21, lint only — test on a live store).
 - [x] Visibility fix verified on the local site 2026-11-21: hidden, shop-only and password products excluded; "search only" included; typo query behaved the same.
-- [ ] Decide on synonyms: implement (Pro-gated) or delete `synonyms.php`. CLAUDE.md note already corrected.
+- [x] Synonyms DECIDED + BUILT 2026-11-21: FREE. Built-in dictionary (single words) + up to 10 custom groups (Synonyms tab); Pro can raise the cap via `nivo_search_max_custom_synonyms`. Index path only (the old WP_Query path ignores them).
 - [x] Relevance weights now configurable (Ranking tab, `Ranking_Settings`); the note below is the original finding. Relevance weights: VERIFIED NOT CONFIGURABLE. `rank_results()` reads `weight_*` args but no admin UI saves them and nothing passes them, so defaults always apply. Build the UI/filter or stop claiming it.
 - [~] PHPUnit scaffold added (`tests/`, `phpunit.xml.dist`, `bin/install-wp-tests.sh`) with a visibility test. Run locally 2026-11-21: 5 tests / 31 assertions pass. Still to cover: indexer, typo manager, caching.
 - [~] PHPCS (`phpcs.xml.dist`, security + compatibility rules first) and `.github/workflows/ci.yml` added. PHPCS passes locally (security + compat rules); CI not yet run on GitHub. Widen PHPCS rules later.
@@ -126,3 +126,13 @@ Follow-ups from the rebuild testing:
 - [x] Search Index card now switches to a "Rebuilding in the background…" state after the button is clicked (page reloads show the real counts).
 - [ ] With typo tolerance on, a mid-word query such as "oodie" still finds "Hoodie" through the typo/fuzzy fallback on the index path. Fine, but note that it is not an exact substring match.
 - [ ] Action Scheduler async runs only fire on web requests: on a site with no traffic and DISABLE_WP_CRON, a rebuild waits for a visit or `wp action-scheduler run`.
+
+## H. Free vs Pro decisions (2026-11-21, owner decision: "best free features, then Pro")
+
+Goal: be one of the most powerful WooCommerce search plugins and beat FiboSearch. Free must be clearly stronger than FiboSearch free (which uses the standard WooCommerce engine) and win on features FiboSearch charges for. Free = generous, with limits (not locks); Pro = scale, insight, automation, developer tools.
+
+FREE (built unless noted): index-first engine; word-by-word, typo, fuzzy and "Did you mean?"; SKU + variation SKU; **GTIN/UPC/EAN/ISBN search (built)**; **attribute search (built)**; **synonyms: built-in + 10 custom groups (built)**; add-to-cart, badges, unlimited presets; accessibility layer; core-search fallback; rate limiting.
+FREE, still to build: simple ranking toggles ("Best sellers first", "Newest", "In stock first") in place of the raw weights; basic analytics (top 20 failed searches, last 30 days); up to 3 merchandising rules; stemming/plurals; facets (basic).
+PRO (planned): unlimited merchandising rules + scheduling; custom ranking weights and boost values; full analytics (history, click-through, search-to-revenue, export); unlimited synonyms/typo rules; REST API, WP-CLI, template overrides; external engine adapter; B2B customer-group visibility; multi-vendor support.
+
+Open: nothing on `main` is gated yet. Merchandising, ranking weights, REST API and WP-CLI are currently ungated in code; decide and gate them before the next release (never remove a free feature after shipping it).

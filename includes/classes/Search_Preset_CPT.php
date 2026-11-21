@@ -268,7 +268,8 @@ class Search_Preset_CPT {
                 <?php
                 $config_toggles = array(
                     'search_in_title'           => array( __( 'Search in Title',                'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'search_in_sku'             => array( __( 'Search in SKU',                  'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_in_sku'             => array( __( 'Search in SKU and product codes (GTIN, UPC, EAN, ISBN)', 'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_in_attributes'      => array( __( 'Search in Attributes (size, colour, material...)', 'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
                     'search_in_content'         => array( __( 'Search in Description',          'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
                     'search_in_excerpt'         => array( __( 'Search in Short Description',    'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
                     'exclude_out_of_stock'      => array( __( 'Exclude Out of Stock Products',  'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
@@ -627,6 +628,7 @@ class Search_Preset_CPT {
                 'search_in_sku'             => isset( $settings['search_in_sku'] ) ? 1 : 0,
                 'search_in_content'         => isset( $settings['search_in_content'] ) ? 1 : 0,
                 'search_in_excerpt'         => isset( $settings['search_in_excerpt'] ) ? 1 : 0,
+                'search_in_attributes'      => isset( $settings['search_in_attributes'] ) ? 1 : 0,
                 'search_product_categories' => isset( $settings['search_product_categories'] ) ? 1 : 0,
                 'search_product_tags'       => isset( $settings['search_product_tags'] ) ? 1 : 0,
                 'exclude_out_of_stock'      => isset( $settings['exclude_out_of_stock'] ) ? 1 : 0,

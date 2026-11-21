@@ -219,6 +219,9 @@ final class Nivo_Ajax_Search {
 		$this->product_indexer = new Product_Indexer();
 		$this->product_indexer->init();
 
+		// Background index rebuild (batched, resumable) and WP-CLI commands.
+		Index_Rebuilder::init();
+
 		// Initialize admin components
 		if ( is_admin() ) {
 			$this->admin_settings       = new Admin_Settings();

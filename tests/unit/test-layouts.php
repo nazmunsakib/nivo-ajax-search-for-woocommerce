@@ -31,7 +31,7 @@ class Test_Layouts extends WP_UnitTestCase {
 	}
 
 	public function test_every_layout_has_a_label() {
-		foreach ( array( 'standard', 'icon-left', 'pill', 'button', 'minimal' ) as $slug ) {
+		foreach ( array( 'standard', 'icon-left', 'pill', 'button', 'minimal', 'icon' ) as $slug ) {
 			$this->assertArrayHasKey( $slug, NivoSearch\Helper::get_bar_layouts() );
 		}
 		foreach ( array( 'list', 'grid', 'compact' ) as $slug ) {
@@ -66,6 +66,32 @@ class Test_Layouts extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'nivo-results-layout-list', $html );
 		$this->assertStringNotContainsString( 'onmouseover', $html );
 		$this->assertStringNotContainsString( '<script>', $html );
+	}
+
+	public function test_icon_only_bar_renders_a_toggle_button_and_closed_state() {
+		$id   = $this->make_preset( array( 'search_bar_layout' => 'icon' ) );
+		$html = do_shortcode( '[nivo_search id="' . $id . '"]' );
+
+		$this->assertStringContainsString( 'nivo-bar-icon', $html );
+		$this->assertStringContainsString( 'class="nivo-search-toggle"', $html );
+		$this->assertStringContainsString( 'aria-expanded="false"', $html );
+		$this->assertStringContainsString( '--nivo-bar-h:', $html );
+	}
+
+	public function test_other_bars_have_no_toggle_button() {
+		$id   = $this->make_preset( array( 'search_bar_layout' => 'pill' ) );
+		$html = do_shortcode( '[nivo_search id="' . $id . '"]' );
+
+		$this->assertStringNotContainsString( 'nivo-search-toggle', $html );
+		$this->assertStringNotContainsString( 'nivo-bar-icon', $html );
+	}
+
+	public function test_block_supports_the_icon_only_bar() {
+		$id   = $this->make_preset( array( 'search_bar_layout' => 'icon' ) );
+		$html = do_blocks( '<!-- wp:nivo-search/ajax-search {"presetId":' . $id . '} /-->' );
+
+		$this->assertStringContainsString( 'nivo-bar-icon', $html );
+		$this->assertStringContainsString( 'nivo-search-toggle', $html );
 	}
 
 	public function test_default_layouts_when_nothing_is_saved() {

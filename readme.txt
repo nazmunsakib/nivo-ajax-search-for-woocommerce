@@ -2,25 +2,42 @@
 
 Contributors: nazmunsakib
 Donate link: https://nivosearch.com
-Tags: woocommerce, woocommerce search, product search, instant search, ajax search
+Tags: ajax search, woocommerce search plugin, product search, live search, instant search
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.0.7
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WooCommerce Ajax Search with live product suggestions, typo correction, SKU matching, and optional add-to-cart controls.
+WooCommerce Ajax Search with instant results, plus a WooCommerce search plugin with typo tolerance, SKU, GTIN and attribute search.
 
 == Description ==
 
-NivoSearch is a WooCommerce Ajax Search plugin that helps customers find products as they type, without reloading the page. This WooCommerce Search Plugin provides live product suggestions, typo correction, fuzzy matching, SKU and variation SKU search, and optional add-to-cart controls.
+**NivoSearch is a WooCommerce Ajax Search plugin that replaces the default product search with instant, typo-tolerant live results.** Customers find products as they type, without reloading the page.
 
-Store owners can configure search presets to control which product fields are searched, which details appear in results, and how each search bar looks and behaves. NivoSearch supports product titles, descriptions, SKUs, categories, and tags, depending on the selected settings.
+As a WooCommerce search plugin, it uses an indexed search engine with typo tolerance, fuzzy matching, synonyms, and SKU, variation SKU, GTIN, EAN, UPC, ISBN and attribute search. It also includes ranking and merchandising controls, three result layouts, and six search bar styles.
 
-Built for WooCommerce stores of different sizes, NivoSearch combines configurable product search, mobile-friendly layouts, multilingual support, and product discovery tools in one plugin. Its search features help shoppers find relevant products even when they misspell a search term or know a product by its SKU.
+Store owners use search presets to choose which product fields are searched, which details appear in results, and how each search bar looks and behaves. NivoSearch suits WooCommerce stores of any size and includes mobile-friendly layouts, multilingual support, and product discovery tools in one plugin. Shoppers find relevant products even when they misspell a term or know a product only by its SKU.
 
 [Live demo](https://nivosearch.com/live-demo/) | [Features](https://nivosearch.com/features/) | [Documentation](https://nivosearch.com/documentation/) | [WordPress.org support](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
+
+= WooCommerce Ajax Search: instant results as customers type =
+
+* **Live results:** WooCommerce Ajax Search shows matching products in a dropdown while the customer types, with no page reload.
+* **Rich results:** Image, price, sale price, SKU, stock status, category labels and optional add to cart, in list, compact or grid layouts.
+* **Built for speed and access:** Results come from a local product index and are cached. A mobile full-screen overlay and keyboard and screen-reader support are included.
+* **Forgiving:** Typo correction, fuzzy matching, synonyms and a clickable "Did you mean?" suggestion.
+
+= WooCommerce Search Plugin: full control over product search =
+
+* **What it is:** A free WooCommerce search plugin that improves search quality across the whole store, not only in the dropdown.
+* **What it searches:** Product titles, descriptions, SKUs, variation SKUs, GTIN/EAN/UPC/ISBN codes, attributes, categories and tags.
+* **How it finds products:** An indexed engine with typo correction, fuzzy matching, accent-insensitive matching and synonyms.
+* **How it displays results:** List, compact or grid layouts with images, price, SKU, stock status and optional add to cart.
+* **How you control it:** Search presets, relevance ranking, pin/bury/redirect merchandising rules, shortcode, block and theme search replacement.
+* **For developers:** REST API, WP-CLI index commands, PHP filters and JavaScript events.
+* **Works with:** WooCommerce, WPML, Polylang, block themes and classic themes.
 
 = Why choose NivoSearch? =
 
@@ -28,14 +45,31 @@ NivoSearch improves WooCommerce product discovery by showing relevant product su
 
 Key benefits include configurable product search, SKU and variation SKU matching, built-in typo corrections, fuzzy search fallback, and optional add-to-cart controls. Store owners can customize search behavior and presentation for different areas of their store using separate search presets.
 
-The free WordPress.org version supports up to 10 custom typo correction rules. Project documentation refers to a separate Pro tier, which is not included in this plugin download.
+The free version includes up to 10 custom typo correction rules and up to 10 custom synonym groups.
+
+= What's new in 2.1.0 =
+
+* **Index-first search engine:** Product titles, SKUs, content, attributes, categories and tags are searched through a local index table, with automatic fallback to the standard WordPress query if the index is not ready.
+* **Background indexing for large catalogs:** The index is built in resumable background batches (Action Scheduler when available, otherwise WP-Cron) with a progress notice, plus `wp nivo-search index rebuild` and `wp nivo-search index status` WP-CLI commands.
+* **GTIN, EAN, UPC and ISBN search:** Shoppers can find products by barcode or ISBN as well as SKU.
+* **Attribute search:** Match product attribute values such as color, size or material.
+* **Synonyms:** A built-in synonym dictionary plus up to 10 custom synonym groups, for example "sofa, couch, settee".
+* **Relevance ranking:** Adjust how much title, SKU and content matches count, and boost in-stock, popular, highly rated or recent products.
+* **Merchandising rules:** Pin products to the top, bury products, or redirect a search term to a page, such as a returns policy or a category.
+* **Six search bar styles:** Standard, icon left, pill, with button, minimal, and an icon-only bar that opens the search box when clicked.
+* **Three result layouts:** List, compact list and product grid, including on the mobile search overlay.
+* **Cleaner result design:** Full product titles, muted SKU, sale price with the old price struck through, a "From" price for variable products, and a placeholder when a product has no image.
+* **Accessibility:** WAI-ARIA combobox pattern with arrow-key navigation, Enter and Escape handling, visible keyboard focus and screen-reader result announcements.
+* **REST API:** Public `nivo-search/v1/search`, `/presets` and `/presets/<id>` endpoints for headless and app integrations.
+* **Easier preset editor:** Visual layout picker, live preview, input limits, a Duplicate preset action and an index status line.
+* **Protection and stability:** Per-visitor rate limiting, catalog visibility and password-protected product filtering, and a safe fallback to core search if the engine fails.
 
 = Features =
 
 * **Live WooCommerce Ajax Search:** Display matching products as customers type, without a full page reload. Results are ordered by relevance, with product title and SKU matches contributing to ranking.
 * **Configurable product search:** Choose whether to search product titles, full and short descriptions, and SKUs. Category and tag matches can appear in separate result sections when enabled.
 * **SKU and variation SKU search:** Help shoppers find products using product codes. A variation SKU match returns the parent product in the search results.
-* **Typo correction and fuzzy search:** Use a built-in dictionary containing more than 300 common corrections. When a search returns no products, the indexed fuzzy search fallback can suggest close matches. An optional clickable "Did you mean?" suggestion is also available.
+* **Typo correction and fuzzy search:** Use a built-in dictionary containing more than 300 common corrections. When a search returns no products, the indexed fuzzy search fallback can suggest close matches, restricted to the fields the preset searches. An optional clickable "Did you mean?" suggestion is also available.
 * **Custom typo correction rules:** Add up to 10 custom correction rules in the free version to address store-specific product names and common spelling mistakes.
 * **Customizable product details:** Choose whether search results display product images, prices, SKUs, short descriptions, stock status, category labels, and highlighted search terms.
 * **Product availability filters:** Exclude out-of-stock products or selected product IDs from search results.
@@ -49,13 +83,13 @@ The free WordPress.org version supports up to 10 custom typo correction rules. P
 * **WooCommerce search results page:** When enabled, route submitted WordPress searches to the WooCommerce shop page. If that page is unavailable, show product-only search results.
 * **View all results:** Optionally display a link from the live search panel to the full product results page.
 * **GA4 and Google Tag Manager events:** Send search events to an existing GA4 or Google Tag Manager integration. NivoSearch does not load the analytics scripts. See the Privacy and data section for details.
-* **Search index and caching:** Maintain a local product word index for fuzzy matching and cache search results for five minutes. Rebuild the index from the plugin settings when necessary.
+* **Search index and caching:** Maintain a local product index that powers search and fuzzy matching, and cache search results for five minutes. Rebuild the index from the plugin settings, in the background, or with WP-CLI.
 
 = Who is NivoSearch for? =
 
 NivoSearch is designed for WooCommerce store owners who want to improve product discovery with live search without developing a custom search interface.
 
-This WooCommerce Ajax Search solution can be useful for stores where customers:
+This WooCommerce Ajax Search plugin is useful for stores where customers:
 
 * Need to find products quickly without leaving the current page.
 * Search for products using SKUs or variation SKUs.
@@ -68,9 +102,9 @@ This WooCommerce Ajax Search solution can be useful for stores where customers:
 
 = Search index and performance =
 
-NivoSearch uses standard WordPress queries for regular product searches. A local product word index supports the fuzzy search fallback and can be rebuilt from the plugin settings.
+NivoSearch searches a local product index first and falls back to standard WordPress queries when the index is not built yet. The same index supports fuzzy matching. Build or rebuild it from the plugin settings (it runs in background batches and can be resumed) or with WP-CLI.
 
-Product saves update the index. After importing products, rebuild the index if indexed terms are missing. Search results are cached for five minutes, and the cache is invalidated when products or presets change.
+Product saves and WooCommerce imports update the index. If indexed terms look incomplete, rebuild the index. Search results are cached for five minutes, and the cache is invalidated when products or presets change.
 
 Actual search response times depend on the store's hosting environment, database performance, product catalog, and configuration. No fixed response-time or catalog-size guarantee is made.
 
@@ -101,6 +135,14 @@ The following PHP filters are available in the current plugin:
 * `nivo_search_index_tokens`: Change tokens stored for an indexed product.
 * `nivo_search_script_dependencies` and `nivo_search_style_dependencies`: Change frontend asset dependencies.
 * `nivo_search_script_version` and `nivo_search_style_version`: Change frontend asset versions.
+* `nivo_search_use_index_engine`: Turn the index-first engine on or off.
+* `nivo_search_enable_synonyms` and `nivo_search_synonyms`: Turn synonyms on or off, or change the built-in dictionary.
+* `nivo_search_max_custom_synonyms`: Change the limit of 10 custom synonym groups.
+* `nivo_search_rate_limit` and `nivo_search_rate_limit_ip`: Change the per-visitor search rate limit or the detected IP address.
+* `nivo_search_use_action_scheduler`, `nivo_search_sync_rebuild_limit` and `nivo_search_auto_reindex`: Control how and when the index is rebuilt.
+* `nivo_search_index_content` and `nivo_search_index_content_token_limit`: Control how much product content is indexed.
+* `nivo_search_candidate_pool`: Change how many candidates the index considers before ranking.
+* `nivo_search_engine_failed`: Fires when the index engine fails and core search is used instead.
 
 Available PHP actions:
 
@@ -147,9 +189,50 @@ Visit the [NivoSearch website](https://nivosearch.com/) for product information,
 2. Search for **NivoSearch** and select **Install Now**.
 3. Select **Activate** after installation completes.
 4. Go to **NivoSearch > Search Presets** to configure a preset.
-5. Add the search bar using its shortcode or the NivoSearch block. To replace supported theme search forms instead, go to **NivoSearch > Settings > Search Integration** and enable **Replace theme search form**.
+5. Open **NivoSearch > Settings > Search Accuracy** and build the product index (large catalogs rebuild in the background).
+6. Add the search bar using its shortcode or the NivoSearch block. To replace supported theme search forms instead, go to **NivoSearch > Settings > Search Integration** and enable **Replace theme search form**.
 
 == Frequently Asked Questions ==
+
+= Does NivoSearch work with large WooCommerce catalogs? =
+
+NivoSearch searches a local index instead of scanning every product on each keystroke, and builds that index in background batches so large catalogs do not hit PHP time limits. Actual speed depends on your hosting, database and catalog, and no fixed response-time guarantee is made.
+
+= Can I search by barcode, GTIN, EAN, UPC or ISBN? =
+
+Yes. These codes are indexed together with SKUs, so shoppers can find a product by typing its barcode. Attribute values such as color or size can be searched too.
+
+= Does NivoSearch support synonyms? =
+
+Yes. A built-in dictionary of single-word synonyms is included, and you can add up to 10 custom groups under **NivoSearch > Synonyms**, for example "sofa, couch, settee".
+
+= Can I control which products rank first? =
+
+Yes. **NivoSearch > Ranking** adjusts how much title, SKU and content matches count and can boost in-stock, popular, highly rated or recent products. **Merchandising** lets you pin or bury products for a search term and redirect a term to a page.
+
+= Does NivoSearch have a REST API or WP-CLI commands? =
+
+Yes. The REST API provides `nivo-search/v1/search` and `nivo-search/v1/presets` endpoints. WP-CLI provides `wp nivo-search index rebuild` and `wp nivo-search index status`.
+
+= Is NivoSearch accessible? =
+
+The search box follows the WAI-ARIA combobox pattern: arrow keys move through results, Enter opens a result, Escape closes the list, and result counts are announced to screen readers. A full accessibility audit with your theme is still recommended.
+
+= Which search bar styles and result layouts are available? =
+
+Six search bar styles (standard, icon left, pill, with button, minimal and icon only) and three result layouts (list, compact and grid). Choose them per preset under **Layout**.
+
+= What is the best WooCommerce search plugin? =
+
+The best WooCommerce search plugin depends on your catalog and needs. Look for instant WooCommerce Ajax Search, typo tolerance, SKU and attribute search, relevance control, speed on large catalogs and accessibility. NivoSearch is a free WooCommerce search plugin that includes all of these, plus a REST API and WP-CLI tools for developers.
+
+= How do I add Ajax search to WooCommerce? =
+
+Install and activate NivoSearch, build the product index under **NivoSearch > Settings > Search Accuracy**, then add the search bar with the preset shortcode or the NivoSearch block, or enable **Replace theme search form** to use it in your theme's search box. No coding is required.
+
+= Is there a free WooCommerce Ajax Search plugin? =
+
+Yes. NivoSearch is available free on WordPress.org and includes live WooCommerce Ajax Search, typo correction, SKU, GTIN and attribute search, synonyms, ranking and merchandising controls, and three result layouts.
 
 = What is WooCommerce Ajax Search? =
 
@@ -157,9 +240,9 @@ WooCommerce Ajax Search retrieves product matches in a background request while 
 
 NivoSearch provides this live product search interface for WooCommerce stores, with configurable search fields, typo correction, SKU matching, and optional cart controls.
 
-= Is NivoSearch a WooCommerce Search Plugin? =
+= Is NivoSearch a WooCommerce search plugin? =
 
-Yes. NivoSearch is a WooCommerce Search Plugin that adds live product suggestions, configurable product search, typo correction, SKU and variation SKU matching, and optional add-to-cart controls to a WooCommerce store.
+Yes. NivoSearch is a WooCommerce search plugin that adds live product suggestions, configurable product search, typo correction, SKU and variation SKU matching, and optional add-to-cart controls to a WooCommerce store.
 
 = How is NivoSearch different from standard WooCommerce search? =
 
@@ -199,7 +282,7 @@ When Google Analytics tracking is enabled and an analytics integration is alread
 
 = What are the performance considerations? =
 
-Search speed depends on hosting, database performance, product catalog size, and active configuration. Standard product searches use WordPress queries, while the local product word index supports fuzzy search fallback. Results are cached for five minutes. Rebuild the index from **NivoSearch > Settings > Search Accuracy** if fuzzy matching does not include recently imported products.
+Search speed depends on hosting, database performance, product catalog size, and active configuration. Searches use the local product index when it is built and standard WordPress queries otherwise. Results are cached for five minutes. Rebuild the index from **NivoSearch > Settings > Search Accuracy** if fuzzy matching does not include recently imported products.
 
 = What information does NivoSearch store or transmit? =
 
@@ -223,6 +306,31 @@ The readme metadata requires WordPress 5.0 or later, lists testing through WordP
 6. Search Integration options for theme replacement, results pages, and analytics.
 
 == Changelog ==
+
+= 2.1.0 =
+* NEW: Index-first search engine over titles, SKUs, content, attributes, categories and tags, with automatic fallback to standard WordPress queries.
+* NEW: Background, resumable index rebuild (Action Scheduler or WP-Cron) with progress notice, and WP-CLI commands `wp nivo-search index rebuild` and `status`.
+* NEW: GTIN, EAN, UPC and ISBN search, indexed with SKUs.
+* NEW: Product attribute search.
+* NEW: Synonyms: built-in dictionary plus up to 10 custom groups, with a Synonyms admin tab.
+* NEW: Ranking tab: adjustable title, SKU and content weights and boosts for in-stock, popular, highly rated and recent products.
+* NEW: Merchandising tab: pin, bury and redirect rules for search terms.
+* NEW: Public REST API: `nivo-search/v1/search`, `/presets` and `/presets/<id>`.
+* NEW: Six search bar styles, including an icon-only bar that opens the search box on click.
+* NEW: Three result layouts (list, compact, grid), also applied on the mobile overlay.
+* NEW: Accessible combobox: arrow keys, Home/End, Enter, Escape, visible focus and screen-reader announcements.
+* NEW: Preset editor: visual layout picker, live preview, Duplicate action and index status line.
+* NEW: Per-visitor rate limiting for search requests.
+* NEW: Sale price with struck-through old price, "From" price for variable products, and an image placeholder in results.
+* IMPROVED: Result design: full product titles, muted SKU, two-line descriptions and larger phone thumbnails.
+* IMPROVED: Fuzzy search is restricted to the fields a preset searches and uses index-friendly lookups.
+* IMPROVED: Search cache key includes language, accuracy, ranking and synonym settings; cache invalidation is throttled during bulk imports.
+* FIX: Excluded products are now honoured on the index search path.
+* FIX: Products hidden from search, and password-protected products, no longer appear in results.
+* FIX: Search falls back to core search instead of showing an error if the engine fails.
+* FIX: Icon-only search box no longer opens off-screen when the icon is near the left edge of the page.
+* DEV: PHPUnit test suite, PHPCS (WordPress standards) and a GitHub Actions workflow on PHP 7.4, 8.1 and 8.3.
+* DEV: New filters including `nivo_search_use_index_engine`, `nivo_search_enable_synonyms`, `nivo_search_rate_limit` and `nivo_search_candidate_pool`.
 
 = 2.0.7 =
 * IMPROVED: Expanded WooCommerce Ajax Search feature descriptions, store use cases, comparison guidance, and FAQs.
@@ -311,6 +419,9 @@ The readme metadata requires WordPress 5.0 or later, lists testing through WordP
 * Initial release.
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+Major update: index-first search engine, GTIN and attribute search, synonyms, ranking and merchandising, REST API, accessibility and new search bar and result layouts. After updating, open NivoSearch > Settings > Search Accuracy and rebuild the product index.
 
 = 2.0.7 =
 Documentation update. Search functionality is unchanged.

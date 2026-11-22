@@ -95,6 +95,15 @@ class Gutenberg_Block {
         
         // Generate preset class
         $preset_class = ( $preset_id ? ' nivo-preset-' . $preset_id : '' ) . ' nivo-results-layout-' . $results_layout;
+
+        // "Icon only" bar: a search icon that opens the search box when clicked.
+        $container_style = '';
+        $toggle_html     = '';
+        if ( 'icon' === $search_bar_layout ) {
+            $preset_class   .= ' nivo-bar-icon';
+            $container_style = ' style="--nivo-bar-h:' . absint( $preset_style_settings['bar_height'] ?? 50 ) . 'px"';
+            $toggle_html     = Helper::get_icon_toggle_html();
+        }
         
         // Generate inline styles if needed
         $inline_styles = '';
@@ -110,8 +119,8 @@ class Gutenberg_Block {
         }
         
         $output .= sprintf(
-            '<div class="nivo-ajax-search-container%s" data-preset-id="%d" data-preset-settings="%s">
-                <div class="nivo-search-form-wrapper">
+            '<div class="nivo-ajax-search-container%s" data-preset-id="%d" data-preset-settings="%s"%s>
+                %s<div class="nivo-search-form-wrapper">
                     <form class="nivo-search-form" role="search" method="get" action="%s">
                         <div class="nivo-search-wrapper nivo-search-box-style-1 nivo-search-bar-%s">
                             <input type="search" class="nivo-search-product-search" name="s" placeholder="%s" autocomplete="off">
@@ -131,6 +140,8 @@ class Gutenberg_Block {
             esc_attr($preset_class),
             esc_attr($preset_id),
             esc_attr($settings_compress),
+            $container_style,
+            $toggle_html,
             esc_url($action_url),
             esc_attr($search_bar_layout),
             esc_attr($placeholder),

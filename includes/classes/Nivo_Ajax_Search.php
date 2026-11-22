@@ -638,6 +638,10 @@ final class Nivo_Ajax_Search {
 			'image'             => wp_get_attachment_image_url( $product->get_image_id(), 'thumbnail' ),
 			'price'             => $product->get_price_html(),
 			'current_price'     => wc_price( (float) $product->get_price() ),
+			// Sale and range pricing, so the result can show a struck-through old price or "From".
+			'is_on_sale'        => $product->is_on_sale() && ! $product->is_type( 'variable' ) && '' !== (string) $product->get_regular_price(),
+			'regular_price'     => wc_price( (float) $product->get_regular_price() ),
+			'price_from'        => $product->is_type( 'variable' ) && $product->get_variation_price( 'min' ) !== $product->get_variation_price( 'max' ),
 			'sku'               => $product->get_sku(),
 			'short_description' => wp_trim_words( wp_strip_all_tags( $product->get_short_description() ), 15 ),
 			'product_type'      => $product_type,

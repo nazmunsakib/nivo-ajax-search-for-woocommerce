@@ -139,6 +139,16 @@ class Shortcode {
 
         // Build container class: base + preset-specific + custom class from shortcode attr.
         $container_classes = 'nivo-ajax-search-container' . $preset_class . ' nivo-results-layout-' . $results_layout;
+
+        // "Icon only" bar: a search icon that opens the search box when clicked.
+        $is_icon_bar     = ( 'icon' === $bar_layout );
+        $container_style = '';
+        $toggle_html     = '';
+        if ( $is_icon_bar ) {
+            $container_classes .= ' nivo-bar-icon';
+            $container_style    = ' style="--nivo-bar-h:' . absint( $preset_style_settings['bar_height'] ?? 50 ) . 'px"';
+            $toggle_html        = Helper::get_icon_toggle_html();
+        }
         if ( ! empty( $atts['container_class'] ) && 'nivo-ajax-search-container' !== $atts['container_class'] ) {
             $container_classes .= ' ' . sanitize_html_class( $atts['container_class'] );
         }
@@ -154,8 +164,9 @@ class Shortcode {
             class="<?php echo esc_attr( $container_classes ); ?>"
             data-preset-id="<?php echo esc_attr( $preset_id ); ?>"
             data-preset-settings="<?php echo esc_attr( $settings_compress ); ?>"
-            role="search"
+            role="search"<?php echo $container_style; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built above from absint(). ?>
         >
+            <?php echo $toggle_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup from Helper::get_icon_toggle_html(). ?>
             <div class="nivo-search-form-wrapper">
                 <form class="nivo-search-form" method="get" action="<?php echo esc_url( $action_url ); ?>">
                     <div class="nivo-search-wrapper nivo-search-box-style-1 nivo-search-bar-<?php echo esc_attr( $bar_layout ); ?>">

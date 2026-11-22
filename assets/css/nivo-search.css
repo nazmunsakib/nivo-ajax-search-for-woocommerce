@@ -288,14 +288,12 @@ ul.nivo-search-results-list {
 
 .nivo-search-product-title {
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.35;
     color: inherit;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow-wrap: anywhere;
     transition: color 0.2s ease;
-    flex-shrink: 1;
     min-width: 0;
 }
 
@@ -307,14 +305,15 @@ ul.nivo-search-results-list {
 }
 
 .nivo-search-product-description {
-    display: block;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
     color: inherit;
     opacity: 0.65;
     font-size: 12px;
     line-height: 1.4;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .nivo-search-product-categories,
@@ -479,9 +478,10 @@ ul.nivo-search-tags-list {
         padding: var(--nivo-search-spacing-xs);
     }
 
-    .nivo-search-product-image {
-        width: 35px;
-        height: 35px;
+    .nivo-search-product-image,
+    .nivo-search-no-image {
+        width: 44px;
+        height: 44px;
     }
 
     .nivo-search-product-title {
@@ -526,26 +526,37 @@ ul.nivo-search-tags-list {
     gap: 3px;
 }
 
-/* Title link — flex row so SKU sits immediately after title text */
+/* Title link — the title wraps to two lines at most and is never squeezed by the
+   SKU, which follows it inline and drops to the next line when it does not fit. */
 .nivo-search-product-title-link {
     text-decoration: none !important;
     color: inherit;
     min-width: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 5px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     overflow: hidden;
+    line-height: 1.35;
 }
 .nivo-search-product-title-link:hover .nivo-search-product-title {
     color: var(--nivo-search-primary-color);
 }
 
-/* SKU — inline immediately after title text, never truncates */
+/* SKU — small and muted, after the title; readable contrast (the old #bbb was too faint) */
 .nivo-search-product-sku {
+    /* inline-block gives the browser a place to break: the whole SKU drops to the next
+       line when it does not fit, instead of the title being split in the middle. */
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    margin-left: 6px;
     font-size: 12px;
-    color: #bbb;
+    color: #6b6b6b;
+    opacity: 0.85;
     white-space: nowrap;
-    flex-shrink: 0;
     letter-spacing: 0.2px;
     font-weight: 400;
 }
@@ -1146,4 +1157,196 @@ ul.nivo-search-tags-list {
 }
 .nivo-results-layout-grid .nivo-qty-wrapper {
     display: none; /* cards are too narrow for a quantity stepper */
+}
+
+/* =============================================================
+   Search bar style "Icon only": the search box opens when the
+   icon is clicked (2.0.8). The box and results float under the
+   icon, aligned to its right edge, so it suits headers.
+   ============================================================= */
+.nivo-search-toggle {
+    display: none; /* only the icon-only layout shows it */
+}
+.nivo-bar-icon {
+    display: inline-block;
+}
+.nivo-bar-icon .nivo-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color .15s;
+}
+.nivo-bar-icon .nivo-search-toggle:hover,
+.nivo-bar-icon.nivo-search-open .nivo-search-toggle {
+    background-color: rgba(0, 0, 0, .07);
+}
+.nivo-bar-icon .nivo-search-toggle:focus-visible {
+    outline: 2px solid var(--nivo-search-primary-color, #2271b1);
+    outline-offset: 2px;
+}
+.nivo-bar-icon .nivo-search-form-wrapper {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 99990;
+    width: 92vw;
+    max-width: 600px;
+    margin: 0;
+    background: var(--nivo-search-bg-color, #fff);
+    border-radius: 6px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .16);
+}
+.nivo-bar-icon.nivo-search-open .nivo-search-form-wrapper {
+    display: block;
+}
+/* The results panel sits under the box: icon (44px) + gap + bar height + gap. */
+.nivo-bar-icon .nivo-search-results {
+    left: auto;
+    right: 0;
+    width: 92vw;
+    max-width: 600px;
+    margin: 0;
+    top: calc(100% + 6px + var(--nivo-bar-h, 50px) + 6px);
+}
+.nivo-bar-icon.nivo-open-start .nivo-search-form-wrapper,
+.nivo-bar-icon.nivo-open-start .nivo-search-results {
+    left: 0;
+    right: auto;
+}
+/* Editor preview: show the icon above an already-open box, in normal flow. */
+.nivo-preset-preview .nivo-bar-icon {
+    display: block;
+}
+.nivo-preset-preview .nivo-bar-icon .nivo-search-form-wrapper {
+    position: static;
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
+}
+.nivo-preset-preview .nivo-bar-icon .nivo-search-toggle {
+    margin-bottom: 6px;
+    pointer-events: none;
+}
+/* A closed icon-only search must not leave its results on screen. */
+.nivo-bar-icon:not(.nivo-search-open) .nivo-search-results {
+    display: none !important;
+}
+.nivo-preset-preview .nivo-bar-icon .nivo-search-results {
+    display: flex !important;
+}
+
+/* =============================================================
+   Result design polish (2.0.8)
+   ============================================================= */
+
+/* Never inherit odd alignment (centered / right) from the theme or a wrapper. */
+.nivo-search-results {
+    text-align: start;
+}
+
+/* Product without a picture: a neutral square so every row lines up. */
+.nivo-search-no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    margin: 5px;
+    color: #b4b4b4;
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+.nivo-search-no-image svg {
+    width: 45%;
+    height: 45%;
+}
+
+/* Price: struck-through old price above the current one; "From" for variable products. */
+.nivo-search-product-price {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.2;
+}
+.nivo-search-price-old {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+.nivo-search-price-from {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+.nivo-search-product-price.nivo-search-price-sale .nivo-search-price-now {
+    color: #c0392b;
+}
+
+/* ---- Compact: the title keeps its room, the SKU gives way ---- */
+.nivo-results-layout-compact .nivo-search-product-title-link {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 6px;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+}
+.nivo-results-layout-compact .nivo-search-product-title {
+    flex: 0 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.nivo-results-layout-compact .nivo-search-product-sku {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-left: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.nivo-results-layout-compact .nivo-search-result-item > .nivo-search-no-image {
+    display: none;
+}
+
+/* ---- Grid: title, then SKU on its own line, so every card lines up ---- */
+.nivo-results-layout-grid .nivo-search-product-title-link {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+}
+.nivo-results-layout-grid .nivo-search-product-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+.nivo-results-layout-grid .nivo-search-product-sku {
+    display: block;
+    margin: 2px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.nivo-results-layout-grid .nivo-search-no-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 0;
+    border-radius: 6px;
+}
+.nivo-results-layout-grid .nivo-search-product-price {
+    align-items: flex-start;
 }

@@ -697,7 +697,9 @@
         // An empty <a> would still occupy space in the flex row.
         const imageLinkHtml = (showImages && product.image)
             ? `<a href="${escapeHtml(product.url)}" class="nivo-search-product-link" tabindex="-1" aria-hidden="true"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" class="nivo-search-product-image" loading="lazy" width="60" height="60"></a>`
-            : '';
+            : (showImages
+                ? '<span class="nivo-search-no-image" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>'
+                : '');
 
         // Title (with inline SKU immediately after title text)
         const highlightedTitle = highlightKeywords(product.title, query);
@@ -706,8 +708,13 @@
             : '';
 
         // Price — current selling price only (no strikethrough regular/sale HTML)
+        // On sale: the regular price struck through above the current one. Variable
+        // products with a price range get a small "From" label.
         const priceHtml = (showPrice && product.current_price)
-            ? `<span class="nivo-search-product-price">${product.current_price}</span>`
+            ? `<span class="nivo-search-product-price${product.is_on_sale ? ' nivo-search-price-sale' : ''}">`
+                + (product.price_from ? `<span class="nivo-search-price-from">${escapeHtml((window.nivo_search && window.nivo_search.strings && window.nivo_search.strings.price_from) || 'From')}</span>` : '')
+                + (product.is_on_sale && product.regular_price ? `<span class="nivo-search-price-old">${product.regular_price}</span>` : '')
+                + `<span class="nivo-search-price-now">${product.current_price}</span></span>`
             : '';
 
         // Description
@@ -1259,10 +1266,75 @@
 
     // ── End Mobile Search Mode ─────────────────────────────────────────────
 
+    // ── "Icon only" bar: a search icon that opens the search box ───────────
+
+    function setIconSearchOpen(container, open) {
+        const toggle = container.querySelector('.nivo-search-toggle');
+        const input = container.querySelector(config.selectors.input);
+        container.classList.toggle('nivo-search-open', open);
+        if (open) {
+            // The box is right-aligned to the icon. When the icon sits near the left edge of the
+            // page that would push it off-screen, so open it to the right instead.
+            const panel = Math.min(600, window.innerWidth * 0.92);
+            container.classList.toggle('nivo-open-start', container.getBoundingClientRect().right - panel < 8);
+        }
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        if (open && input) {
+            // After the box is visible, so the input can take focus.
+            window.setTimeout(function () { input.focus(); }, 0);
+        }
+    }
+
+    function closeAllIconSearches(exceptContainer) {
+        document.querySelectorAll('.nivo-bar-icon.nivo-search-open').forEach(function (container) {
+            if (container !== exceptContainer) {
+                setIconSearchOpen(container, false);
+            }
+        });
+    }
+
+    function initIconSearch() {
+        document.addEventListener('click', function (event) {
+            const toggle = event.target.closest ? event.target.closest('.nivo-search-toggle') : null;
+            const container = toggle ? toggle.closest('.nivo-bar-icon') : null;
+
+            if (container) {
+                const willOpen = !container.classList.contains('nivo-search-open');
+                closeAllIconSearches(container);
+                setIconSearchOpen(container, willOpen);
+                return;
+            }
+
+            // A click anywhere outside an open icon search closes it.
+            document.querySelectorAll('.nivo-bar-icon.nivo-search-open').forEach(function (open) {
+                if (!open.contains(event.target)) {
+                    setIconSearchOpen(open, false);
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key !== 'Escape') return;
+            document.querySelectorAll('.nivo-bar-icon.nivo-search-open').forEach(function (container) {
+                setIconSearchOpen(container, false);
+                const toggle = container.querySelector('.nivo-search-toggle');
+                if (toggle) toggle.focus();
+            });
+        });
+
+        // On phones the fullscreen overlay takes over; fold the box away when it closes.
+        document.addEventListener('nivo_search:mobileOverlayClosed', function () {
+            closeAllIconSearches(null);
+        });
+    }
+
     /**
      * Initialize search functionality
      */
     function init() {
+        initIconSearch();
         // Event delegation for input events
         document.addEventListener('input', function (event) {
             if (event.target.matches && event.target.matches(config.selectors.input)) {

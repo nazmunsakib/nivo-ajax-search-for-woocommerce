@@ -151,3 +151,13 @@ Found and fixed (branch `feat/preset-ux`):
 - Saving the editor accepted any number server-side. Now: results 1-50, min characters 1-5, delay 0-2000 ms, bar and results width 150-1400 px, bar height 30-100 px; an empty placeholder falls back to "Search products..." (it is also the input's accessible name).
 Added: one-line help under every scope toggle; a status line (index on / building / not built, with a link to build it); a "Duplicate" link on the presets list.
 Still open: preset templates ("Small store", "Large catalog", "Minimal"); grouping the Style tab into simple choices (light/dark/compact) with colours under Advanced; per-preset ranking choices; a "Where to use this preset" panel (shortcode, block, theme search replacement); live preview does not reflect scope toggles or the active index.
+
+## K. Front-end layouts, 2026-11-22 (branch `feat/layouts`)
+
+Added, per preset (Style & Layout tab, "Layout" section with visual choices and live preview):
+- **Search bar styles:** Standard, Icon on the left, Rounded pill, With search button, Minimal underline.
+- **Results layouts:** List (default), Grid of cards, Compact.
+- Stored in the preset's general settings (`search_bar_layout`, `results_layout`); shortcode attributes `search_bar_layout="..."` and `results_layout="..."` override them; the Gutenberg block uses the preset. Values are whitelisted (they become CSS class names). The mobile overlay uses the same results layout. Old presets (numeric `search_bar_layout = 1`) map to "standard".
+- Verified in the browser: all five bars, grid and compact on desktop, grid in the mobile overlay (2 columns), editor cards, instant live preview, saving through the real form, plain `[nivo_search id]` and the block output.
+Not done: an "expand on click" icon-only bar for headers; per-layout text options (button label); a horizontal-scroll "carousel" results layout; grid card count setting; layout choice in the block's own sidebar; layouts for the category/tag result sections (they keep the list style).
+Note: the Minimal bar ignores the preset's background colour (it is transparent by design).

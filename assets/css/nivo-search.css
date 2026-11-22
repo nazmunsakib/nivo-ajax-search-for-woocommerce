@@ -1011,3 +1011,139 @@ ul.nivo-search-tags-list {
         outline: 2px solid Highlight;
     }
 }
+
+/* =============================================================
+   Layouts (2.0.8): search bar styles and result layouts
+   Chosen per preset; applied through a class on the search
+   wrapper (.nivo-search-bar-*) and on the container
+   (.nivo-results-layout-*). "standard" and "list" are the
+   defaults and need no extra rules.
+   ============================================================= */
+
+/* ---- Search bar: rounded pill ---- */
+.nivo-search-bar-pill input[type=search].nivo-search-product-search {
+    border-radius: 999px;
+    padding-left: 24px;
+}
+
+/* ---- Search bar: icon on the left ---- */
+.nivo-search-bar-icon-left input[type=search].nivo-search-product-search {
+    padding: 0 44px 0 48px;
+}
+.nivo-search-bar-icon-left .nivo-search-search-icon-wrap {
+    left: 0;
+    right: auto;
+    width: 48px;
+}
+.nivo-search-bar-icon-left button.nivosearch-search-submit {
+    left: 0;
+    right: auto;
+}
+.nivo-search-bar-icon-left .nivo-search-loader-icons {
+    right: 6px;
+}
+.nivo-ajax-search-container.nivo-search-loading .nivo-search-bar-icon-left::after {
+    right: 40px;
+}
+
+/* ---- Search bar: with a search button ---- */
+.nivo-search-bar-button input[type=search].nivo-search-product-search {
+    border-radius: 5px 0 0 5px;
+    padding-right: 80px;
+}
+.nivo-search-bar-button .nivo-search-search-icon-wrap {
+    width: 56px;
+    background: var(--nivo-search-primary-color, #2271b1);
+    border-radius: 0 5px 5px 0;
+    color: #fff;
+}
+.nivo-search-bar-button .nivo-search-search-icon-wrap svg,
+.nivo-search-bar-button .nivo-search-search-icon-wrap svg path {
+    fill: #fff;
+}
+.nivo-search-bar-button .nivo-search-search-icon-wrap svg circle,
+.nivo-search-bar-button .nivo-search-search-icon-wrap svg line {
+    stroke: #fff;
+}
+.nivo-search-bar-button button.nivosearch-search-submit {
+    width: 56px;
+    min-width: 56px;
+}
+.nivo-search-bar-button .nivo-search-loader-icons {
+    right: 56px;
+}
+.nivo-ajax-search-container.nivo-search-loading .nivo-search-bar-button::after {
+    right: 76px;
+}
+
+/* ---- Search bar: minimal underline ---- */
+.nivo-search-bar-minimal input[type=search].nivo-search-product-search {
+    border-width: 0 0 2px 0;
+    border-radius: 0;
+    background: transparent !important;
+    padding-left: 4px;
+    box-shadow: none;
+}
+.nivo-search-form .nivo-search-bar-minimal input[type=search].nivo-search-product-search:focus {
+    box-shadow: none;
+    border-bottom-color: var(--nivo-search-primary-color, #2271b1);
+}
+
+/* ---- Results: compact (one tight line per product) ---- */
+.nivo-results-layout-compact .nivo-search-result-item {
+    align-items: center;
+    padding: 5px 10px;
+    gap: 8px;
+}
+.nivo-results-layout-compact .nivo-search-result-item > a.nivo-search-product-link,
+.nivo-results-layout-compact .nivo-search-product-description,
+.nivo-results-layout-compact .nivo-search-meta-chips {
+    display: none;
+}
+.nivo-results-layout-compact .nivo-search-product-actions {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ---- Results: grid of cards ---- */
+.nivo-results-layout-grid .nivo-search-results-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    padding: 10px;
+}
+.nivo-results-layout-grid .nivo-search-result-item,
+.nivo-results-layout-grid .nivo-search-result-item:last-child {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+.nivo-results-layout-grid .nivo-search-result-item > a.nivo-search-product-link {
+    width: 100%;
+}
+.nivo-results-layout-grid .nivo-search-product-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.nivo-results-layout-grid .nivo-search-product-title-link {
+    flex-wrap: wrap;
+    gap: 2px 5px;
+}
+.nivo-results-layout-grid .nivo-search-product-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 0;
+}
+.nivo-results-layout-grid .nivo-qty-wrapper {
+    display: none; /* cards are too narrow for a quantity stepper */
+}

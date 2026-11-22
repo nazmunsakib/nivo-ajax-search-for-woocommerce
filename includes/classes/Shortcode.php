@@ -108,8 +108,13 @@ class Shortcode {
             'container_class' => 'nivo-ajax-search-container',
             'input_class' => 'nivo-search-product-search',
             'results_class' => 'nivo-search-results',
-            'search_bar_layout' => $preset_settings['search_bar_layout'] ?? 1,
+            'search_bar_layout' => $preset_settings['search_bar_layout'] ?? 'standard',
+            'results_layout' => $preset_settings['results_layout'] ?? 'list',
         ], $atts, 'nivo_search');
+
+        // Layouts are whitelisted: they end up in CSS class names.
+        $bar_layout     = Helper::sanitize_bar_layout( $atts['search_bar_layout'] );
+        $results_layout = Helper::sanitize_results_layout( $atts['results_layout'] );
 
         $search_icon_html = '<svg class="nivosearch-ico-magnifier" xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 51.539 51.361" width="18">
                                     <path d="M51.539,49.356L37.247,35.065c3.273-3.74,5.272-8.623,5.272-13.983c0-11.742-9.518-21.26-21.26-21.26 S0,9.339,0,21.082s9.518,21.26,21.26,21.26c5.361,0,10.244-1.999,13.983-5.272l14.292,14.292L51.539,49.356z M2.835,21.082 c0-10.176,8.249-18.425,18.425-18.425s18.425,8.249,18.425,18.425S31.436,39.507,21.26,39.507S2.835,31.258,2.835,21.082z"></path>
@@ -133,7 +138,7 @@ class Shortcode {
         $settings_compress = ! empty( $preset_settings ) ? wp_json_encode( $preset_settings ) : '{}';
 
         // Build container class: base + preset-specific + custom class from shortcode attr.
-        $container_classes = 'nivo-ajax-search-container' . $preset_class;
+        $container_classes = 'nivo-ajax-search-container' . $preset_class . ' nivo-results-layout-' . $results_layout;
         if ( ! empty( $atts['container_class'] ) && 'nivo-ajax-search-container' !== $atts['container_class'] ) {
             $container_classes .= ' ' . sanitize_html_class( $atts['container_class'] );
         }
@@ -153,7 +158,7 @@ class Shortcode {
         >
             <div class="nivo-search-form-wrapper">
                 <form class="nivo-search-form" method="get" action="<?php echo esc_url( $action_url ); ?>">
-                    <div class="nivo-search-wrapper nivo-search-box-style-<?php echo esc_attr( $atts['search_bar_layout'] ); ?>">
+                    <div class="nivo-search-wrapper nivo-search-box-style-1 nivo-search-bar-<?php echo esc_attr( $bar_layout ); ?>">
 
                         <?php echo $this->get_search_form_html( $atts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is built and escaped inside get_search_form_html(). ?>
 

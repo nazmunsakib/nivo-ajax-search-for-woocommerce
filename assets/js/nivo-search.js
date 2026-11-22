@@ -1114,6 +1114,9 @@
         // Results pane
         mobileResultsEl = document.createElement('div');
         mobileResultsEl.className = 'nivo-search-results nivo-mobile-results';
+        // Use the same results layout (list / grid / compact) as the bar that opened the overlay.
+        const layoutClass = (container.className.match(/nivo-results-layout-[a-z]+/) || [])[0];
+        if (layoutClass) mobileResultsEl.classList.add(layoutClass);
 
         document.body.appendChild(mobileOverlayEl);
         document.body.appendChild(searchWrap);

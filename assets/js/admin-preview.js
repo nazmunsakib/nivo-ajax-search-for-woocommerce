@@ -111,6 +111,39 @@
 		if ( fn ) { fn( e.target.value ); }
 	} );
 
+	// ── Layouts: search bar style + results layout ───────────────────────────
+	var barWrapper = pvContainer.querySelector( '.nivo-search-wrapper' );
+	var layoutBtns = document.querySelectorAll( '.nivo-pv-layout-btn' );
+
+	function setResultsLayout( layout ) {
+		pvContainer.className = pvContainer.className.replace( /nivo-results-layout-[a-z]+/g, '' ).trim() + ' nivo-results-layout-' + layout;
+		layoutBtns.forEach( function ( b ) {
+			b.classList.toggle( 'nivo-pv-layout-btn--active', b.dataset.layout === layout );
+		} );
+	}
+
+	function setBarLayout( layout ) {
+		if ( ! barWrapper ) { return; }
+		barWrapper.className = barWrapper.className.replace( /nivo-search-bar-[a-z-]+/g, '' ).trim() + ' nivo-search-bar-' + layout;
+	}
+
+	settingsCol.addEventListener( 'change', function ( e ) {
+		if ( e.target.type !== 'radio' ) { return; }
+		if ( e.target.name === 'nivo_settings[results_layout]' ) { setResultsLayout( e.target.value ); }
+		if ( e.target.name === 'nivo_settings[search_bar_layout]' ) { setBarLayout( e.target.value ); }
+	} );
+
+	// The three icons above the preview are shortcuts for the "Results layout" choice.
+	layoutBtns.forEach( function ( btn ) {
+		btn.addEventListener( 'click', function () {
+			var radio = settingsCol.querySelector( 'input[name="nivo_settings[results_layout]"][value="' + btn.dataset.layout + '"]' );
+			if ( radio ) {
+				radio.checked = true;
+			}
+			setResultsLayout( btn.dataset.layout );
+		} );
+	} );
+
 	// ── Listen: checkboxes ────────────────────────────────────────────────────
 	settingsCol.addEventListener( 'change', function ( e ) {
 		var el = e.target;

@@ -83,7 +83,8 @@ class Gutenberg_Block {
         
         // Use preset settings with defaults
         $placeholder = $preset_settings['placeholder'] ?? __('Search products...', 'nivo-ajax-search-for-woocommerce');
-        $search_bar_layout = $preset_settings['search_bar_layout'] ?? 1;
+        $search_bar_layout = Helper::sanitize_bar_layout( $preset_settings['search_bar_layout'] ?? 'standard' );
+        $results_layout    = Helper::sanitize_results_layout( $preset_settings['results_layout'] ?? 'list' );
         
         $search_icon_html = '<svg class="nivosearch-ico-magnifier" xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 51.539 51.361" width="18">
                                 <path d="M51.539,49.356L37.247,35.065c3.273-3.74,5.272-8.623,5.272-13.983c0-11.742-9.518-21.26-21.26-21.26 S0,9.339,0,21.082s9.518,21.26,21.26,21.26c5.361,0,10.244-1.999,13.983-5.272l14.292,14.292L51.539,49.356z M2.835,21.082 c0-10.176,8.249-18.425,18.425-18.425s18.425,8.249,18.425,18.425S31.436,39.507,21.26,39.507S2.835,31.258,2.835,21.082z"></path>
@@ -93,7 +94,7 @@ class Gutenberg_Block {
         $action_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/');
         
         // Generate preset class
-        $preset_class = $preset_id ? ' nivo-preset-' . $preset_id : '';
+        $preset_class = ( $preset_id ? ' nivo-preset-' . $preset_id : '' ) . ' nivo-results-layout-' . $results_layout;
         
         // Generate inline styles if needed
         $inline_styles = '';
@@ -112,7 +113,7 @@ class Gutenberg_Block {
             '<div class="nivo-ajax-search-container%s" data-preset-id="%d" data-preset-settings="%s">
                 <div class="nivo-search-form-wrapper">
                     <form class="nivo-search-form" role="search" method="get" action="%s">
-                        <div class="nivo-search-wrapper nivo-search-box-style-%d">
+                        <div class="nivo-search-wrapper nivo-search-box-style-1 nivo-search-bar-%s">
                             <input type="search" class="nivo-search-product-search" name="s" placeholder="%s" autocomplete="off">
                             <div class="nivo-search-loader-icons">
                                 <svg class="nivo-search-close-icon" xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18">

@@ -3060,3 +3060,60 @@
     line-height: 1.4;
 }
 
+
+/* ── Preset editor: visual layout choices (2.0.8) ─────────────────────────── */
+.nivo-layout-field {
+	padding: 10px 14px 14px;
+}
+.nivo-layout-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 8px;
+}
+.nivo-layout-option {
+	position: relative;
+	display: block;
+	width: 98px;
+	text-align: center;
+	cursor: pointer;
+}
+.nivo-layout-option input {
+	position: absolute;
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+}
+.nivo-layout-option__thumb {
+	display: block;
+	padding: 6px 4px;
+	color: #8c8f94;
+	background: #fff;
+	border: 2px solid #dcdcde;
+	border-radius: 8px;
+	transition: border-color .15s, color .15s;
+}
+.nivo-layout-option__thumb svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+.nivo-layout-option:hover .nivo-layout-option__thumb {
+	border-color: #b4a7e6;
+}
+.nivo-layout-option input:checked + .nivo-layout-option__thumb {
+	color: #6b46c1;
+	border-color: #6b46c1;
+	background: #f5f1ff;
+}
+.nivo-layout-option input:focus-visible + .nivo-layout-option__thumb {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+.nivo-layout-option__label {
+	display: block;
+	margin-top: 4px;
+	font-size: 12px;
+	line-height: 1.3;
+	color: #3c434a;
+}

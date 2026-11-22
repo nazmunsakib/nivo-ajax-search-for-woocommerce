@@ -128,6 +128,8 @@ class Search_Preset_CPT {
             'show_add_to_cart'    => ! empty( $settings['show_add_to_cart'] ),
             'show_qty_selector'   => ! empty( $settings['show_qty_selector'] ),
             'show_view_all'       => ! empty( $settings['show_view_all'] ),
+            'search_bar_layout'   => Helper::sanitize_bar_layout( $settings['search_bar_layout'] ),
+            'results_layout'      => Helper::sanitize_results_layout( $settings['results_layout'] ),
         );
         ?>
         <script>window.nivoPresetData = <?php echo wp_json_encode( $preview_state ); ?>;</script>
@@ -328,6 +330,41 @@ class Search_Preset_CPT {
 
             <!-- ══ Tab Panel: Style & Layout ════════════════════════════════ -->
             <div class="nivo-preset-tab-panel" data-panel="style" hidden>
+            <!-- Section: Layout -->
+            <div class="nivo-preset-section">
+                <div class="nivo-preset-section-hd">
+                    <span class="nivo-preset-section-hd__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    </span>
+                    <div>
+                        <strong class="nivo-preset-section-hd__title"><?php esc_html_e( 'Layout', 'nivo-ajax-search-for-woocommerce' ); ?></strong>
+                        <p class="nivo-preset-section-hd__sub"><?php esc_html_e( 'How the search bar and the results look. The preview updates as you choose.', 'nivo-ajax-search-for-woocommerce' ); ?></p>
+                    </div>
+                </div>
+                <?php
+                $layout_groups = array(
+                    'search_bar_layout' => array( __( 'Search bar style', 'nivo-ajax-search-for-woocommerce' ), Helper::get_bar_layouts(), 'bar' ),
+                    'results_layout'    => array( __( 'Results layout', 'nivo-ajax-search-for-woocommerce' ), Helper::get_results_layouts(), 'results' ),
+                );
+                foreach ( $layout_groups as $field => $group ) :
+                    $current = 'search_bar_layout' === $field
+                        ? Helper::sanitize_bar_layout( $settings[ $field ] )
+                        : Helper::sanitize_results_layout( $settings[ $field ] );
+                    ?>
+                <div class="nivo-layout-field">
+                    <strong class="nivo-setting-row__title"><?php echo esc_html( $group[0] ); ?></strong>
+                    <div class="nivo-layout-options" role="radiogroup" aria-label="<?php echo esc_attr( $group[0] ); ?>">
+                        <?php foreach ( $group[1] as $slug => $label ) : ?>
+                        <label class="nivo-layout-option">
+                            <input type="radio" name="nivo_settings[<?php echo esc_attr( $field ); ?>]" value="<?php echo esc_attr( $slug ); ?>" <?php checked( $current, $slug ); ?>>
+                            <span class="nivo-layout-option__thumb"><?php echo self::layout_thumbnail( $group[2], $slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG built in layout_thumbnail(). ?></span>
+                            <span class="nivo-layout-option__label"><?php echo esc_html( $label ); ?></span>
+                        </label>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
 
             <!-- ── Section: Search Bar ───────────────────────────────────── -->
             <div class="nivo-preset-section">
@@ -449,13 +486,13 @@ class Search_Preset_CPT {
                         <?php esc_html_e( 'Live Preview', 'nivo-ajax-search-for-woocommerce' ); ?>
                     </span>
                     <div class="nivo-pv-layouts">
-                        <button type="button" class="nivo-pv-layout-btn nivo-pv-layout-btn--active" data-layout="list" title="<?php esc_attr_e( 'List layout', 'nivo-ajax-search-for-woocommerce' ); ?>">
+                        <button type="button" class="nivo-pv-layout-btn<?php echo 'list' === Helper::sanitize_results_layout( $settings['results_layout'] ) ? ' nivo-pv-layout-btn--active' : ''; ?>" data-layout="list" title="<?php esc_attr_e( 'List layout', 'nivo-ajax-search-for-woocommerce' ); ?>">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                         </button>
-                        <button type="button" class="nivo-pv-layout-btn nivo-pv-layout-btn--soon" data-layout="grid" title="<?php esc_attr_e( 'Grid layout (coming soon)', 'nivo-ajax-search-for-woocommerce' ); ?>" disabled>
+                        <button type="button" class="nivo-pv-layout-btn<?php echo 'grid' === Helper::sanitize_results_layout( $settings['results_layout'] ) ? ' nivo-pv-layout-btn--active' : ''; ?>" data-layout="grid" title="<?php esc_attr_e( 'Grid layout', 'nivo-ajax-search-for-woocommerce' ); ?>" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                         </button>
-                        <button type="button" class="nivo-pv-layout-btn nivo-pv-layout-btn--soon" data-layout="compact" title="<?php esc_attr_e( 'Compact layout (coming soon)', 'nivo-ajax-search-for-woocommerce' ); ?>" disabled>
+                        <button type="button" class="nivo-pv-layout-btn<?php echo 'compact' === Helper::sanitize_results_layout( $settings['results_layout'] ) ? ' nivo-pv-layout-btn--active' : ''; ?>" data-layout="compact" title="<?php esc_attr_e( 'Compact layout', 'nivo-ajax-search-for-woocommerce' ); ?>" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                         </button>
                     </div>
@@ -502,11 +539,11 @@ class Search_Preset_CPT {
                     ?>
 
                     <!-- Real frontend markup — styled by nivo-search.css exactly as on site -->
-                    <div class="nivo-ajax-search-container nivo-search-has-results" id="nivo-pv-container">
+                    <div class="nivo-ajax-search-container nivo-search-has-results nivo-results-layout-<?php echo esc_attr( Helper::sanitize_results_layout( $settings['results_layout'] ) ); ?>" id="nivo-pv-container">
 
                         <!-- Search bar (identical structure to frontend shortcode output) -->
                         <div class="nivo-search-form">
-                            <div class="nivo-search-wrapper">
+                            <div class="nivo-search-wrapper nivo-search-box-style-1 nivo-search-bar-<?php echo esc_attr( Helper::sanitize_bar_layout( $settings['search_bar_layout'] ) ); ?>">
                                 <input
                                     type="search"
                                     class="nivo-search-product-search"
@@ -514,7 +551,7 @@ class Search_Preset_CPT {
                                     value="wireless"
                                     readonly
                                     style="height:<?php echo (int) $settings['bar_height']; ?>px;border-color:<?php echo esc_attr( $settings['border_color'] ); ?>;background:<?php echo esc_attr( $settings['bg_color'] ); ?>;color:<?php echo esc_attr( $settings['text_color'] ); ?>;">
-                                <span class="nivo-search-icon">
+                                <span class="nivo-search-search-icon-wrap">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                                 </span>
                             </div>
@@ -629,6 +666,9 @@ class Search_Preset_CPT {
                 // An empty placeholder would also leave the input without an accessible name.
                 'placeholder' => sanitize_text_field( $settings['placeholder'] ?? '' ) ?: __( 'Search products...', 'nivo-ajax-search-for-woocommerce' ),
                 'delay'       => self::clamp( $settings['delay'] ?? 300, 0, 2000, 300 ),
+                // Layouts live with the general settings: those are the ones sent to the front end.
+                'search_bar_layout' => Helper::sanitize_bar_layout( $settings['search_bar_layout'] ?? 'standard' ),
+                'results_layout'    => Helper::sanitize_results_layout( $settings['results_layout'] ?? 'list' ),
             ) );
 
             // 2. Query Settings — merge form values over existing.
@@ -783,6 +823,42 @@ class Search_Preset_CPT {
 
         wp_safe_redirect( admin_url( 'post.php?post=' . (int) $new_id . '&action=edit' ) );
         exit;
+    }
+
+    /**
+     * Small wireframe SVG shown on each layout choice.
+     *
+     * @since 2.0.8
+     * @param string $type 'bar' or 'results'.
+     * @param string $slug Layout slug.
+     * @return string SVG markup (static, no user input).
+     */
+    private static function layout_thumbnail( $type, $slug ) {
+        $c = 'stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"';
+        $f = 'fill="currentColor"';
+
+        $glass = static function ( $x ) use ( $c ) {
+            return '<circle cx="' . $x . '" cy="20" r="3.2" ' . $c . '/><line x1="' . ( $x + 2.4 ) . '" y1="22.4" x2="' . ( $x + 5 ) . '" y2="25" ' . $c . '/>';
+        };
+
+        $shapes = array(
+            'bar'     => array(
+                'standard'  => '<rect x="3" y="11" width="74" height="18" rx="3" ' . $c . '/>' . $glass( 64 ),
+                'icon-left' => '<rect x="3" y="11" width="74" height="18" rx="3" ' . $c . '/>' . $glass( 9 ) . '<line x1="22" y1="20" x2="52" y2="20" ' . $c . '/>',
+                'pill'      => '<rect x="3" y="11" width="74" height="18" rx="9" ' . $c . '/>' . $glass( 62 ),
+                'button'    => '<rect x="3" y="11" width="74" height="18" rx="3" ' . $c . '/><rect x="57" y="11" width="20" height="18" rx="3" ' . $f . ' opacity=".85"/>',
+                'minimal'   => '<line x1="3" y1="29" x2="77" y2="29" ' . $c . '/><line x1="6" y1="20" x2="36" y2="20" ' . $c . '/>' . $glass( 64 ),
+            ),
+            'results' => array(
+                'list'    => '<rect x="4" y="5" width="9" height="9" rx="1.5" ' . $f . ' opacity=".5"/><line x1="17" y1="8" x2="50" y2="8" ' . $c . '/><line x1="17" y1="12" x2="38" y2="12" ' . $c . '/><rect x="4" y="16" width="9" height="9" rx="1.5" ' . $f . ' opacity=".5"/><line x1="17" y1="19" x2="50" y2="19" ' . $c . '/><line x1="17" y1="23" x2="38" y2="23" ' . $c . '/><rect x="4" y="27" width="9" height="9" rx="1.5" ' . $f . ' opacity=".5"/><line x1="17" y1="30" x2="50" y2="30" ' . $c . '/><line x1="17" y1="34" x2="38" y2="34" ' . $c . '/>',
+                'grid'    => '<rect x="4" y="4" width="34" height="32" rx="3" ' . $c . '/><rect x="8" y="8" width="26" height="14" rx="2" ' . $f . ' opacity=".5"/><line x1="8" y1="27" x2="28" y2="27" ' . $c . '/><rect x="42" y="4" width="34" height="32" rx="3" ' . $c . '/><rect x="46" y="8" width="26" height="14" rx="2" ' . $f . ' opacity=".5"/><line x1="46" y1="27" x2="66" y2="27" ' . $c . '/>',
+                'compact' => '<line x1="6" y1="8" x2="48" y2="8" ' . $c . '/><line x1="62" y1="8" x2="74" y2="8" ' . $c . '/><line x1="6" y1="16" x2="42" y2="16" ' . $c . '/><line x1="62" y1="16" x2="74" y2="16" ' . $c . '/><line x1="6" y1="24" x2="50" y2="24" ' . $c . '/><line x1="62" y1="24" x2="74" y2="24" ' . $c . '/><line x1="6" y1="32" x2="38" y2="32" ' . $c . '/><line x1="62" y1="32" x2="74" y2="32" ' . $c . '/>',
+            ),
+        );
+
+        $body = isset( $shapes[ $type ][ $slug ] ) ? $shapes[ $type ][ $slug ] : '';
+
+        return '<svg viewBox="0 0 80 40" width="80" height="40" aria-hidden="true" focusable="false">' . $body . '</svg>';
     }
 
     /**

@@ -150,6 +150,62 @@ class Helper {
     }
     
     /**
+     * Search bar styles shoppers can choose from.
+     *
+     * @since 2.0.8
+     * @return array<string,string> slug => label.
+     */
+    public static function get_bar_layouts() {
+        return array(
+            'standard'  => __( 'Standard', 'nivo-ajax-search-for-woocommerce' ),
+            'icon-left' => __( 'Icon on the left', 'nivo-ajax-search-for-woocommerce' ),
+            'pill'      => __( 'Rounded pill', 'nivo-ajax-search-for-woocommerce' ),
+            'button'    => __( 'With search button', 'nivo-ajax-search-for-woocommerce' ),
+            'minimal'   => __( 'Minimal underline', 'nivo-ajax-search-for-woocommerce' ),
+        );
+    }
+
+    /**
+     * Result list layouts shoppers can choose from.
+     *
+     * @since 2.0.8
+     * @return array<string,string> slug => label.
+     */
+    public static function get_results_layouts() {
+        return array(
+            'list'    => __( 'List', 'nivo-ajax-search-for-woocommerce' ),
+            'grid'    => __( 'Grid of cards', 'nivo-ajax-search-for-woocommerce' ),
+            'compact' => __( 'Compact', 'nivo-ajax-search-for-woocommerce' ),
+        );
+    }
+
+    /**
+     * Valid search bar style slug. The old numeric value (1) means "standard".
+     *
+     * @since 2.0.8
+     * @param mixed $value Stored or submitted value.
+     * @return string
+     */
+    public static function sanitize_bar_layout( $value ) {
+        $value = is_scalar( $value ) ? strtolower( trim( (string) $value ) ) : '';
+
+        return isset( self::get_bar_layouts()[ $value ] ) ? $value : 'standard';
+    }
+
+    /**
+     * Valid result layout slug (defaults to "list").
+     *
+     * @since 2.0.8
+     * @param mixed $value Stored or submitted value.
+     * @return string
+     */
+    public static function sanitize_results_layout( $value ) {
+        $value = is_scalar( $value ) ? strtolower( trim( (string) $value ) ) : '';
+
+        return isset( self::get_results_layouts()[ $value ] ) ? $value : 'list';
+    }
+
+    /**
      * Get default settings array
      *
      * @since 1.0.0
@@ -182,6 +238,8 @@ class Helper {
             'show_qty_selector'         => 0,
             'show_view_all'             => 1,
             // Style
+            'search_bar_layout'         => 'standard',
+            'results_layout'            => 'list',
             'bar_width'                 => 600,
             'bar_height'                => 50,
             'border_color'              => '#dddddd',

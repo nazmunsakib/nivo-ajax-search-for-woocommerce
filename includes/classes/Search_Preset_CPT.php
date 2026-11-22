@@ -26,6 +26,8 @@ class Search_Preset_CPT {
         add_action('save_post_nivo_search_preset', [$this, 'save_preset_meta'], 10, 2);
         add_filter('manage_nivo_search_preset_posts_columns', [$this, 'set_columns']);
         add_action('manage_nivo_search_preset_posts_custom_column', [$this, 'render_columns'], 10, 2);
+        add_filter('post_row_actions', [$this, 'add_duplicate_row_action'], 10, 2);
+        add_action('admin_post_nivo_duplicate_preset', [$this, 'handle_duplicate']);
     }
 
     /**
@@ -265,22 +267,25 @@ class Search_Preset_CPT {
                     </div>
                 </div>
 
+                <?php $this->render_index_status(); ?>
+
                 <?php
                 $config_toggles = array(
-                    'search_in_title'           => array( __( 'Search in Title',                'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'search_in_sku'             => array( __( 'Search in SKU and product codes (GTIN, UPC, EAN, ISBN)', 'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'search_in_attributes'      => array( __( 'Search in Attributes (size, colour, material...)', 'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'search_in_content'         => array( __( 'Search in Description',          'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'search_in_excerpt'         => array( __( 'Search in Short Description',    'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'exclude_out_of_stock'      => array( __( 'Exclude Out of Stock Products',  'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'search_product_categories' => array( __( 'Show Category Results',          'nivo-ajax-search-for-woocommerce' ), __( 'Results', 'nivo-ajax-search-for-woocommerce' ) ),
-                    'search_product_tags'       => array( __( 'Show Tag Results',               'nivo-ajax-search-for-woocommerce' ), __( 'Results', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_in_title'           => array( __( 'Search in Title',                'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ), __( 'Matches words in the product name. Almost always left on.', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_in_sku'             => array( __( 'Search in SKU and product codes (GTIN, UPC, EAN, ISBN)', 'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ), __( 'Lets shoppers find a product by its SKU, variation SKU or barcode number.', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_in_attributes'      => array( __( 'Search in Attributes (size, colour, material...)', 'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ), __( 'Finds products by attribute values, such as "red" or "XL".', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_in_content'         => array( __( 'Search in Description',          'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ), __( 'Also matches words from the first part of the full description. Turn off if descriptions bring in unrelated results.', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_in_excerpt'         => array( __( 'Search in Short Description',    'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ), __( 'Also matches words in the short description.', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'exclude_out_of_stock'      => array( __( 'Exclude Out of Stock Products',  'nivo-ajax-search-for-woocommerce' ), __( 'Scope', 'nivo-ajax-search-for-woocommerce' ), __( 'Hides products that are out of stock from the results.', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_product_categories' => array( __( 'Show Category Results',          'nivo-ajax-search-for-woocommerce' ), __( 'Results', 'nivo-ajax-search-for-woocommerce' ), __( 'Adds matching product categories as links above the products.', 'nivo-ajax-search-for-woocommerce' ) ),
+                    'search_product_tags'       => array( __( 'Show Tag Results',               'nivo-ajax-search-for-woocommerce' ), __( 'Results', 'nivo-ajax-search-for-woocommerce' ), __( 'Adds matching product tags as links above the products.', 'nivo-ajax-search-for-woocommerce' ) ),
                 );
                 $last_key      = array_key_last( $config_toggles );
                 $current_group = '';
                 foreach ( $config_toggles as $key => $meta ) :
                     $checked  = checked( ! empty( $settings[ $key ] ), true, false );
                     $group    = $meta[1];
+                    $help     = isset( $meta[2] ) ? $meta[2] : '';
                     $is_last  = ( $key === $last_key );
                     if ( $group !== $current_group ) :
                         $current_group = $group;
@@ -290,6 +295,9 @@ class Search_Preset_CPT {
                 <div class="nivo-setting-row<?php echo $is_last ? ' nivo-setting-row--no-border' : ''; ?>">
                     <div class="nivo-setting-row__info">
                         <strong class="nivo-setting-row__title"><?php echo esc_html( $meta[0] ); ?></strong>
+                        <?php if ( '' !== $help ) : ?>
+                        <p class="nivo-setting-row__desc"><?php echo esc_html( $help ); ?></p>
+                        <?php endif; ?>
                     </div>
                     <div class="nivo-setting-row__control">
                         <label class="nivo-gs-toggle">
@@ -616,10 +624,11 @@ class Search_Preset_CPT {
 
             // 1. General Settings — merge form values over existing (preserves delay and future keys).
             $genarale_settings = array_merge( $existing_generale, array(
-                'limit'       => absint( $settings['limit'] ?? 10 ),
-                'min_chars'   => absint( $settings['min_chars'] ?? 2 ),
-                'placeholder' => sanitize_text_field( $settings['placeholder'] ?? '' ),
-                'delay'       => absint( $settings['delay'] ?? 300 ),
+                'limit'       => self::clamp( $settings['limit'] ?? 10, 1, 50, 10 ),
+                'min_chars'   => self::clamp( $settings['min_chars'] ?? 2, 1, 5, 2 ),
+                // An empty placeholder would also leave the input without an accessible name.
+                'placeholder' => sanitize_text_field( $settings['placeholder'] ?? '' ) ?: __( 'Search products...', 'nivo-ajax-search-for-woocommerce' ),
+                'delay'       => self::clamp( $settings['delay'] ?? 300, 0, 2000, 300 ),
             ) );
 
             // 2. Query Settings — merge form values over existing.
@@ -649,12 +658,12 @@ class Search_Preset_CPT {
 
             // 4. Style Settings — merge form values over existing.
             $style_settings = array_merge( $existing_style, array(
-                'bar_width'           => absint( $settings['bar_width'] ?? 600 ),
-                'bar_height'          => absint( $settings['bar_height'] ?? 50 ),
+                'bar_width'           => self::clamp( $settings['bar_width'] ?? 600, 150, 1400, 600 ),
+                'bar_height'          => self::clamp( $settings['bar_height'] ?? 50, 30, 100, 50 ),
                 'border_color'        => sanitize_hex_color( $settings['border_color'] ?? '#dddddd' ) ?: '#dddddd',
                 'bg_color'            => sanitize_hex_color( $settings['bg_color'] ?? '#ffffff' ) ?: '#ffffff',
                 'text_color'          => sanitize_hex_color( $settings['text_color'] ?? '#333333' ) ?: '#333333',
-                'results_width'       => absint( $settings['results_width'] ?? 600 ),
+                'results_width'       => self::clamp( $settings['results_width'] ?? 600, 150, 1400, 600 ),
                 'results_text_color'  => sanitize_hex_color( $settings['results_text_color'] ?? '#333333' ) ?: '#333333',
                 'results_border_color'=> sanitize_hex_color( $settings['results_border_color'] ?? '#dddddd' ) ?: '#dddddd',
                 'results_bg_color'    => sanitize_hex_color( $settings['results_bg_color'] ?? '#ffffff' ) ?: '#ffffff',
@@ -666,6 +675,132 @@ class Search_Preset_CPT {
             update_post_meta( $post_id, '_nivo_search_display',  $display_settings );
             update_post_meta( $post_id, '_nivo_search_style',    $style_settings );
         }
+    }
+
+    /**
+     * One line telling the store owner whether the fast index search is running.
+     *
+     * @since 2.0.8
+     * @return void
+     */
+    private function render_index_status() {
+        $state  = Index_Rebuilder::get_state();
+        $active = Index_Query::can_handle(
+            array(
+                'search_fields' => array( 'title' ),
+                'post_types'    => array( 'product' ),
+            )
+        );
+        $url    = admin_url( 'admin.php?page=nivo-search&tab=settings' );
+
+        if ( $active ) {
+            $class = 'notice-success';
+            $text  = __( 'Fast index search is on. Shoppers get quick results, even with a large catalog.', 'nivo-ajax-search-for-woocommerce' );
+        } elseif ( 'running' === $state['status'] ) {
+            $class = 'notice-info';
+            /* translators: 1: products indexed, 2: total products */
+            $text = sprintf( __( 'Building the fast search index in the background (%1$d of %2$d products). Search keeps working meanwhile.', 'nivo-ajax-search-for-woocommerce' ), (int) $state['processed'], (int) $state['total'] );
+        } else {
+            $class = 'notice-warning';
+            $text  = __( 'The fast search index is not built yet, so search is slower on large catalogs.', 'nivo-ajax-search-for-woocommerce' );
+        }
+        ?>
+        <div class="notice <?php echo esc_attr( $class ); ?> inline" style="margin:8px 0 12px;">
+            <p>
+                <?php echo esc_html( $text ); ?>
+                <?php if ( ! $active && 'running' !== $state['status'] ) : ?>
+                    <a href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Build it in Settings', 'nivo-ajax-search-for-woocommerce' ); ?></a>
+                <?php endif; ?>
+            </p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Add a "Duplicate" link to each preset in the list.
+     *
+     * @since 2.0.8
+     * @param array    $actions Row actions.
+     * @param \WP_Post $post    Post.
+     * @return array
+     */
+    public function add_duplicate_row_action( $actions, $post ) {
+        if ( 'nivo_search_preset' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+            return $actions;
+        }
+
+        $url = wp_nonce_url(
+            add_query_arg(
+                array(
+                    'action' => 'nivo_duplicate_preset',
+                    'post'   => $post->ID,
+                ),
+                admin_url( 'admin-post.php' )
+            ),
+            'nivo_duplicate_preset_' . $post->ID
+        );
+
+        $actions['nivo_duplicate'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Duplicate', 'nivo-ajax-search-for-woocommerce' ) . '</a>';
+
+        return $actions;
+    }
+
+    /**
+     * Create a copy of a preset (settings included) and open it for editing.
+     *
+     * @since 2.0.8
+     * @return void
+     */
+    public function handle_duplicate() {
+        $source_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+
+        check_admin_referer( 'nivo_duplicate_preset_' . $source_id );
+
+        $source = get_post( $source_id );
+        if ( ! $source || 'nivo_search_preset' !== $source->post_type || ! current_user_can( 'edit_post', $source_id ) ) {
+            wp_die( esc_html__( 'You are not allowed to duplicate this preset.', 'nivo-ajax-search-for-woocommerce' ), '', array( 'response' => 403 ) );
+        }
+
+        $new_id = wp_insert_post(
+            array(
+                'post_type'   => 'nivo_search_preset',
+                'post_status' => 'publish',
+                /* translators: %s: preset name */
+                'post_title'  => sprintf( __( '%s (copy)', 'nivo-ajax-search-for-woocommerce' ), $source->post_title ),
+            )
+        );
+
+        if ( is_wp_error( $new_id ) || ! $new_id ) {
+            wp_die( esc_html__( 'The preset could not be duplicated.', 'nivo-ajax-search-for-woocommerce' ) );
+        }
+
+        foreach ( array( '_nivo_search_generale', '_nivo_search_query', '_nivo_search_display', '_nivo_search_style' ) as $key ) {
+            $value = get_post_meta( $source_id, $key, true );
+            if ( '' !== $value && false !== $value ) {
+                update_post_meta( $new_id, $key, $value );
+            }
+        }
+
+        wp_safe_redirect( admin_url( 'post.php?post=' . (int) $new_id . '&action=edit' ) );
+        exit;
+    }
+
+    /**
+     * Whole number kept inside a range; anything non-numeric or out of range is corrected.
+     *
+     * @since 2.0.8
+     * @param mixed $value   Submitted value.
+     * @param int   $min     Smallest allowed value.
+     * @param int   $max     Largest allowed value.
+     * @param int   $default Value used when the input is not a number.
+     * @return int
+     */
+    public static function clamp( $value, $min, $max, $default ) {
+        if ( ! is_numeric( $value ) ) {
+            return (int) $default;
+        }
+
+        return max( (int) $min, min( (int) $max, (int) $value ) );
     }
 
     /**

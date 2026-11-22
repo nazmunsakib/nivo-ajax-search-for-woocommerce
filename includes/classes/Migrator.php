@@ -44,6 +44,9 @@ class Migrator {
 		// All methods called here are idempotent (IF NOT EXISTS / array_merge), so running
 		// them twice on a fresh install is completely safe.
 		'2.0.2' => 'migrate_to_2_0_2',
+		// 2.0.8: attribute search became a real free feature. Older presets stored the
+		// never-functional placeholder keys as 0, so switch it on once and drop the dead keys.
+		'2.0.8' => 'migrate_to_2_0_8',
 	);
 
 	/**
@@ -251,5 +254,39 @@ class Migrator {
 		self::migrate_to_1_3_0();
 		self::migrate_to_1_4_0();
 		self::migrate_to_1_5_0();
+	}
+
+	/**
+	 * 2.0.8: enable attribute search on existing presets and remove dead placeholder keys.
+	 *
+	 * Public so it can be exercised directly; safe to run more than once.
+	 *
+	 * @since 2.0.8
+	 * @return void
+	 */
+	public static function migrate_to_2_0_8() {
+		$presets = get_posts(
+			array(
+				'post_type'      => 'nivo_search_preset',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		foreach ( $presets as $preset_id ) {
+			$query = get_post_meta( $preset_id, '_nivo_search_query', true );
+			if ( ! is_array( $query ) ) {
+				continue;
+			}
+
+			if ( array_key_exists( 'search_in_attributes', $query ) && empty( $query['search_in_attributes'] ) ) {
+				$query['search_in_attributes'] = 1;
+			}
+
+			unset( $query['search_in_gtin'], $query['enable_synonyms'] );
+
+			update_post_meta( $preset_id, '_nivo_search_query', $query );
+		}
 	}
 }

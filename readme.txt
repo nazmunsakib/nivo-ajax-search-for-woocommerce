@@ -2,7 +2,7 @@
 
 Contributors: nazmunsakib
 Donate link: https://nivosearch.com
-Tags: woocommerce ajax search, woocommerce search, product search, live search, search plugin
+Tags: woocommerce ajax search, woocommerce search plugin, product search, live search, instant search
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -10,7 +10,7 @@ Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WooCommerce Ajax Search and WooCommerce Search plugin: instant results, typo tolerance, SKU, GTIN and attribute search, synonyms and ranking.
+WooCommerce Ajax Search with instant results, plus a WooCommerce search plugin with typo tolerance, SKU, GTIN and attribute search.
 
 == Description ==
 
@@ -22,9 +22,16 @@ Version 2.1.0 adds an index-first search engine, background indexing for large c
 
 [Live demo](https://nivosearch.com/live-demo/) | [Features](https://nivosearch.com/features/) | [Documentation](https://nivosearch.com/documentation/) | [WordPress.org support](https://wordpress.org/support/plugin/nivo-ajax-search-for-woocommerce/)
 
-= WooCommerce Search Plugin at a glance =
+= WooCommerce Ajax Search: instant results as customers type =
 
-* **What it is:** A free WooCommerce Search Plugin that adds WooCommerce Ajax Search (live product suggestions) to any store.
+* **Live results:** WooCommerce Ajax Search shows matching products in a dropdown while the customer types, with no page reload.
+* **Rich results:** Image, price, sale price, SKU, stock status, category labels and optional add to cart, in list, compact or grid layouts.
+* **Fast on any catalog:** Results come from a local product index and are cached, with a mobile full-screen overlay and keyboard and screen-reader support.
+* **Forgiving:** Typo correction, fuzzy matching, synonyms and a clickable "Did you mean?" suggestion.
+
+= WooCommerce Search Plugin: full control over product search =
+
+* **What it is:** A free WooCommerce search plugin that improves the search quality of the whole store, not only the dropdown.
 * **What it searches:** Product titles, descriptions, SKUs, variation SKUs, GTIN/EAN/UPC/ISBN codes, attributes, categories and tags.
 * **How it finds products:** An indexed engine with typo correction, fuzzy matching, accent-insensitive matching and synonyms.
 * **How it displays results:** List, compact or grid layouts with images, price, SKU, stock status and optional add to cart.

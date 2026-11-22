@@ -2,7 +2,7 @@
 
 Contributors: nazmunsakib
 Donate link: https://nivosearch.com
-Tags: woocommerce ajax search, woocommerce search plugin, product search, live search, instant search
+Tags: ajax search, woocommerce search plugin, product search, live search, instant search
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4

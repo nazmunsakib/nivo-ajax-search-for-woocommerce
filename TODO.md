@@ -161,3 +161,9 @@ Added, per preset (Style & Layout tab, "Layout" section with visual choices and 
 - Verified in the browser: all five bars, grid and compact on desktop, grid in the mobile overlay (2 columns), editor cards, instant live preview, saving through the real form, plain `[nivo_search id]` and the block output.
 Not done: an "expand on click" icon-only bar for headers; per-layout text options (button label); a horizontal-scroll "carousel" results layout; grid card count setting; layout choice in the block's own sidebar; layouts for the category/tag result sections (they keep the list style).
 Note: the Minimal bar ignores the preset's background colour (it is transparent by design).
+
+## L. Icon-only search bar, 2026-11-22 (branch `feat/icon-search-layout`)
+
+New search bar style **Icon only (opens on click)**: only a search icon is shown; clicking it opens the search box (and results) in a panel under the icon, right-aligned, so it suits headers. Closes on Escape (focus returns to the icon), a click outside, or another click on the icon; the icon is a real button (`aria-expanded`, Enter/Space work). On phones, focusing the input still opens the fullscreen overlay, and closing the overlay folds the panel away.
+Verified in the browser: closed state (icon only), open, results under the box, Escape / outside click / keyboard reopen, mobile overlay hand-off (focus event), editor card and live preview. 68 tests.
+Limits: the panel is as wide as the preset's bar width (max 92% of the screen); on a real phone the first tap on the icon opens the panel and focusing the box opens the overlay (not tested on a physical device); the results panel top assumes the bar height from the preset (set through the `--nivo-bar-h` variable).

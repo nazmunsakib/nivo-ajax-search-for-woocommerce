@@ -1259,10 +1259,69 @@
 
     // ── End Mobile Search Mode ─────────────────────────────────────────────
 
+    // ── "Icon only" bar: a search icon that opens the search box ───────────
+
+    function setIconSearchOpen(container, open) {
+        const toggle = container.querySelector('.nivo-search-toggle');
+        const input = container.querySelector(config.selectors.input);
+        container.classList.toggle('nivo-search-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        if (open && input) {
+            // After the box is visible, so the input can take focus.
+            window.setTimeout(function () { input.focus(); }, 0);
+        }
+    }
+
+    function closeAllIconSearches(exceptContainer) {
+        document.querySelectorAll('.nivo-bar-icon.nivo-search-open').forEach(function (container) {
+            if (container !== exceptContainer) {
+                setIconSearchOpen(container, false);
+            }
+        });
+    }
+
+    function initIconSearch() {
+        document.addEventListener('click', function (event) {
+            const toggle = event.target.closest ? event.target.closest('.nivo-search-toggle') : null;
+            const container = toggle ? toggle.closest('.nivo-bar-icon') : null;
+
+            if (container) {
+                const willOpen = !container.classList.contains('nivo-search-open');
+                closeAllIconSearches(container);
+                setIconSearchOpen(container, willOpen);
+                return;
+            }
+
+            // A click anywhere outside an open icon search closes it.
+            document.querySelectorAll('.nivo-bar-icon.nivo-search-open').forEach(function (open) {
+                if (!open.contains(event.target)) {
+                    setIconSearchOpen(open, false);
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key !== 'Escape') return;
+            document.querySelectorAll('.nivo-bar-icon.nivo-search-open').forEach(function (container) {
+                setIconSearchOpen(container, false);
+                const toggle = container.querySelector('.nivo-search-toggle');
+                if (toggle) toggle.focus();
+            });
+        });
+
+        // On phones the fullscreen overlay takes over; fold the box away when it closes.
+        document.addEventListener('nivo_search:mobileOverlayClosed', function () {
+            closeAllIconSearches(null);
+        });
+    }
+
     /**
      * Initialize search functionality
      */
     function init() {
+        initIconSearch();
         // Event delegation for input events
         document.addEventListener('input', function (event) {
             if (event.target.matches && event.target.matches(config.selectors.input)) {

@@ -125,6 +125,9 @@
 	function setBarLayout( layout ) {
 		if ( ! barWrapper ) { return; }
 		barWrapper.className = barWrapper.className.replace( /nivo-search-bar-[a-z-]+/g, '' ).trim() + ' nivo-search-bar-' + layout;
+		// "Icon only": show the icon button above the (already open) box.
+		pvContainer.classList.toggle( 'nivo-bar-icon', layout === 'icon' );
+		pvContainer.classList.toggle( 'nivo-search-open', layout === 'icon' );
 	}
 
 	settingsCol.addEventListener( 'change', function ( e ) {

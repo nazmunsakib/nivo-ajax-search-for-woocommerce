@@ -539,7 +539,8 @@ class Search_Preset_CPT {
                     ?>
 
                     <!-- Real frontend markup — styled by nivo-search.css exactly as on site -->
-                    <div class="nivo-ajax-search-container nivo-search-has-results nivo-results-layout-<?php echo esc_attr( Helper::sanitize_results_layout( $settings['results_layout'] ) ); ?>" id="nivo-pv-container">
+                    <div class="nivo-ajax-search-container nivo-search-has-results nivo-results-layout-<?php echo esc_attr( Helper::sanitize_results_layout( $settings['results_layout'] ) ); ?><?php echo 'icon' === Helper::sanitize_bar_layout( $settings['search_bar_layout'] ) ? ' nivo-bar-icon nivo-search-open' : ''; ?>" id="nivo-pv-container">
+                        <?php echo Helper::get_icon_toggle_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup. ?>
 
                         <!-- Search bar (identical structure to frontend shortcode output) -->
                         <div class="nivo-search-form">
@@ -848,6 +849,7 @@ class Search_Preset_CPT {
                 'pill'      => '<rect x="3" y="11" width="74" height="18" rx="9" ' . $c . '/>' . $glass( 62 ),
                 'button'    => '<rect x="3" y="11" width="74" height="18" rx="3" ' . $c . '/><rect x="57" y="11" width="20" height="18" rx="3" ' . $f . ' opacity=".85"/>',
                 'minimal'   => '<line x1="3" y1="29" x2="77" y2="29" ' . $c . '/><line x1="6" y1="20" x2="36" y2="20" ' . $c . '/>' . $glass( 64 ),
+                'icon'      => '<circle cx="62" cy="9" r="6" ' . $c . '/><circle cx="62" cy="9" r="2" ' . $c . '/><rect x="14" y="19" width="62" height="14" rx="3" ' . $c . '/><line x1="19" y1="26" x2="44" y2="26" ' . $c . '/>',
             ),
             'results' => array(
                 'list'    => '<rect x="4" y="5" width="9" height="9" rx="1.5" ' . $f . ' opacity=".5"/><line x1="17" y1="8" x2="50" y2="8" ' . $c . '/><line x1="17" y1="12" x2="38" y2="12" ' . $c . '/><rect x="4" y="16" width="9" height="9" rx="1.5" ' . $f . ' opacity=".5"/><line x1="17" y1="19" x2="50" y2="19" ' . $c . '/><line x1="17" y1="23" x2="38" y2="23" ' . $c . '/><rect x="4" y="27" width="9" height="9" rx="1.5" ' . $f . ' opacity=".5"/><line x1="17" y1="30" x2="50" y2="30" ' . $c . '/><line x1="17" y1="34" x2="38" y2="34" ' . $c . '/>',

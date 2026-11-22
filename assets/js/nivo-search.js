@@ -697,7 +697,9 @@
         // An empty <a> would still occupy space in the flex row.
         const imageLinkHtml = (showImages && product.image)
             ? `<a href="${escapeHtml(product.url)}" class="nivo-search-product-link" tabindex="-1" aria-hidden="true"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" class="nivo-search-product-image" loading="lazy" width="60" height="60"></a>`
-            : '';
+            : (showImages
+                ? '<span class="nivo-search-no-image" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>'
+                : '');
 
         // Title (with inline SKU immediately after title text)
         const highlightedTitle = highlightKeywords(product.title, query);
@@ -706,8 +708,13 @@
             : '';
 
         // Price — current selling price only (no strikethrough regular/sale HTML)
+        // On sale: the regular price struck through above the current one. Variable
+        // products with a price range get a small "From" label.
         const priceHtml = (showPrice && product.current_price)
-            ? `<span class="nivo-search-product-price">${product.current_price}</span>`
+            ? `<span class="nivo-search-product-price${product.is_on_sale ? ' nivo-search-price-sale' : ''}">`
+                + (product.price_from ? `<span class="nivo-search-price-from">${escapeHtml((window.nivo_search && window.nivo_search.strings && window.nivo_search.strings.price_from) || 'From')}</span>` : '')
+                + (product.is_on_sale && product.regular_price ? `<span class="nivo-search-price-old">${product.regular_price}</span>` : '')
+                + `<span class="nivo-search-price-now">${product.current_price}</span></span>`
             : '';
 
         // Description

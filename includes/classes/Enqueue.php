@@ -231,6 +231,7 @@ class Enqueue {
 					'added_to_cart' => esc_html__( 'Added!', 'nivo-ajax-search-for-woocommerce' ),
 					/* translators: %s is the suggested corrected search query */
 					'did_you_mean'  => esc_html__( 'Did you mean: %s?', 'nivo-ajax-search-for-woocommerce' ),
+					'price_from'    => esc_html__( 'From', 'nivo-ajax-search-for-woocommerce' ),
 				),
 				'settings'    => array( // Default settings
 					'min_chars' => 2,

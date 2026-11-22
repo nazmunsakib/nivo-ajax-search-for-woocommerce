@@ -1,4 +1,4 @@
-=== NivoSearch – WooCommerce Ajax Search & WooCommerce Search Plugin ===
+=== NivoSearch – Ajax Search for WooCommerce ===
 
 Contributors: nazmunsakib
 Donate link: https://nivosearch.com

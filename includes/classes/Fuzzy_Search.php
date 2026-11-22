@@ -64,6 +64,10 @@ class Fuzzy_Search {
 		$all_product_ids = array();
 		$corrections     = array(); // original_word => corrected_word
 
+		// Only look in the fields the preset searches (otherwise a "Search in description"
+		// switch that is off would still be bypassed by this fallback).
+		$labels = self::field_labels( $args );
+
 		foreach ( $tokens as $token ) {
 			$token_len = strlen( $token );
 
@@ -76,7 +80,7 @@ class Fuzzy_Search {
 			$max_dist = $token_len <= 5 ? 1 : $global_max_dist;
 
 			// Step 1: Narrow candidates via SQL (prefix of first 2 chars + length window).
-			$candidates = $this->get_candidate_tokens( $token, $table );
+			$candidates = $this->get_candidate_tokens( $token, $table, $labels );
 			if ( empty( $candidates ) ) {
 				continue;
 			}
@@ -93,7 +97,7 @@ class Fuzzy_Search {
 			}
 
 			// Step 3: Fetch product IDs for the matched token.
-			$ids             = $this->get_products_for_token( $best['token'], $table, $args );
+			$ids             = $this->get_products_for_token( $best['token'], $table, $args, $labels );
 			$all_product_ids = array_merge( $all_product_ids, $ids );
 		}
 
@@ -121,6 +125,46 @@ class Fuzzy_Search {
 	}
 
 	/**
+	 * Index fields that match the preset's search scope.
+	 *
+	 * Categories and tags are included only when the preset shows category / tag results.
+	 * Without a scope in $args (legacy callers) every field is searched.
+	 *
+	 * @since 2.0.8
+	 * @param array $args Search arguments.
+	 * @return string[] Index field labels, or an empty array for "all fields".
+	 */
+	private static function field_labels( $args ) {
+		if ( empty( $args['search_fields'] ) ) {
+			return array();
+		}
+
+		$map    = array(
+			'title'      => 'title',
+			'sku'        => 'sku',
+			'content'    => 'content',
+			'excerpt'    => 'content',
+			'attributes' => 'attribute',
+		);
+		$labels = array();
+
+		foreach ( (array) $args['search_fields'] as $field ) {
+			if ( isset( $map[ $field ] ) ) {
+				$labels[ $map[ $field ] ] = true;
+			}
+		}
+
+		if ( ! empty( $args['search_product_categories'] ) ) {
+			$labels['category'] = true;
+		}
+		if ( ! empty( $args['search_product_tags'] ) ) {
+			$labels['tag'] = true;
+		}
+
+		return array_keys( $labels );
+	}
+
+	/**
 	 * Fetch candidate index tokens for a given query token.
 	 *
 	 * Uses a two-clause prefix query, both covered by idx_token:
@@ -133,7 +177,7 @@ class Fuzzy_Search {
 	 * @param string $table Full table name.
 	 * @return string[] Array of candidate tokens.
 	 */
-	private function get_candidate_tokens( $token, $table ) {
+	private function get_candidate_tokens( $token, $table, $labels = array() ) {
 		global $wpdb;
 
 		$len = strlen( $token );
@@ -144,17 +188,17 @@ class Fuzzy_Search {
 		$prefix  = $wpdb->esc_like( substr( $token, 0, 2 ) ) . '%';
 		$swapped = $wpdb->esc_like( strrev( substr( $token, 0, 2 ) ) ) . '%';
 
+		$field_sql = empty( $labels ) ? '' : 'AND field IN (' . implode( ',', array_fill( 0, count( $labels ), '%s' ) ) . ')';
+
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT DISTINCT token FROM {$table}
 				 WHERE ( token LIKE %s OR token LIKE %s )
 				   AND CHAR_LENGTH(token) BETWEEN %d AND %d
+				   {$field_sql}
 				 LIMIT 300",
-				$prefix,
-				$swapped,
-				max( 1, $len - 2 ),
-				$len + 2
+				array_merge( array( $prefix, $swapped, max( 1, $len - 2 ), $len + 2 ), $labels )
 			)
 		);
 
@@ -211,18 +255,19 @@ class Fuzzy_Search {
 	 * @param array  $args  Search arguments.
 	 * @return int[] Array of published product IDs.
 	 */
-	private function get_products_for_token( $token, $table, $args ) {
+	private function get_products_for_token( $token, $table, $args, $labels = array() ) {
 		global $wpdb;
 
 		$like  = $wpdb->esc_like( $token ) . '%';
 		$limit = isset( $args['limit'] ) ? (int) $args['limit'] : 10;
 
+		$field_sql = empty( $labels ) ? '' : 'AND field IN (' . implode( ',', array_fill( 0, count( $labels ), '%s' ) ) . ')';
+
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT DISTINCT product_id FROM {$table} WHERE token LIKE %s LIMIT %d",
-				$like,
-				$limit
+				"SELECT DISTINCT product_id FROM {$table} WHERE token LIKE %s {$field_sql} LIMIT %d",
+				array_merge( array( $like ), $labels, array( $limit ) )
 			)
 		);
 

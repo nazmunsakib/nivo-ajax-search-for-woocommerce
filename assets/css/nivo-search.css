@@ -1217,6 +1217,11 @@ ul.nivo-search-tags-list {
     margin: 0;
     top: calc(100% + 6px + var(--nivo-bar-h, 50px) + 6px);
 }
+.nivo-bar-icon.nivo-open-start .nivo-search-form-wrapper,
+.nivo-bar-icon.nivo-open-start .nivo-search-results {
+    left: 0;
+    right: auto;
+}
 /* Editor preview: show the icon above an already-open box, in normal flow. */
 .nivo-preset-preview .nivo-bar-icon {
     display: block;

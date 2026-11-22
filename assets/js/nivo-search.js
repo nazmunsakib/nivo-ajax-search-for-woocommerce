@@ -1272,6 +1272,12 @@
         const toggle = container.querySelector('.nivo-search-toggle');
         const input = container.querySelector(config.selectors.input);
         container.classList.toggle('nivo-search-open', open);
+        if (open) {
+            // The box is right-aligned to the icon. When the icon sits near the left edge of the
+            // page that would push it off-screen, so open it to the right instead.
+            const panel = Math.min(600, window.innerWidth * 0.92);
+            container.classList.toggle('nivo-open-start', container.getBoundingClientRect().right - panel < 8);
+        }
         if (toggle) {
             toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         }

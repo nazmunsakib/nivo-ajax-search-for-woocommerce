@@ -57,7 +57,7 @@ Correction to my earlier message: search already prefers `wc-ajax` over `admin-a
 
 ## E. P1 — accessibility and compatibility
 
-- [~] WCAG 2.1 AA — DONE and browser-verified 2026-11-21 (`assets/js/nivo-search-a11y.js`): combobox/listbox/option roles, `aria-activedescendant`, ArrowUp/Down/Home/End, Enter opens, Escape closes, separate polite status announcement, listbox no longer a live region. STILL OPEN: mobile overlay keyboard/focus trap, focus management, contrast audit, screen-reader testing (VoiceOver/NVDA), full WCAG audit. Original item: combobox/listbox roles, `aria-activedescendant`, full keyboard nav, focus management in the mobile overlay, screen-reader announcements, contrast.
+- [~] WCAG 2.1 AA — DONE and browser-verified 2026-11-21 (`assets/js/nivo-search-a11y.js`): combobox/listbox/option roles, `aria-activedescendant`, ArrowUp/Down/Home/End, Enter opens, Escape closes, separate polite status announcement, listbox no longer a live region. Active result now has a visible outline (found missing during the 2026-11-22 full check). STILL OPEN: mobile overlay keyboard/focus trap, focus management, contrast audit, screen-reader testing (VoiceOver/NVDA), full WCAG audit. Original item: combobox/listbox roles, `aria-activedescendant`, full keyboard nav, focus management in the mobile overlay, screen-reader announcements, contrast.
 - [ ] Test with block themes, popular classic themes, Elementor/Divi, and caching plugins (WP Rocket, LiteSpeed).
 - [ ] Verify WPML / Polylang with real installs.
 
@@ -136,3 +136,9 @@ FREE, still to build: simple ranking toggles ("Best sellers first", "Newest", "I
 PRO (planned): unlimited merchandising rules + scheduling; custom ranking weights and boost values; full analytics (history, click-through, search-to-revenue, export); unlimited synonyms/typo rules; REST API, WP-CLI, template overrides; external engine adapter; B2B customer-group visibility; multi-vendor support.
 
 Open: nothing on `main` is gated yet. Merchandising, ranking weights, REST API and WP-CLI are currently ungated in code; decide and gate them before the next release (never remove a free feature after shipping it).
+
+## I. Full feature check, 2026-11-22 (dev site, 1,030 products + temporary test products, since removed)
+
+PASS: 53 unit tests; PHPCS (0 errors, 13 warnings); PHP and JS syntax; all 9 admin screens load without PHP notices; AJAX and REST search (single word, multi-word, prefix, typo + "Did you mean?" + click, no match, SKU, GTIN full and prefix, attribute value, custom synonyms, visibility: hidden / shop-only / password); out-of-stock exclusion; legacy (no-index) path; merchandising pin / bury / redirect; results-page redirect to shop; REST status codes; rate limit (117 allowed, 13 blocked of 130); cache bump on save; core-search fallback; mobile overlay rendering, add-to-cart (item landed in the WooCommerce cart), search history, desktop dropdown and keyboard navigation; no new PHP/nginx errors, no new PHP-FPM crashes.
+FOUND AND FIXED: (1) the "Excluded products" setting was ignored on the index path (WP_Query skips post__not_in when post__in is set); (2) the keyboard-active result had no visible highlight.
+NOT TESTED: WPML/Polylang, other themes and page builders, variation-SKU search on real data (the dev catalog has no variation SKUs), large catalogs after these changes, screen readers, WP-Cron-less hosting, MySQL versions other than 8.4/CI's 8.0.

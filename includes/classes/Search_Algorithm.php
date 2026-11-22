@@ -381,6 +381,10 @@ class Search_Algorithm {
      * @return \WP_Post[]
      */
     private function load_products_by_ids( $ids, $args ) {
+        // WP_Query ignores post__not_in when post__in is set, so remove excluded
+        // products from the candidate list here.
+        $ids = array_values( array_diff( array_map( 'intval', (array) $ids ), array_map( 'intval', (array) $args['excluded_products'] ) ) );
+
         if ( empty( $ids ) ) {
             return array();
         }
@@ -389,7 +393,6 @@ class Search_Algorithm {
             'post_type'              => $args['post_types'],
             'post_status'            => $args['post_status'],
             'post__in'               => $ids,
-            'post__not_in'           => $args['excluded_products'],
             'orderby'                => 'post__in',
             'posts_per_page'         => count( $ids ),
             'has_password'           => false,

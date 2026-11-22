@@ -998,3 +998,16 @@ ul.nivo-search-tags-list {
         overflow: hidden;
     }
 }
+/* Keyboard navigation: visible highlight for the active result (WCAG 2.4.7). */
+.nivo-search-results .nivo-search-option-active,
+.nivo-search-results [role="option"].nivo-search-option-active {
+    background-color: #eef4ff;
+    outline: 2px solid #2271b1;
+    outline-offset: -2px;
+}
+
+@media (forced-colors: active) {
+    .nivo-search-results .nivo-search-option-active {
+        outline: 2px solid Highlight;
+    }
+}

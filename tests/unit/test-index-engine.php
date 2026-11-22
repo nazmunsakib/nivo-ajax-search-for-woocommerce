@@ -95,6 +95,19 @@ class Test_Index_Engine extends WP_UnitTestCase {
 		$this->assertNotContains( 'Quokkaxyz Hidden', $titles );
 	}
 
+	public function test_excluded_products_are_hidden_on_the_index_path() {
+		$keep    = $this->make_product( 'Exclusionz Keep' );
+		$exclude = $this->make_product( 'Exclusionz Drop' );
+
+		$algorithm = new NivoSearch\Search_Algorithm();
+		$result    = $algorithm->search( 'exclusionz', array( 'limit' => 20, 'excluded_products' => array( $exclude ) ) );
+		$titles    = wp_list_pluck( $result['products'], 'post_title' );
+
+		$this->assertContains( 'Exclusionz Keep', $titles );
+		$this->assertNotContains( 'Exclusionz Drop', $titles );
+		$this->assertGreaterThan( 0, $keep );
+	}
+
 	public function test_mid_word_matches_only_work_on_the_legacy_path() {
 		$this->make_product( 'Premium Hoodie' );
 

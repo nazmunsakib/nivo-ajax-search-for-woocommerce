@@ -2,8 +2,8 @@
 /**
  * Plugin Name: NivoSearch
  * Plugin URI: https://nivosearch.com
- * Description: WooCommerce Ajax Search with live product suggestions, typo correction, fuzzy search, and SKU matching.
- * Version: 2.0.7
+ * Description: WooCommerce Ajax Search with instant results, typo tolerance, SKU, GTIN and attribute search, synonyms, and ranking controls.
+ * Version: 2.1.0
  * Author: Nazmun Sakib
  * Author URI: https://nazmunsakib.com
  * License: GPL v2 or later
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'NIVO_SEARCH_VERSION', '2.0.7' );
+define( 'NIVO_SEARCH_VERSION', '2.1.0' );
 define( 'NIVO_SEARCH_PLUGIN_FILE', __FILE__ );
 define( 'NIVO_SEARCH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NIVO_SEARCH_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

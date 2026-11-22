@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: NivoSearch
+ * Plugin Name: NivoSearch – WooCommerce Ajax Search & WooCommerce Search Plugin
  * Plugin URI: https://nivosearch.com
- * Description: WooCommerce Ajax Search with instant results, typo tolerance, SKU, GTIN and attribute search, synonyms, and ranking controls.
+ * Description: WooCommerce Ajax Search and WooCommerce Search plugin: instant results, typo tolerance, SKU, GTIN and attribute search, synonyms and ranking.
  * Version: 2.1.0
  * Author: Nazmun Sakib
  * Author URI: https://nazmunsakib.com
